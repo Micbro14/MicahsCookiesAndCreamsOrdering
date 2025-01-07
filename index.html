@@ -1435,7 +1435,7 @@
         document.addEventListener('DOMContentLoaded', () => {
 
             // retrieve the workbook data
-            fetch('http://127.0.0.1:5500/Ice Cream Master Document.xlsm') // Adjust URL as needed 
+            fetch('Ice Cream Master Document.xlsm') // Adjust URL as needed 
             .then(response => response.arrayBuffer()) 
             .then(data => { 
                 workbook = XLSX.read(data, {type: 'array'});   
