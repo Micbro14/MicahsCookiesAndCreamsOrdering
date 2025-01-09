@@ -13,18 +13,19 @@
     }
 
     .featured-group {
-        background-color: #ffeb3b; /* Bright yellow background */
-        border: 2px solid #fbc02d; /* Darker yellow border */
+        background-color: #e0f7fa; /* Light cyan background */
+        border: 4px solid #00acc1; /* Cyan border */
         padding: 10px;
         margin-bottom: 20px;
         border-radius: 5px;
     }
 
     .featured-group h3 {
-        color: #d32f2f; /* Red color for the header text */
+        color: #00796b; /* Teal color for the header text */
         font-weight: bold;
         text-transform: uppercase;
     }
+
     
     .modal-body .row {
         display: flex;
@@ -172,6 +173,127 @@
         cursor: pointer;
      }
 
+     body {
+        background: linear-gradient(135deg, #00c6ff, #0072ff, #00c6ff);
+        /* Fallback for older browsers */
+        background: -webkit-linear-gradient(135deg, #00c6ff, #0072ff, #00c6ff);
+        background: -moz-linear-gradient(135deg, #00c6ff, #0072ff, #00c6ff);
+        background: -o-linear-gradient(135deg, #00c6ff, #0072ff, #00c6ff);
+        background: -ms-linear-gradient(135deg, #00c6ff, #0072ff, #00c6ff);
+    }
+
+    body.dark-mode {
+        background: linear-gradient(135deg, #333333, #000000, #333333);
+        /* Fallback for older browsers */
+        background: -webkit-linear-gradient(135deg, #333333, #000000, #333333);
+        background: -moz-linear-gradient(135deg, #333333, #000000, #333333);
+        background: -o-linear-gradient(135deg, #333333, #000000, #333333);
+        background: -ms-linear-gradient(135deg, #333333, #000000, #333333);
+    }
+
+    
+    h2, h3 {
+        color: white; /* Default color for larger screens */
+        text-shadow: 1px 1px 2px #333333; /* Dark gray outline */
+    }
+
+    @media (max-width: 768px) {
+        h2, h3 {
+            color: black; /* Black text for mobile devices */
+            text-shadow: none; /* Remove the outline for mobile */
+        }
+    }
+
+
+    .logo {
+         max-width: 200px; /* Adjust the value as needed */ 
+         width: 50%; 
+         height: auto; 
+    } 
+
+    .btn-craft-flavor { 
+        background: linear-gradient(135deg, #ff7e5f, #feb47b); 
+        border: none; 
+        color: #ffffff; 
+        font-size: 3rem; /* Increase the font size */ 
+        padding: 20px 40px; /* Increase padding */ 
+        border-radius: 10px; 
+        transition: background 0.3s ease; 
+    }
+
+    .btn-craft-flavor:hover 
+    { 
+        background: linear-gradient(135deg, #feb47b, #ff7e5f); 
+    }
+
+    body.dark-mode {
+        background: linear-gradient(135deg, #333333, #000000, #333333);
+        /* Fallback for older browsers */
+        background: -webkit-linear-gradient(135deg, #333333, #000000, #333333);
+        background: -moz-linear-gradient(135deg, #333333, #000000, #333333);
+        background: -o-linear-gradient(135deg, #333333, #000000, #333333);
+        background: -ms-linear-gradient(135deg, #333333, #000000, #333333);
+        color: #ffffff;
+    }
+
+    .dark-mode .btn-primary {
+        background-color: #1a73e8;
+        border-color: #1a73e8;
+    }
+
+    .dark-mode .btn-secondary {
+        background-color: #333333;
+        border-color: #333333;
+    }
+
+    .dark-mode .card {
+        background-color: #1e1e1e;
+        color: #ffffff;
+    }
+
+    .dark-mode h2, .dark-mode h3 {
+        color: #ffffff;
+    }
+
+    .dark-mode .modal-content {
+        background-color: #1e1e1e;
+        color: #ffffff;
+    }
+
+    .dark-mode .modal-header, .dark-mode .modal-body, .dark-mode .modal-footer {
+        border-color: #333333;
+    }
+
+    .btn-dark-mode {
+        background-color: #444444;
+        color: #ffffff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-dark-mode:hover {
+        background-color: #555555;
+    }
+
+    .dark-mode .btn-dark-mode {
+        background-color: #ffffff;
+        color: #444444;
+    }
+
+    .dark-mode .btn-dark-mode:hover {
+        background-color: #dddddd;
+    }
+
+    .dark-mode th, .dark-mode td { 
+        border-color: #333333;
+        color: #ffffff; /* Text color for table headers and cells */
+    }
+
+
+
 </style>
 
 
@@ -182,24 +304,28 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 
 <body>
     <div class="container mt-4">
         <div class="row">
-            <div class="col-md-8">
-                <button class="btn btn-primary btn-block mb-3 btn-lg" data-toggle="modal"
-                    data-target="#customizeModal">Craft A Flavor</button>
+            <div class="col-12 text-center">
+                <img src="Images/Micah's Cookies and Creams Final.png" alt="Micah's Cookies and Creams Logo" class="img-fluid mb-4 logo">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <button class="btn-craft-flavor btn-block mb-3 bsb-btn-5xl" data-toggle="modal" data-target="#customizeModal"> Craft A Flavor </button>
                 <h2>Pick A Flavor</h2>
                 <div class="row" id="flavor-cards">
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="fixed-top text-right p-3">
-                    <button class="btn btn-secondary" type="button" onclick="toggleCart()">
-                        Shopping Cart
-                    </button>
-                </div>
+            <div class="fixed-top text-right p-3">
+                <button class="btn btn-dark" id="darkModeToggle">Toggle Dark Mode</button>
+                <button class="btn btn-secondary" type="button" onclick="toggleCart()">
+                    <i class="fas fa-shopping-cart"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -213,7 +339,7 @@
             </ul>
             <p class="mt-2">Total: $<span id="total-price">0.00</span></p>
         </div>
-    </div>  
+    </div>
 
     <!-- Flavor Card Template -->
     <template id="flavor-card-template">
@@ -270,10 +396,10 @@
                                 </div>
                                 <h5>Milk Types</h5>
                                 <div class="form-group mb-3"> 
-                                    <label for="iceCreamBase">Pick An Ice Cream Base</label> 
-                                    <div class="d-flex align-items-center">
-                                        <select class="form-control" id="iceCreamBase" onchange="updateMilkTypes(this.value)"></select>
-                                    </div>
+                                    <label for="iceCreamBase">Pick An Ice Cream Base</label>                          
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <select class="form-control" id="iceCreamBase" onchange="updateMilkTypes(this.value)"></select>
                                 </div>
                                 <div class="form-group mb-3"> 
                                     <label for="milkType1">Pick Your Primary Milk Type</label> 
@@ -428,7 +554,7 @@
     <template id="cart-item-template">
         <div class="cart-item">
             <h5 class="cart-item-name"></h5>
-            <span class="cart-item-price"></span>
+            <span class="cart-item-price" style="display: block; font-size: 1.25rem;"></span>
             <button class="btn btn-link" type="button" onclick="toggleTable(this)">
                 Show/Hide Ingredients
             </button>            
@@ -491,7 +617,6 @@
                 </table>
             </div>
             <div class="form-group">
-                <label>Quantity</label>
                 <div class="input-group mb-3">
                     <div class="input-group-prepend">
                         <button class="btn btn-outline-secondary quantity-btn" type="button" onclick="decreaseQuantity(this); updateTotalPrice();">-</button>
@@ -501,10 +626,10 @@
                         <button class="btn btn-outline-secondary quantity-btn" type="button" onclick="increaseQuantity(this); updateTotalPrice();">+</button>
                     </div>
                 </div>
-            </div>
+            </div>            
             <div class="d-flex justify-content-center">
-                <button type="button" class="btn btn-secondary btn-sm" onclick="editCartItem(this)">Edit</button>
-                <button type="button" class="btn btn-danger btn-sm" onclick="removeCartItem(this)">Remove</button>
+                <button type="button" class="btn btn-secondary btn-sm w-100" onclick="editCartItem(this)">Edit</button>
+                <button type="button" class="btn btn-danger btn-sm w-100" onclick="removeCartItem(this)">Remove</button>
             </div>
         </div>
     </template>
@@ -757,187 +882,188 @@
         }
 
         function populateFlavorCards(sheetName) {
-    var worksheet = workbook.Sheets[sheetName]; 
-    var specsWorksheet = workbook.Sheets["Specs"]; 
+            var worksheet = workbook.Sheets[sheetName]; 
+            var specsWorksheet = workbook.Sheets["Specs"]; 
 
-    var flavorCardsContainer = document.getElementById('flavor-cards');
-    flavorCardsContainer.innerHTML = ''; // Clear existing flavor cards
+            var flavorCardsContainer = document.getElementById('flavor-cards');
+            flavorCardsContainer.innerHTML = ''; // Clear existing flavor cards
 
-    var currentGroup = null;
-    var featuredGroup = null;
+            var currentGroup = null;
+            var featuredGroup = null;
 
-    // get size values
-    // Handle size options as buttons
-    var sizeOptions = [];
+            // get size values
+            // Handle size options as buttons
+            var sizeOptions = [];
 
-    for (var i = 2; i <= Object.keys(specsWorksheet).length; i++) { // Skip header row 
-        var cellAddress = `${"A"}${i}`; 
-        var cell = specsWorksheet[cellAddress]; 
-        if (cell && cell.v) { 
-            sizeOptions.push(cell.v);
-        }
-    }
-
-    for (var i = 2; i <= Object.keys(worksheet).length; i++) { // Skip header row 
-        var flavorCellAddress = `A${i}`; 
-        var priceCellAddress = `AJ${i}`; 
-        var imageCellAddress = `A${i}`; 
-
-        var flavorCell = worksheet[flavorCellAddress]; 
-        var priceCell = worksheet[priceCellAddress]; 
-        var imageCell = worksheet[imageCellAddress]; 
-        if (flavorCell && flavorCell.v){
-            var flavor = flavorCell.v; 
-
-            if (flavor === "_NOT FEATURED") 
-            { 
-                break; // End the loop if the flavor is "_NOT FEATURED" 
+            for (var i = 2; i <= Object.keys(specsWorksheet).length; i++) { // Skip header row 
+                var cellAddress = `${"A"}${i}`; 
+                var cell = specsWorksheet[cellAddress]; 
+                if (cell && cell.v) { 
+                    sizeOptions.push(cell.v);
+                }
             }
 
-            if (flavor.startsWith('_')) {
-                if (flavor.includes("FEATURED:")) {
-                    // Create a new featured group header
-                    featuredGroup = document.createElement('div'); 
-                    featuredGroup.className = 'row flavor-group featured-group'; 
+            for (var i = 2; i <= Object.keys(worksheet).length; i++) { // Skip header row 
+                var flavorCellAddress = `A${i}`; 
+                var priceCellAddress = `AJ${i}`; 
+                var imageCellAddress = `A${i}`; 
 
-                    // Create a sticky header
-                    var header = document.createElement('div');
-                    header.className = 'sticky-header';
-                    header.innerHTML = `<h3 class="col-12">${flavor.substring(1)}</h3>`;
-                    featuredGroup.appendChild(header);
+                var flavorCell = worksheet[flavorCellAddress]; 
+                var priceCell = worksheet[priceCellAddress]; 
+                var imageCell = worksheet[imageCellAddress]; 
+                if (flavorCell && flavorCell.v){
+                    var flavor = flavorCell.v; 
 
-                    flavorCardsContainer.insertAdjacentElement('afterbegin', featuredGroup);
-                } else {
-                    // Create a new group header
-                    featuredGroup = null;
-                    currentGroup = document.createElement('div'); 
-                    currentGroup.className = 'row flavor-group'; 
+                    if (flavor === "_NOT FEATURED") 
+                    { 
+                        break; // End the loop if the flavor is "_NOT FEATURED" 
+                    }
 
-                    // Create a sticky header
-                    var header = document.createElement('div');
-                    header.className = 'sticky-header';
-                    header.innerHTML = `<h3 class="col-12">${flavor.substring(1)}</h3>`;
-                    currentGroup.appendChild(header);
+                    if (flavor.startsWith('_')) {
+                        if (flavor.includes("FEATURED:")) {
+                                // Create a new featured group header
+                                featuredGroup = document.createElement('div'); 
+                                featuredGroup.className = 'row flavor-group featured-group'; 
 
-                    flavorCardsContainer.appendChild(currentGroup);
-                }
+                                // Create a sticky header
+                                var header = document.createElement('div');
+                                header.className = 'sticky-header';
+                                header.innerHTML = `<h3 class="col-12">${flavor.replace("FEATURED:", "").trim().substring(1)}</h3>`;
+                                featuredGroup.appendChild(header);
 
-            } else {
-                if (priceCell && priceCell.v && imageCell && imageCell.v) { 
-                    var price = calculateCustomizePriceFromFlavor(sizeOptions[0],flavor);
-                    var imageUrl = `images/${imageCell.v}.png`;
+                                flavorCardsContainer.insertAdjacentElement('afterbegin', featuredGroup);
+                            }
+                            else {
+                            // Create a new group header
+                            featuredGroup = null;
+                            currentGroup = document.createElement('div'); 
+                            currentGroup.className = 'row flavor-group'; 
 
-                    // Clone the template
-                    var template = document.getElementById('flavor-card-template');
-                    var clone = template.content.cloneNode(true);
+                            // Create a sticky header
+                            var header = document.createElement('div');
+                            header.className = 'sticky-header';
+                            header.innerHTML = `<h3 class="col-12">${flavor.substring(1)}</h3>`;
+                            currentGroup.appendChild(header);
 
-                    // Populate the clone with data
-                    clone.querySelector('.card-img-top').src = imageUrl;
-                    clone.querySelector('.card-img-top').alt = flavor;
-                    clone.querySelector('.card-title').textContent = flavor;
-                    clone.querySelector('.card-price').textContent = `$${price}`;
-
-                    // Create a new sizeElement for each flavor card
-                    var sizeElement = document.createElement('div');
-                    sizeOptions.forEach((optionValue, index) => {
-                        var input = document.createElement('input'); 
-                        
-                        input.type = 'radio'; 
-                        input.name = `size-flavor-${flavor}`; // Use unique name for each flavor
-                        input.value = optionValue; 
-                        input.id = `size-flavor-${flavor}-${optionValue}`; 
-
-                        var label = document.createElement('label'); 
-                        label.className = 'btn btn-outline-primary'; 
-                        label.setAttribute('for', input.id); 
-                        label.innerHTML = optionValue; 
-
-                        if (index === 0) { 
-                            input.checked = true; // Set the first button as active by default 
-                            label.classList.add('active', 'focus'); // Add the "active" and "focus" classes to the first label
+                            flavorCardsContainer.appendChild(currentGroup);
                         }
-                        // Append the input element to the label 
-                        label.appendChild(input);
 
-                        sizeElement.appendChild(label);
-                    });
+                    } else {
+                        if (priceCell && priceCell.v && imageCell && imageCell.v) { 
+                            var price = calculateCustomizePriceFromFlavor(sizeOptions[0],flavor);
+                            var imageUrl = `images/${imageCell.v}.png`;
 
-                    clone.querySelector('#size-flavor').innerHTML = sizeElement.innerHTML;
-                    clone.querySelector('.form-control').id = `quantity-${flavor.toLowerCase()}`;
-                    clone.querySelector('.add-to-cart').setAttribute('data-flavor', flavor);
-                    clone.querySelector('.customize-btn').setAttribute('data-flavor', flavor);
+                            // Clone the template
+                            var template = document.getElementById('flavor-card-template');
+                            var clone = template.content.cloneNode(true);
 
-                    if (featuredGroup) 
-                    { 
-                        featuredGroup.appendChild(clone); 
-                    } else if (currentGroup) 
-                    { 
-                        currentGroup.appendChild(clone);
-                    } else { 
-                        flavorCardsContainer.appendChild(clone); 
+                            // Populate the clone with data
+                            clone.querySelector('.card-img-top').src = imageUrl;
+                            clone.querySelector('.card-img-top').alt = flavor;
+                            clone.querySelector('.card-title').textContent = flavor;
+                            clone.querySelector('.card-price').textContent = `$${price}`;
+
+                            // Create a new sizeElement for each flavor card
+                            var sizeElement = document.createElement('div');
+                            sizeOptions.forEach((optionValue, index) => {
+                                var input = document.createElement('input'); 
+                                
+                                input.type = 'radio'; 
+                                input.name = `size-flavor-${flavor}`; // Use unique name for each flavor
+                                input.value = optionValue; 
+                                input.id = `size-flavor-${flavor}-${optionValue}`; 
+
+                                var label = document.createElement('label'); 
+                                label.className = 'btn btn-outline-primary'; 
+                                label.setAttribute('for', input.id); 
+                                label.innerHTML = optionValue; 
+
+                                if (index === 0) { 
+                                    input.checked = true; // Set the first button as active by default 
+                                    label.classList.add('active', 'focus'); // Add the "active" and "focus" classes to the first label
+                                }
+                                // Append the input element to the label 
+                                label.appendChild(input);
+
+                                sizeElement.appendChild(label);
+                            });
+
+                            clone.querySelector('#size-flavor').innerHTML = sizeElement.innerHTML;
+                            clone.querySelector('.form-control').id = `quantity-${flavor.toLowerCase()}`;
+                            clone.querySelector('.add-to-cart').setAttribute('data-flavor', flavor);
+                            clone.querySelector('.customize-btn').setAttribute('data-flavor', flavor);
+
+                            if (featuredGroup) 
+                            { 
+                                featuredGroup.appendChild(clone); 
+                            } else if (currentGroup) 
+                            { 
+                                currentGroup.appendChild(clone);
+                            } else { 
+                                flavorCardsContainer.appendChild(clone); 
+                            }
+                        }
+
                     }
                 }
-
             }
-        }
-    }
 
-    // Add event listener for size buttons using document.querySelectorAll
-    document.querySelectorAll('input[name^="size-flavor-"]').forEach(input => {
-        input.addEventListener('change', function() {
-            var flavor = this.name.split('-')[2];
-            var newSize = this.value;
-            var newPrice = calculateCustomizePriceFromFlavor(newSize, flavor);
-            this.closest('.card-body').querySelector('.card-price').textContent = `$${newPrice}`;
-        });
-    });
-
-    // Add event listener for label class changes
-    document.querySelectorAll('label[for^="size-flavor-"]').forEach(label => {
-        label.addEventListener('click', function() {
-            setTimeout(() => {
-                if (this.classList.contains('active')) {
-                    var parts = this.getAttribute('for').split('-'); 
-                    var flavor = parts.slice(2, -1).join('-'); 
-                    var newSize = parts[parts.length - 1];
+            // Add event listener for size buttons using document.querySelectorAll
+            document.querySelectorAll('input[name^="size-flavor-"]').forEach(input => {
+                input.addEventListener('change', function() {
+                    var flavor = this.name.split('-')[2];
+                    var newSize = this.value;
                     var newPrice = calculateCustomizePriceFromFlavor(newSize, flavor);
                     this.closest('.card-body').querySelector('.card-price').textContent = `$${newPrice}`;
-                }
-            }, 0);
-        });
-    });
+                });
+            });
 
-    // Add event listener for "Customize It!" buttons 
-    document.querySelectorAll('.customize-btn').forEach(button => { 
-        button.addEventListener('click', function() { 
-            var flavor = this.getAttribute('data-flavor'); 
-            var size = document.querySelector(`#size-flavor .btn.active input`); // Get the selected size
-            if(!size){
-                size = Object.keys(sizeSpecsDict)[0];
-            }else{
-                size = size.value
-            }
+            // Add event listener for label class changes
+            document.querySelectorAll('label[for^="size-flavor-"]').forEach(label => {
+                label.addEventListener('click', function() {
+                    setTimeout(() => {
+                        if (this.classList.contains('active')) {
+                            var parts = this.getAttribute('for').split('-'); 
+                            var flavor = parts.slice(2, -1).join('-'); 
+                            var newSize = parts[parts.length - 1];
+                            var newPrice = calculateCustomizePriceFromFlavor(newSize, flavor);
+                            this.closest('.card-body').querySelector('.card-price').textContent = `$${newPrice}`;
+                        }
+                    }, 0);
+                });
+            });
 
-            var quantity = document.getElementById(`quantity-${flavor.toLowerCase()}`).value;
-            autoSelectValues(flavor, worksheet, size, quantity); 
-        }); 
-    });
+            // Add event listener for "Customize It!" buttons 
+            document.querySelectorAll('.customize-btn').forEach(button => { 
+                button.addEventListener('click', function() { 
+                    var flavor = this.getAttribute('data-flavor'); 
+                    var size = document.querySelector(`#size-flavor .btn.active input`); // Get the selected size
+                    if(!size){
+                        size = Object.keys(sizeSpecsDict)[0];
+                    }else{
+                        size = size.value
+                    }
 
-    // Add event listener for "Add to Cart" buttons
-    document.querySelectorAll('.add-to-cart').forEach(button => { 
-        button.addEventListener('click', function() { 
-            var flavor = this.getAttribute('data-flavor'); 
-            var quantity = this.closest('.card-body').querySelector('.quantity').value;
-            var sizeElement = this.closest('.card-body').querySelector('input[name^="size-flavor-"]:checked');
-            var size = sizeElement ? sizeElement.value : '';
+                    var quantity = document.getElementById(`quantity-${flavor.toLowerCase()}`).value;
+                    autoSelectValues(flavor, worksheet, size, quantity); 
+                }); 
+            });
 
-            var priceElement = this.closest('.card-body').querySelector('.card-price'); 
+            // Add event listener for "Add to Cart" buttons
+            document.querySelectorAll('.add-to-cart').forEach(button => { 
+                button.addEventListener('click', function() { 
+                    var flavor = this.getAttribute('data-flavor'); 
+                    var quantity = this.closest('.card-body').querySelector('.quantity').value;
+                    var sizeElement = this.closest('.card-body').querySelector('input[name^="size-flavor-"]:checked');
+                    var size = sizeElement ? sizeElement.value : '';
 
-            addToCart(flavor, premadeWorksheet, quantity, priceElement.innerText, size); 
-        }); 
-    });
+                    var priceElement = this.closest('.card-body').querySelector('.card-price'); 
 
-}
+                    addToCart(flavor, premadeWorksheet, quantity, priceElement.innerText, size); 
+                }); 
+            });
+
+        }
 
 
 
@@ -1530,6 +1656,27 @@
                 populateFlavorCards('Premade Flavors');  
             });      
         });
+
+        document.getElementById('darkModeToggle').addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+        });
+
+        function isNightTime() {
+            const now = new Date();
+            const hours = now.getHours();
+            return hours >= 18 || hours < 6; // Nighttime is between 6 PM and 6 AM
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
+
+        // Automatically enable dark mode if it's nighttime
+        if (isNightTime()) {
+            document.body.classList.add('dark-mode');
+        }
 
     </script>
 
