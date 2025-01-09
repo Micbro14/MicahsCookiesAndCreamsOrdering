@@ -222,7 +222,7 @@
                 <img src="" class="card-img-top" alt="">
                 <div class="card-body">
                     <h5 class="card-title"></h5>
-                    <p class="card-text"></p>
+                    <p class="card-price"></p>
                     <div class="form-group mb-3"> 
                         <div class="d-flex align-items-center">
                             <div class="btn-group btn-group-toggle" data-toggle="buttons" id="size-flavor"> </div>
@@ -494,11 +494,11 @@
                 <label>Quantity</label>
                 <div class="input-group mb-3">
                     <div class="input-group-prepend">
-                        <button class="btn btn-outline-secondary quantity-btn" type="button" onclick="decreaseQuantity(this)">-</button>
+                        <button class="btn btn-outline-secondary quantity-btn" type="button" onclick="decreaseQuantity(this); updateTotalPrice();">-</button>
                     </div>
                     <input type="number" class="form-control text-center quantity" value="1" min="1" onchange="updateTotalPrice()">
                     <div class="input-group-append">
-                        <button class="btn btn-outline-secondary quantity-btn" type="button" onclick="increaseQuantity(this)">+</button>
+                        <button class="btn btn-outline-secondary quantity-btn" type="button" onclick="increaseQuantity(this); updateTotalPrice();">+</button>
                     </div>
                 </div>
             </div>
@@ -532,7 +532,6 @@
             const cart = document.getElementById('shoppingCart');
             cart.classList.toggle('show');
         }
-
 
         function clearField(fieldId) {
             document.getElementById(fieldId).value = '';
@@ -577,8 +576,6 @@
                 const quantity = document.getElementById('quantity-customize').value;
                 const totalPrice = document.getElementById('totalPrice').textContent;
 
-                console.log("Total price is ", totalPrice);
-
                 // Create a cart item using the template
                 const template = document.getElementById('cart-item-template');
                 const cartItem = template.content.cloneNode(true).querySelector('.cart-item');
@@ -600,6 +597,7 @@
                 cartItem.querySelector('.sweetener1-amount').textContent = sweetener1Amount;
                 cartItem.querySelector('.sweetener2').textContent = sweetener2;
                 cartItem.querySelector('.sweetener2-amount').textContent = sweetener2Amount;
+                console.log("Setting quantity to ", quantity);
                 cartItem.querySelector('.quantity').value = quantity;
                 cartItem.querySelector('.cart-item-price').textContent = `${totalPrice}`;
 
@@ -611,11 +609,15 @@
                     document.querySelector('#cart-items').appendChild(cartItem);
                 }
 
-                // Update the total price (assuming you have a function to calculate the total price)
-                updateTotalPrice();
-
                 // Close the modal
                 $('#customizeModal').modal('hide');
+                const cart = document.getElementById('shoppingCart');
+                if (!cart.classList.contains('show')) {
+                    cart.classList.add('show');
+                }
+
+                // Update the total price (assuming you have a function to calculate the total price)
+                updateTotalPrice();
             }
         }
         
@@ -755,158 +757,190 @@
         }
 
         function populateFlavorCards(sheetName) {
-            var worksheet = workbook.Sheets[sheetName]; 
-            var specsWorksheet = workbook.Sheets["Specs"]; 
+    var worksheet = workbook.Sheets[sheetName]; 
+    var specsWorksheet = workbook.Sheets["Specs"]; 
 
-            var flavorCardsContainer = document.getElementById('flavor-cards');
-            flavorCardsContainer.innerHTML = ''; // Clear existing flavor cards
+    var flavorCardsContainer = document.getElementById('flavor-cards');
+    flavorCardsContainer.innerHTML = ''; // Clear existing flavor cards
 
-            var currentGroup = null;
-            var featuredGroup = null;
+    var currentGroup = null;
+    var featuredGroup = null;
 
-            // get size values
-            // Handle size options as buttons
-            var sizeOptions = [];
+    // get size values
+    // Handle size options as buttons
+    var sizeOptions = [];
 
-            var sizeElement = document.createElement('div');
-
-            for (var i = 2; i <= Object.keys(specsWorksheet).length; i++) { // Skip header row 
-                var cellAddress = `${"A"}${i}`; 
-                var cell = specsWorksheet[cellAddress]; 
-                if (cell && cell.v) { 
-                    sizeOptions.push(cell.v);
-                }
-            }
-
-            sizeOptions.forEach((optionValue, index) => {
-                var input = document.createElement('input'); 
-                
-                input.type = 'radio'; 
-                input.name = 'size-flavor'; 
-                input.value = optionValue; 
-                input.id = `size-flavor-${optionValue}`; 
-
-                var label = document.createElement('label'); 
-                label.className = 'btn btn-outline-primary'; 
-                label.setAttribute('for', input.id); 
-                label.innerHTML = optionValue; 
-
-                if (index === 0) { 
-                    input.checked = true; // Set the first button as active by default 
-                    label.classList.add('active', 'focus'); // Add the "active" and "focus" classes to the first label
-                }
-                // Append the input element to the label 
-                label.appendChild(input);
-
-                sizeElement.appendChild(label);
-             });
-
-            for (var i = 2; i <= Object.keys(worksheet).length; i++) { // Skip header row 
-
-                //TODO update this to use dictionary instead
-                var flavorCellAddress = `A${i}`; 
-                var priceCellAddress = `AJ${i}`; 
-                var imageCellAddress = `A${i}`; 
-
-                var flavorCell = worksheet[flavorCellAddress]; 
-                var priceCell = worksheet[priceCellAddress]; 
-                var imageCell = worksheet[imageCellAddress]; 
-                if (flavorCell && flavorCell.v){
-                    var flavor = flavorCell.v; 
-
-                    if (flavor === "_NOT FEATURED") 
-                    { 
-                        break; // End the loop if the flavor is "_NOT FEATURED" 
-                    }
-
-                    if (flavor.startsWith('_')) {
-                        if (flavor.includes("FEATURED:")) {
-                            // Create a new featured group header
-                            featuredGroup = document.createElement('div'); 
-                            featuredGroup.className = 'row flavor-group featured-group'; 
-
-                            // Create a sticky header
-                            var header = document.createElement('div');
-                            header.className = 'sticky-header';
-                            header.innerHTML = `<h3 class="col-12">${flavor.substring(1)}</h3>`;
-                            featuredGroup.appendChild(header);
-
-                            flavorCardsContainer.insertAdjacentElement('afterbegin', featuredGroup);
-                        } else {
-                            // Create a new group header
-                            featuredGroup = null;
-                            currentGroup = document.createElement('div'); 
-                            currentGroup.className = 'row flavor-group'; 
-
-                            // Create a sticky header
-                            var header = document.createElement('div');
-                            header.className = 'sticky-header';
-                            header.innerHTML = `<h3 class="col-12">${flavor.substring(1)}</h3>`;
-                            currentGroup.appendChild(header);
-
-                            flavorCardsContainer.appendChild(currentGroup);
-                        }
-
-                    } else {
-                        if (priceCell && priceCell.v && imageCell && imageCell.v) { 
-                            var price = priceCell.v; 
-                            var imageUrl = `images/${imageCell.v}.png`;
-
-                            // Clone the template
-                            var template = document.getElementById('flavor-card-template');
-                            var clone = template.content.cloneNode(true);
-
-                            // Populate the clone with data
-                            clone.querySelector('.card-img-top').src = imageUrl;
-                            clone.querySelector('.card-img-top').alt = flavor;
-                            clone.querySelector('.card-title').textContent = flavor;
-                            clone.querySelector('.card-text').textContent = `$${price}`;
-                            clone.querySelector('#size-flavor').innerHTML = sizeElement.innerHTML;
-                            clone.querySelector('.form-control').id = `quantity-${flavor.toLowerCase()}`;
-                            clone.querySelector('.add-to-cart').setAttribute('data-flavor', flavor);
-                            clone.querySelector('.customize-btn').setAttribute('data-flavor', flavor);
-
-                            if (featuredGroup) 
-                            { 
-                                featuredGroup.appendChild(clone); 
-                            } else if (currentGroup) 
-                            { 
-                                currentGroup.appendChild(clone);
-                            } else { 
-                                flavorCardsContainer.appendChild(clone); 
-                            }
-                        }
-
-                    }
-                }
-            }
-
-            // Add event listener for "Customize It!" buttons 
-            document.querySelectorAll('.customize-btn').forEach(button => { 
-                button.addEventListener('click', function() { 
-                    var flavor = this.getAttribute('data-flavor'); 
-                    var size = document.querySelector(`#size-flavor .btn.active input`); // Get the selected size
-                    if(!size){
-                        size = Object.keys(sizeSpecsDict)[0];
-                    }else{
-                        size = size.value
-                    }
-
-                    var quantity = document.getElementById(`quantity-${flavor.toLowerCase()}`).value;
-                    autoSelectValues(flavor, worksheet, size, quantity); 
-                }); 
-            });
-
-            // Add event listener for "Add to Cart" buttons
-            document.querySelectorAll('.add-to-cart').forEach(button => { 
-                button.addEventListener('click', function() { 
-                    var flavor = this.getAttribute('data-flavor'); 
-                    var quantity = this.closest('.card-body').querySelector('.quantity').value;
-                    addToCartWorksheet(flavor, premadeWorksheet, quantity); 
-                }); 
-            });
-
+    for (var i = 2; i <= Object.keys(specsWorksheet).length; i++) { // Skip header row 
+        var cellAddress = `${"A"}${i}`; 
+        var cell = specsWorksheet[cellAddress]; 
+        if (cell && cell.v) { 
+            sizeOptions.push(cell.v);
         }
+    }
+
+    for (var i = 2; i <= Object.keys(worksheet).length; i++) { // Skip header row 
+        var flavorCellAddress = `A${i}`; 
+        var priceCellAddress = `AJ${i}`; 
+        var imageCellAddress = `A${i}`; 
+
+        var flavorCell = worksheet[flavorCellAddress]; 
+        var priceCell = worksheet[priceCellAddress]; 
+        var imageCell = worksheet[imageCellAddress]; 
+        if (flavorCell && flavorCell.v){
+            var flavor = flavorCell.v; 
+
+            if (flavor === "_NOT FEATURED") 
+            { 
+                break; // End the loop if the flavor is "_NOT FEATURED" 
+            }
+
+            if (flavor.startsWith('_')) {
+                if (flavor.includes("FEATURED:")) {
+                    // Create a new featured group header
+                    featuredGroup = document.createElement('div'); 
+                    featuredGroup.className = 'row flavor-group featured-group'; 
+
+                    // Create a sticky header
+                    var header = document.createElement('div');
+                    header.className = 'sticky-header';
+                    header.innerHTML = `<h3 class="col-12">${flavor.substring(1)}</h3>`;
+                    featuredGroup.appendChild(header);
+
+                    flavorCardsContainer.insertAdjacentElement('afterbegin', featuredGroup);
+                } else {
+                    // Create a new group header
+                    featuredGroup = null;
+                    currentGroup = document.createElement('div'); 
+                    currentGroup.className = 'row flavor-group'; 
+
+                    // Create a sticky header
+                    var header = document.createElement('div');
+                    header.className = 'sticky-header';
+                    header.innerHTML = `<h3 class="col-12">${flavor.substring(1)}</h3>`;
+                    currentGroup.appendChild(header);
+
+                    flavorCardsContainer.appendChild(currentGroup);
+                }
+
+            } else {
+                if (priceCell && priceCell.v && imageCell && imageCell.v) { 
+                    var price = calculateCustomizePriceFromFlavor(sizeOptions[0],flavor);
+                    var imageUrl = `images/${imageCell.v}.png`;
+
+                    // Clone the template
+                    var template = document.getElementById('flavor-card-template');
+                    var clone = template.content.cloneNode(true);
+
+                    // Populate the clone with data
+                    clone.querySelector('.card-img-top').src = imageUrl;
+                    clone.querySelector('.card-img-top').alt = flavor;
+                    clone.querySelector('.card-title').textContent = flavor;
+                    clone.querySelector('.card-price').textContent = `$${price}`;
+
+                    // Create a new sizeElement for each flavor card
+                    var sizeElement = document.createElement('div');
+                    sizeOptions.forEach((optionValue, index) => {
+                        var input = document.createElement('input'); 
+                        
+                        input.type = 'radio'; 
+                        input.name = `size-flavor-${flavor}`; // Use unique name for each flavor
+                        input.value = optionValue; 
+                        input.id = `size-flavor-${flavor}-${optionValue}`; 
+
+                        var label = document.createElement('label'); 
+                        label.className = 'btn btn-outline-primary'; 
+                        label.setAttribute('for', input.id); 
+                        label.innerHTML = optionValue; 
+
+                        if (index === 0) { 
+                            input.checked = true; // Set the first button as active by default 
+                            label.classList.add('active', 'focus'); // Add the "active" and "focus" classes to the first label
+                        }
+                        // Append the input element to the label 
+                        label.appendChild(input);
+
+                        sizeElement.appendChild(label);
+                    });
+
+                    clone.querySelector('#size-flavor').innerHTML = sizeElement.innerHTML;
+                    clone.querySelector('.form-control').id = `quantity-${flavor.toLowerCase()}`;
+                    clone.querySelector('.add-to-cart').setAttribute('data-flavor', flavor);
+                    clone.querySelector('.customize-btn').setAttribute('data-flavor', flavor);
+
+                    if (featuredGroup) 
+                    { 
+                        featuredGroup.appendChild(clone); 
+                    } else if (currentGroup) 
+                    { 
+                        currentGroup.appendChild(clone);
+                    } else { 
+                        flavorCardsContainer.appendChild(clone); 
+                    }
+                }
+
+            }
+        }
+    }
+
+    // Add event listener for size buttons using document.querySelectorAll
+    document.querySelectorAll('input[name^="size-flavor-"]').forEach(input => {
+        input.addEventListener('change', function() {
+            var flavor = this.name.split('-')[2];
+            var newSize = this.value;
+            var newPrice = calculateCustomizePriceFromFlavor(newSize, flavor);
+            this.closest('.card-body').querySelector('.card-price').textContent = `$${newPrice}`;
+        });
+    });
+
+    // Add event listener for label class changes
+    document.querySelectorAll('label[for^="size-flavor-"]').forEach(label => {
+        label.addEventListener('click', function() {
+            setTimeout(() => {
+                if (this.classList.contains('active')) {
+                    var parts = this.getAttribute('for').split('-'); 
+                    var flavor = parts.slice(2, -1).join('-'); 
+                    var newSize = parts[parts.length - 1];
+                    var newPrice = calculateCustomizePriceFromFlavor(newSize, flavor);
+                    this.closest('.card-body').querySelector('.card-price').textContent = `$${newPrice}`;
+                }
+            }, 0);
+        });
+    });
+
+    // Add event listener for "Customize It!" buttons 
+    document.querySelectorAll('.customize-btn').forEach(button => { 
+        button.addEventListener('click', function() { 
+            var flavor = this.getAttribute('data-flavor'); 
+            var size = document.querySelector(`#size-flavor .btn.active input`); // Get the selected size
+            if(!size){
+                size = Object.keys(sizeSpecsDict)[0];
+            }else{
+                size = size.value
+            }
+
+            var quantity = document.getElementById(`quantity-${flavor.toLowerCase()}`).value;
+            autoSelectValues(flavor, worksheet, size, quantity); 
+        }); 
+    });
+
+    // Add event listener for "Add to Cart" buttons
+    document.querySelectorAll('.add-to-cart').forEach(button => { 
+        button.addEventListener('click', function() { 
+            var flavor = this.getAttribute('data-flavor'); 
+            var quantity = this.closest('.card-body').querySelector('.quantity').value;
+            var sizeElement = this.closest('.card-body').querySelector('input[name^="size-flavor-"]:checked');
+            var size = sizeElement ? sizeElement.value : '';
+
+            var priceElement = this.closest('.card-body').querySelector('.card-price'); 
+
+            addToCart(flavor, premadeWorksheet, quantity, priceElement.innerText, size); 
+        }); 
+    });
+
+}
+
+
+
 
         function decreaseQuantity(button) {
             const input = button.closest('.input-group').querySelector('.quantity');
@@ -926,7 +960,7 @@
             calculateCustomizePrice();
         }
 
-        function addToCartWorksheet(flavor, worksheet, quantity) {
+        function addToCart(flavor, worksheet, quantity,price,size) {
             var name = flavor;
             var iceCreamBase = "";
 
@@ -943,7 +977,6 @@
             var sweetener1Amount = worksheet[flavor]["Sweetner Type 1 Amount (x 100g)"];
             var sweetener2 = worksheet[flavor]["Sweetner Type 2"];
             var sweetener2Amount = worksheet[flavor]["Sweetner Type 2 Amount (x 100g)"];
-            var size = document.querySelector(`#size-flavor .btn.active input`).value; // Get the selected size
 
             // Get the template and clone it
             const template = document.getElementById('cart-item-template');
@@ -969,8 +1002,8 @@
             cartItem.querySelector('.sweetener1-amount').textContent = sweetener1Amount;
             cartItem.querySelector('.sweetener2').textContent = sweetener2;
             cartItem.querySelector('.sweetener2-amount').textContent = sweetener2Amount;
-            console.log("Updating quantity to ", quantity);
             cartItem.querySelector('.quantity').value = quantity;
+            cartItem.querySelector('.cart-item-price').innerText = price;
 
             // Set the collapse div ID and button data-target
             const collapseDiv = cartItem.querySelector('.collapse');
@@ -982,6 +1015,12 @@
 
             // Update the total price (assuming you have a function to calculate the total price)
             updateTotalPrice();
+
+            const cart = document.getElementById('shoppingCart');
+            if (!cart.classList.contains('show')) {
+                cart.classList.add('show');
+            }
+
         }
 
         function setCustomizeValue(worksheet, i, column, elementId) { 
@@ -989,116 +1028,148 @@
             document.getElementById(elementId).value = value;
         }
 
-        function calculateSegmentPrice(worksheet, specsDict, sizeSpecsDict, valueId, valueAmountId, size, priceId) {
-            var element = document.getElementById(valueId);
-            var amountElement = document.getElementById(valueAmountId);
-
-            if (!element || !amountElement || element.value === '' || amountElement.value === '') {
-                document.getElementById(priceId).innerText = ``;
-                return 0;
+        function calculateSegmentPrice(worksheet, specsDict, sizeSpecsDict, value, amountValue, size, priceId) {
+            if (value === '' || amountValue === '' || !worksheet.hasOwnProperty(value)) {
+                if (priceId) document.getElementById(priceId).innerText = ``;
+                return { amount: 0, price: 0 };
             }
 
-            var value = element.value;
-            var amountValue = amountElement.value;
+            var amount = (specsDict[amountValue] * sizeSpecsDict[size].Multiplier); 
             
-            var amount = (specsDict[amountValue] * sizeSpecsDict[size].Multiplier);     
+            
             var cost = worksheet[value]["Cost ($)"];
 
-            var price =  amount * cost * upcharge;
+            var price = amount * cost * upcharge;
             price = price.toFixed(2);
             
-            document.getElementById(priceId).innerText = `$${price}`;
+            if (priceId) document.getElementById(priceId).innerText = `$${price}`;
 
-            if(worksheet[value].hasOwnProperty("Thick?")){
-
-                if (worksheet[value]["Thick?"] === "Yes"){
-                    // setting amount to 0 since it doesn't change the volume
+            if (worksheet[value].hasOwnProperty("Thick?")) {
+                if (worksheet[value]["Thick?"] === "Yes") {
                     amount = 0;               
                 }
             }
 
-            if(worksheet === flavorWorksheet){
+            if (worksheet === flavorWorksheet) {
                 amount = amount * 15;
-            }else if(worksheet === sweetenerWorksheet){
-                //TODO need to use custom gram value when calculating costs
+            } else if (worksheet === sweetenerWorksheet) {
+                // TODO: need to use custom gram value when calculating costs
             }
 
-            return amount;
+            return { amount: amount, price: parseFloat(price) };
         }
 
-        function calculateSolidPrice(worksheet, specsDict, sizeSpecsDict, valueId, valueAmountId, size, priceId, value2Id, price2Id) {
-            var element1 = document.getElementById(valueId);
-            var amountElement = document.getElementById(valueAmountId);
+        function calculateSolidPrice(worksheet, specsDict, sizeSpecsDict, value1, amountValue, size, priceId, value2, price2Id) {
             var splitAmount = 0.5;
 
-            if (!element1 || !amountElement || element1.value === '' || amountElement.value === '') {
-                document.getElementById(priceId).innerText = ``;
-                document.getElementById(price2Id).innerText = ``;
-                return 0;
+            if (value1 === '' || amountValue === '' || !worksheet.hasOwnProperty(value1)) {
+                if (priceId) document.getElementById(priceId).innerText = ``;
+                if (price2Id) document.getElementById(price2Id).innerText = ``;
+                return { cupAmount: 0, price1: 0, price2: 0 };
             }
 
-            var element2 = document.getElementById(value2Id);
-
-            if (!element2 || element2.value === '' ) {
-                splitAmount = 1
-                document.getElementById(price2Id).innerText = ``;
+            if (value2 === '' || !worksheet.hasOwnProperty(value2)) {
+                splitAmount = 1;
+                if (price2Id) document.getElementById(price2Id).innerText = ``;
             }
-
-            var value1 = element1.value;
-            var amountValue = amountElement.value;
 
             var cupAmount = (sizeSpecsDict[size].Amount * specsDict[amountValue]);
 
-            var value1gramsPerCup = 0;
-            var value2gramsPerCup = 0;
-
-            var value1grams = 0;
-            var value2grams = 0;
-
-            var cost = worksheet[value1]["Cost ($)"];
-            value1gramsPerCup = worksheet[value1]["grams (from cups)"];
-
-            value1grams =cupAmount / 240 * value1gramsPerCup * splitAmount;
-
-            var price1 = (value1grams /value1gramsPerCup) * upcharge * cost;
-            
+            var value1gramsPerCup = worksheet[value1]["grams (from cups)"];
+            var value1grams = cupAmount / 240 * value1gramsPerCup * splitAmount;
+            var cost1 = worksheet[value1]["Cost ($)"];
+            var price1 = (value1grams / value1gramsPerCup) * upcharge * cost1;
             price1 = price1.toFixed(2);
-            document.getElementById(priceId).innerText = `$${price1}`;
+            if (priceId) document.getElementById(priceId).innerText = `$${price1}`;
             
-            if (element2 || element2.value !== '') {
-                var value2 = element2.value;
-         
-                var cost = worksheet[value2]["Cost ($)"];
-                value2gramsPerCup = worksheet[value1]["grams (from cups)"];
-                
-                value2grams =cupAmount / 240 *value2gramsPerCup * splitAmount;
-
-                var price2 = (value2grams/ value2gramsPerCup) * upcharge * cost;
-                
+            var price2 = 0;
+            if (value2 !== '' && worksheet.hasOwnProperty(value2) && worksheet[value2].hasOwnProperty("grams (from cups)")) {
+                var value2gramsPerCup = worksheet[value2]["grams (from cups)"];
+                var value2grams = cupAmount / 240 * value2gramsPerCup * splitAmount;
+                var cost2 = worksheet[value2]["Cost ($)"];
+                price2 = (value2grams / value2gramsPerCup) * upcharge * cost2;
                 price2 = price2.toFixed(2);
-                document.getElementById(price2Id).innerText = `$${price2}`;
+                if (price2Id) document.getElementById(price2Id).innerText = `$${price2}`;
             }
 
-            return cupAmount;
+            return { cupAmount: cupAmount, price1: parseFloat(price1), price2: parseFloat(price2) };
         }
 
-        function calculateMilkPrice(worksheet, sizeSpecsDict, valueId, valueAmountId, size, priceId,milkPortion,totalGramsBeforeMilk) {
-            var element = document.getElementById(valueId);
-            var amountElement = document.getElementById(valueAmountId);
-
-            if (!element || element.value === '') {
-                document.getElementById(priceId).innerText = ``;
-                return;
+        function calculateMilkPrice(worksheet, sizeSpecsDict, value, size, priceId, milkPortion, totalGramsBeforeMilk) {
+            if (value === '') {
+                if (priceId) document.getElementById(priceId).innerText = ``;
+                return 0;
             }
-
-            var value = element.value;
-            var amountPer = 1; // Adjust as needed
 
             var cost = worksheet[value]["Cost ($)"];
-            var price = ( (((sizeSpecsDict[size].Amount - totalGramsBeforeMilk) * (milkPortion)) / 240) * cost) * upcharge;
+            var price = (((sizeSpecsDict[size].Amount - totalGramsBeforeMilk) * milkPortion) / 240) * cost * upcharge;
             price = price.toFixed(2);
-            document.getElementById(priceId).innerText = `$${price}`;                   
+            if (priceId) document.getElementById(priceId).innerText = `$${price}`;                   
+
+            return parseFloat(price);
         }
+
+        function calculateCustomizePrice() {
+            var size = document.querySelector(`#size-customize input[name="size"]:checked`).value; 
+
+            var liquidMix1 = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, document.getElementById('liquidMix1').value, document.getElementById('liquidMix1Amount').value, size, 'liquidMix1Price');
+            var liquidMix2 = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, document.getElementById('liquidMix2').value, document.getElementById('liquidMix2Amount').value, size, 'liquidMix2Price');
+            var sweetener1 = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, document.getElementById('sweetener1').value, document.getElementById('sweetener1Amount').value, size, 'sweetener1Price');
+            var sweetener2 = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, document.getElementById('sweetener2').value, document.getElementById('sweetener2Amount').value, size, 'sweetener2Price');
+            var solidSimulated = calculateSolidPrice(solidMixInWorksheet, solidSpecs, sizeSpecsDict, document.getElementById('mixIn1').value, document.getElementById('mixInAmount').value, size, 'mixIn1Price', document.getElementById('mixIn2').value, 'mixIn2Price');
+
+            var totalGramsBeforeMilk = liquidMix1.amount + liquidMix2.amount + solidSimulated.cupAmount;
+
+            var milkType1Price = calculateMilkPrice(milkWorksheet, sizeSpecsDict, document.getElementById('milkType1').value, size, 'milkType1Price', 2/3, totalGramsBeforeMilk);
+            var milkType2Price = calculateMilkPrice(milkWorksheet, sizeSpecsDict, document.getElementById('milkType2').value, size, 'milkType2Price', 1/3, totalGramsBeforeMilk);
+
+            var currentAdditionalCosts = (additionalCosts + sizeSpecsDict[size].ContainerCost) * upcharge;
+            document.getElementById("additionalCosts").innerText = `$${currentAdditionalCosts.toFixed(2)}`;
+
+            var liquidMix1Price = liquidMix1.price || 0;
+            var liquidMix2Price = liquidMix2.price || 0;
+            var sweetener1Price = sweetener1.price || 0;
+            var sweetener2Price = sweetener2.price || 0;
+            var mixIn1Price = solidSimulated.price1 || 0;
+            var mixIn2Price = solidSimulated.price2 || 0;
+
+            var pricePerQuantity = milkType1Price + milkType2Price + liquidMix1Price + liquidMix2Price + sweetener1Price + sweetener2Price + mixIn1Price + mixIn2Price + currentAdditionalCosts;
+            document.getElementById("pricePerQuantity").innerText = `$${pricePerQuantity.toFixed(2)}`;
+
+            var quantity = document.getElementById('quantity-customize').value;
+            var totalPrice = pricePerQuantity * quantity;
+            document.getElementById("totalPrice").innerText = `$${totalPrice.toFixed(2)}`;
+        }
+
+
+        function calculateCustomizePriceFromFlavor(size,flavor) {
+            var flavorValues = premadeWorksheet[flavor];
+
+            var liquidMix1 = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, flavorValues["Liquid Mix 1"], flavorValues["Liquid Mix 1 Amount (x tbsp)"], size, null);
+            var liquidMix2 = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, flavorValues["Liquid Mix 2"], flavorValues["Liquid Mix 2 Amount (x tbsp)"], size, null);
+            var sweetener1 = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, flavorValues["Sweetner Type 1"], flavorValues["Sweetner Type 1 Amount (x 100g)"], size, null);
+            var sweetener2 = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, flavorValues["Sweetner Type 2"], flavorValues["Sweetner Type 2 Amount (x 100g)"], size, null);
+            var solidSimulated = calculateSolidPrice(solidMixInWorksheet, solidSpecs, sizeSpecsDict, flavorValues["Solid Mix 1"], flavorValues["Solid Mix Amount (% of all ice cream)"], size, null, flavorValues["Solid Mix 2"], null);
+
+            var totalGramsBeforeMilk = liquidMix1.amount + liquidMix2.amount + solidSimulated.cupAmount;
+
+            var milkType1Price = calculateMilkPrice(milkWorksheet, sizeSpecsDict, flavorValues["Milk Type 1 (2/3)"], size, null, 2/3, totalGramsBeforeMilk);
+            var milkType2Price = calculateMilkPrice(milkWorksheet, sizeSpecsDict, flavorValues["Milk Type 2 (1/3)"], size, null, 1/3, totalGramsBeforeMilk);
+
+            var currentAdditionalCosts = (additionalCosts + sizeSpecsDict[size].ContainerCost) * upcharge;
+
+            var liquidMix1Price = liquidMix1.price || 0;
+            var liquidMix2Price = liquidMix2.price || 0;
+            var sweetener1Price = sweetener1.price || 0;
+            var sweetener2Price = sweetener2.price || 0;
+            var mixIn1Price = solidSimulated.price1 || 0;
+            var mixIn2Price = solidSimulated.price2 || 0;
+
+            var pricePerQuantity = milkType1Price + milkType2Price + liquidMix1Price + liquidMix2Price + sweetener1Price + sweetener2Price + mixIn1Price + mixIn2Price + currentAdditionalCosts;
+
+            return pricePerQuantity.toFixed(2);
+        }
+
 
         function autoSelectValues(flavor, worksheet,size,quantity) { 
             for (var i = 2; i <= Object.keys(worksheet).length; i++) { 
@@ -1155,44 +1226,6 @@
                     break; 
                 } 
             } 
-        }
-
-        function calculateCustomizePrice(){
-            var size = document.querySelector(`#size-customize input[name="size"]:checked`).value; 
-
-            var liquidMix1Grams = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, 'liquidMix1', 'liquidMix1Amount', size, 'liquidMix1Price');
-            var liquidMix2Grams = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, 'liquidMix2', 'liquidMix2Amount', size, 'liquidMix2Price');
-            var sweetener1Grams = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, 'sweetener1', 'sweetener1Amount', size, 'sweetener1Price');
-            var sweetener2Grams = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, 'sweetener2', 'sweetener2Amount', size, 'sweetener2Price');
-            var solidSimulatedGrams = calculateSolidPrice(solidMixInWorksheet, solidSpecs, sizeSpecsDict, 'mixIn1', 'mixInAmount', size, 'mixIn1Price','mixIn2', 'mixIn2Price');
-
-            var totalGramsBeforeMilk = liquidMix1Grams + liquidMix2Grams + solidSimulatedGrams;
-
-            calculateMilkPrice(milkWorksheet,sizeSpecsDict,'milkType1', 'milkType1Amount',size,'milkType1Price',2/3,totalGramsBeforeMilk)
-            calculateMilkPrice(milkWorksheet,sizeSpecsDict,'milkType2', 'milkType2Amount',size,'milkType2Price',1/3,totalGramsBeforeMilk)
-
-            var currentAdditionalCosts = (additionalCosts + sizeSpecsDict[size].ContainerCost) * upcharge;
-
-            document.getElementById("additionalCosts").innerText = `$${currentAdditionalCosts.toFixed(2)}`;
-
-            var milkType1Price = parseFloat(document.getElementById('milkType1Price').innerText.replace('$', '')) || 0;
-            var milkType2Price = parseFloat(document.getElementById('milkType2Price').innerText.replace('$', '')) || 0;
-            var liquidMix1Price = parseFloat(document.getElementById('liquidMix1Price').innerText.replace('$', '')) || 0;
-            var liquidMix2Price = parseFloat(document.getElementById('liquidMix2Price').innerText.replace('$', '')) || 0;
-            var sweetener1Price = parseFloat(document.getElementById('sweetener1Price').innerText.replace('$', '')) || 0;
-            var sweetener2Price = parseFloat(document.getElementById('sweetener2Price').innerText.replace('$', '')) || 0;
-            var mixIn1Price = parseFloat(document.getElementById('mixIn1Price').innerText.replace('$', '')) || 0;
-            var mixIn2Price = parseFloat(document.getElementById('mixIn2Price').innerText.replace('$', '')) || 0;
-
-            var pricePerQuantity = milkType1Price + milkType2Price + liquidMix1Price + liquidMix2Price + sweetener1Price + sweetener2Price + mixIn1Price + mixIn2Price + currentAdditionalCosts;
-
-            document.getElementById("pricePerQuantity").innerText = `$${pricePerQuantity.toFixed(2)}`;
-
-            var quantity = document.getElementById('quantity-customize').value;
-
-            var totalPrice = pricePerQuantity * quantity;
-
-            document.getElementById("totalPrice").innerText = `$${totalPrice.toFixed(2)}`;
         }
 
         //based on the selected Ice Cream Base, adjusts the milk types
@@ -1440,15 +1473,15 @@
             .then(data => { 
                 workbook = XLSX.read(data, {type: 'array'});   
 
-                // Populate all the flavors on then website
-                populateFlavorCards('Premade Flavors');     
+                   
 
                 milkWorksheet = worksheetToDict("Milk Types Nutrition Per Cup");
                 flavorWorksheet = worksheetToDict("Liquid Mix In Nutrition");
                 solidMixInWorksheet = worksheetToDict("Solid Mix In Nutrition");
                 sweetenerWorksheet = worksheetToDict("Sweetener Mix In Nutrition");
                 premadeWorksheet = worksheetToDict("Premade Flavors");
-                console.log("Premade Worksheet is ",premadeWorksheet);
+
+               
 
                 // setup sizeSpecsDict
 
@@ -1461,20 +1494,24 @@
                         var size = sizeCell.v; 
                         var amountCellAddress = `B${i}`; 
                         var multiplierCellAddress = `C${i}`;
-                         var containerCostCellAddress = `V${i}`; 
-                         var amount = specsWorksheet[amountCellAddress] ? specsWorksheet[amountCellAddress].v : 0;
+                        var containerCostCellAddress = `V${i}`; 
+                        var amount = specsWorksheet[amountCellAddress] ? specsWorksheet[amountCellAddress].v : 0;
                         var multiplier = specsWorksheet[multiplierCellAddress] ? specsWorksheet[multiplierCellAddress].v : 0; 
-                          var containerCost = specsWorksheet[containerCostCellAddress] ? specsWorksheet[containerCostCellAddress].v : 0; 
-                          sizeSpecsDict[size] = { "Amount": amount, "Multiplier": multiplier, "ContainerCost": containerCost }; 
+                        var containerCost = specsWorksheet[containerCostCellAddress] ? specsWorksheet[containerCostCellAddress].v : 0; 
+                        sizeSpecsDict[size] = { "Amount": amount, "Multiplier": multiplier, "ContainerCost": containerCost }; 
                     } 
                 }
 
                 additionalCosts = specsWorksheet['Q2'] ? specsWorksheet['Q2'].v : 0;
                 upcharge = specsWorksheet['N2'] ? specsWorksheet['N2'].v : 0; 
                 
+                
+
                 fillSpecsDictionary(specsWorksheet, 'D', 'E', liquidSpecs);
                 fillSpecsDictionary(specsWorksheet, 'H', 'I', solidSpecs);
                 fillSpecsDictionary(specsWorksheet, 'F', 'G', sweetenerSpecs);
+
+                
 
                 // populate drop downs for all the different areas (Used in Customize menus)
                 populateOptions('Milk Types Nutrition Per Cup', "O", ['iceCreamBase']); 
@@ -1488,6 +1525,9 @@
                 populateOptions('Specs', "D", ['liquidMix1Amount','liquidMix2Amount']); 
                 populateOptions('Specs', "F", ['sweetener1Amount','sweetener2Amount']); 
                 populateOptions('Specs', "H", ['mixInAmount']);     
+
+                // Populate all the flavors on then website
+                populateFlavorCards('Premade Flavors');  
             });      
         });
 
