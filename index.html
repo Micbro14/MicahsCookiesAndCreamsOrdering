@@ -1894,7 +1894,16 @@
         });
 
         document.getElementById('darkModeToggle').addEventListener('click', function() {
-            document.body.classList.toggle('dark-mode');
+            // Check the user's preference and apply dark mode if enabled
+            const userPreference = localStorage.getItem('darkMode');
+            if (userPreference === 'enabled') {
+                document.body.classList.add('dark-mode');
+            } else if (userPreference === 'disabled') {
+                document.body.classList.remove('dark-mode');
+            } else if (isNightTime()) {
+                // Automatically enable dark mode if it's nighttime and no user preference is set
+                document.body.classList.add('dark-mode');
+            }
         });
 
         function isNightTime() {
@@ -1903,8 +1912,11 @@
             return hours >= 18 || hours < 6; // Nighttime is between 6 PM and 6 AM
         }
 
+        // Function to toggle dark mode
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode ? 'enabled' : 'disabled');
         }
 
         document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
