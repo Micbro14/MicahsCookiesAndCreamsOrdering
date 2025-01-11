@@ -26,13 +26,19 @@
         text-transform: uppercase;
     }
 
-    
+    .modal-content { 
+        display: flex; 
+        flex-direction: column; 
+        height: 100%;
+     }
+
     .modal-body .row {
+        flex: 1;
         display: flex;
     }
 
     .modal-body .col-md-8 {
-        flex: 2;
+        flex: 1;
     }
 
     .quantity-btn {
@@ -292,7 +298,87 @@
         color: #ffffff; /* Text color for table headers and cells */
     }
 
+    .nutrition-label {
+        position: sticky;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 200px; /* Adjust the width to make it more compact */
+        background-color: #fff;
+        border: 1px solid #000;
+        padding: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        font-family: Arial, sans-serif;
+        font-size: 12px; /* Adjust the font size to make it smaller */
+        line-height: 1.2; /* Adjust the line height to make it more compact */
+        color: #000; /* Text color */
+    }
+    .nutrition-label h3 {
+        font-size: 18px; /* Adjust the font size to make it smaller */
+        margin-bottom: 5px;
+        color: #000; /* Text color */
+        border-bottom: 2px solid #000;
+        padding-bottom: 5px;
+    }
+    .nutrition-label .nutrition-item {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px solid #000;
+        padding: 2px 0;
+    }
+    .nutrition-label .nutrition-item:last-child {
+        border-bottom: none;
+    }
+    .nutrition-label .nutrition-item .label {
+        font-weight: bold;
+    }
+    .nutrition-label .nutrition-item .value {
+        text-align: right;
+    }
+    .nutrition-label .serving-info {
+        font-size: 12px; /* Adjust the font size to make it smaller */
+        margin-bottom: 5px;
+    }
+    .nutrition-label .calories {
+        font-size: 14px; /* Adjust the font size to make it smaller */
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    .nutrition-label .container-info {
+        font-size: 12px; /* Adjust the font size to make it smaller */
+        margin-top: 10px;
+        border-top: 2px solid #000;
+        padding-top: 5px;
+    }
+    .nutrition-label .container-info .nutrition-item {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px solid #000;
+        padding: 2px 0;
+    }
+    .nutrition-label .container-info .nutrition-item:last-child {
+        border-bottom: none;
+    }
+    .nutrition-label .container-info .label {
+        font-weight: bold;
+    }
+    .nutrition-label .container-info .value {
+        text-align: right;
+    }
+    .nutrition-label .container-info .container-label {
+        font-weight: bold;
+        text-align: right;
+        margin-left: 10px;
+    }
+    .nutrition-label .per-serving-container {
+        display: flex;
+        justify-content: space-between;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
 
+    @media (max-width: 767.98px) { .nutrition-label { position: static; transform: none; top: auto; } }
+
+    .modal-dialog { max-width: 1000px; /* Adjust the width as needed */ }
 
 </style>
 
@@ -386,58 +472,57 @@
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-8">
+                        <div class="col-md-6">
                             <form id="customizeForm">
                                 <input type="hidden" id="cartItemId" value="">
                                 <h5>Name</h5>
                                 <div class="form-group mb-3"> 
-                                    <label for="name">Name</label>
                                     <input class="form-control" id="name"></input>
                                 </div>
                                 <h5>Milk Types</h5>
-                                <div class="form-group mb-3"> 
-                                    <label for="iceCreamBase">Pick An Ice Cream Base</label>                          
+                                <label for="iceCreamBase">Pick An Ice Cream Base</label>
+                                <div class="form-group mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <select class="form-control" id="iceCreamBase" onchange="updateMilkTypes(this.value)"></select>
+                                    </div>
                                 </div>
-                                <div class="d-flex align-items-center">
-                                    <select class="form-control" id="iceCreamBase" onchange="updateMilkTypes(this.value)"></select>
-                                </div>
+                                <label for="milkType1">Pick Your Primary Milk Type</label> 
                                 <div class="form-group mb-3"> 
-                                    <label for="milkType1">Pick Your Primary Milk Type</label> 
                                     <div class="d-flex align-items-center">
                                         <select class="form-control" id="milkType1" required></select> 
                                         <span class="ml-2" id="milkType1Price"></span>
                                     </div>
                                 </div>
+                                <label for="milkType2">Pick Your Secondary Milk Type</label> 
                                 <div class="form-group mb-3"> 
-                                    <label for="milkType2">Pick Your Secondary Milk Type</label> 
                                     <div class="d-flex align-items-center">
                                         <select class="form-control" id="milkType2" required></select>
                                         <span class="ml-2" id="milkType2Price"></span>
                                     </div>
                                 </div>
                                 <h5>Flavors</h5>
+                                <label for="liquidMix1">Pick A Flavor</label> 
                                 <div class="form-group mb-3"> 
-                                    <label for="liquidMix1">Pick A Flavor</label> 
                                     <div class="d-flex align-items-center">
                                         <select class="form-control" id="liquidMix1" required></select> 
                                     </div>
                                 </div>
+                                <label for="liquidMix1Amount">Amount</label> 
                                 <div class="form-group mb-3"> 
-                                    <label for="liquidMix1Amount">Amount</label> 
                                     <div class="d-flex align-items-center">
                                         <select class="form-control" id="liquidMix1Amount" required></select> 
                                         <span class="ml-2" id="liquidMix1Price"></span>
                                     </div>
                                 </div>
+                                <label for="liquidMix2">Pick A Second Flavor (Optional)</label> 
                                 <div class="form-group mb-3"> 
-                                    <label for="liquidMix2">Pick A Second Flavor (Optional)</label> 
                                     <div class="d-flex align-items-center">
                                         <select class="form-control" id="liquidMix2"></select>
                                     </div>
                                     <button type="button" class="btn btn-link" onclick="clearField('liquidMix2');">Clear</button>
                                 </div>
+                                <label for="liquidMix2Amount">Amount</label>
                                 <div class="form-group mb-3"> 
-                                    <label for="liquidMix2Amount">Amount</label>
                                     <div class="d-flex align-items-center">
                                         <select class="form-control" id="liquidMix2Amount"></select> 
                                         <span class="ml-2" id="liquidMix2Price"></span>
@@ -445,45 +530,45 @@
                                     <button type="button" class="btn btn-link" onclick="clearField('liquidMix2Amount');">Clear</button>
                                 </div>
                                 <h5>Mix-ins (Optional)</h5>
+                                <label for="mixIn1">Pick A First Mix In</label>
                                 <div class="form-group mb-3"> 
-                                    <label for="mixIn1">Pick A First Mix In</label>
                                     <div class="d-flex align-items-center">
                                         <select class="form-control" id="mixIn1"></select> 
                                         <span class="ml-2" id="mixIn1Price"></span>
                                     </div>
                                     <button type="button" class="btn btn-link" onclick="clearField('mixIn1');">Clear</button>
                                 </div>
+                                <label for="mixIn2">Pick A Second Mix In</label> 
                                 <div class="form-group mb-3"> 
-                                    <label for="mixIn2">Pick A Second Mix In</label> 
                                     <div class="d-flex align-items-center">
                                         <select class="form-control" id="mixIn2"></select> 
                                         <span class="ml-2" id="mixIn2Price"></span>
                                     </div>
                                     <button type="button" class="btn btn-link" onclick="clearField('mixIn2');">Clear</button>
                                 </div>
+                                <label for="mixIn1Amount">Amount (%)</label> 
                                 <div class="form-group mb-3"> 
-                                    <label for="mixIn1Amount">Amount (%)</label> 
                                     <div class="d-flex align-items-center">
                                         <select class="form-control" id="mixInAmount"></select>  
                                     </div>
                                     <button type="button" class="btn btn-link" onclick="clearField('mixInAmount');">Clear</button>
                                 </div>
                                 <h5>Sweeteners</h5>
+                                <label for="sweetener1">Pick A First Sweetner</label> 
                                 <div class="form-group mb-3"> 
-                                    <label for="sweetener1">Pick A First Sweetner</label> 
                                     <div class="d-flex align-items-center">
                                         <select class="form-control" id="sweetener1" required></select>
                                     </div>
                                 </div>
+                                <label for="sweetener1Amount">Amount</label>
                                 <div class="form-group mb-3"> 
-                                    <label for="sweetener1Amount">Amount</label>
                                     <div class="d-flex align-items-center">
                                         <select class="form-control" id="sweetener1Amount" required></select> 
                                         <span class="ml-2" id="sweetener1Price"></span>
                                     </div>
                                 </div>
+                                <label for="sweetener2">Pick A Second Sweetner (Optional)</label> 
                                 <div class="form-group mb-3"> 
-                                    <label for="sweetener2">Pick A Second Sweetner (Optional)</label> 
                                     <div class="d-flex align-items-center">
                                         <select class="form-control" id="sweetener2">
                                             <option value="" disabled selected>Select an option</option>
@@ -491,8 +576,8 @@
                                     </div>
                                     <button type="button" class="btn btn-link" onclick="clearField('sweetener2');">Clear</button>
                                 </div>
+                                <label for="sweetener2Amount">Amount</label>
                                 <div class="form-group mb-3"> 
-                                    <label for="sweetener2Amount">Amount</label>
                                     <div class="d-flex align-items-center">
                                         <select class="form-control" id="sweetener2Amount">
                                             <option value="" disabled selected>Select an option</option>
@@ -521,6 +606,22 @@
                 
                             </form>
                         </div> 
+                        <div class="col-md-6"> 
+                            <div class="nutrition-label">
+                                <h3>Nutrition Facts</h3>
+                                <div class="serving-info">
+                                    <div id="serving-per-container">Servings Per Container: 4</div>
+                                    <div id="serving-size">Serving Size: 1 cup (240ml)</div>
+                                </div>
+                                <div class="per-serving-container">
+                                    <span>Per Serving | <span>Per Container</span></span>
+                                </div>
+                                <div class="calories" id="calories">
+                                    <div>Calories: 200</div>
+                                </div>
+                               
+                            </div>
+                        </div>
                         <div class="modal-footer">
                             <h5 class="text-left">Pricing</h5>
                             <div class="input-group mb-3">
@@ -545,7 +646,7 @@
                             <button type="button" class="btn btn-primary" id="customizeAddToCart" onclick="validateForm(this)">Add To Cart</button>                
                         </div>
                     </div>
-                </div>                                    
+                </div>                                  
             </div>
         </div>
     </div>
@@ -1065,9 +1166,6 @@
 
         }
 
-
-
-
         function decreaseQuantity(button) {
             const input = button.closest('.input-group').querySelector('.quantity');
             let value = parseInt(input.value);
@@ -1161,8 +1259,7 @@
             }
 
             var amount = (specsDict[amountValue] * sizeSpecsDict[size].Multiplier); 
-            
-            
+              
             var cost = worksheet[value]["Cost ($)"];
 
             var price = amount * cost * upcharge;
@@ -1179,6 +1276,7 @@
             if (worksheet === flavorWorksheet) {
                 amount = amount * 15;
             } else if (worksheet === sweetenerWorksheet) {
+                amount = amount * sweetenerWorksheet[value]["gram equivalent (of 1/2 cup)"];
                 // TODO: need to use custom gram value when calculating costs
             }
 
@@ -1202,52 +1300,113 @@
             var cupAmount = (sizeSpecsDict[size].Amount * specsDict[amountValue]);
 
             var value1gramsPerCup = worksheet[value1]["grams (from cups)"];
-            var value1grams = cupAmount / 240 * value1gramsPerCup * splitAmount;
+            var value1Grams = cupAmount / 240 * value1gramsPerCup * splitAmount;
             var cost1 = worksheet[value1]["Cost ($)"];
-            var price1 = (value1grams / value1gramsPerCup) * upcharge * cost1;
+            var price1 = (value1Grams / value1gramsPerCup) * upcharge * cost1;
             price1 = price1.toFixed(2);
             if (priceId) document.getElementById(priceId).innerText = `$${price1}`;
             
+            var value2Grams = 0;
             var price2 = 0;
             if (value2 !== '' && worksheet.hasOwnProperty(value2) && worksheet[value2].hasOwnProperty("grams (from cups)")) {
                 var value2gramsPerCup = worksheet[value2]["grams (from cups)"];
-                var value2grams = cupAmount / 240 * value2gramsPerCup * splitAmount;
+                value2Grams = cupAmount / 240 * value2gramsPerCup * splitAmount;
                 var cost2 = worksheet[value2]["Cost ($)"];
-                price2 = (value2grams / value2gramsPerCup) * upcharge * cost2;
+                price2 = (value2Grams / value2gramsPerCup) * upcharge * cost2;
                 price2 = price2.toFixed(2);
                 if (price2Id) document.getElementById(price2Id).innerText = `$${price2}`;
             }
 
-            return { cupAmount: cupAmount, price1: parseFloat(price1), price2: parseFloat(price2) };
+            return { cupAmount: cupAmount, price1: parseFloat(price1), price2: parseFloat(price2), amount1: value1Grams, amount2:value2Grams };
         }
 
         function calculateMilkPrice(worksheet, sizeSpecsDict, value, size, priceId, milkPortion, totalGramsBeforeMilk) {
             if (value === '') {
                 if (priceId) document.getElementById(priceId).innerText = ``;
-                return 0;
+                return [0,0];
             }
 
             var cost = worksheet[value]["Cost ($)"];
-            var price = (((sizeSpecsDict[size].Amount - totalGramsBeforeMilk) * milkPortion) / 240) * cost * upcharge;
+            var grams = (sizeSpecsDict[size].Amount - totalGramsBeforeMilk) * milkPortion;
+            var price = (grams / 240) * cost * upcharge;
             price = price.toFixed(2);
             if (priceId) document.getElementById(priceId).innerText = `$${price}`;                   
 
-            return parseFloat(price);
+            return [parseFloat(price),grams];
         }
 
         function calculateCustomizePrice() {
-            var size = document.querySelector(`#size-customize input[name="size"]:checked`).value; 
+            var size = document.querySelector(`#size-customize input[name="size"]:checked`).value;
+            
+            var liquidMix1Value = document.getElementById('liquidMix1').value;
+            var liquidMix2Value = document.getElementById('liquidMix2').value;
+            var sweetener1Value = document.getElementById('sweetener1').value;
+            var sweetener2Value = document.getElementById('sweetener2').value;
+            var solid1Value = document.getElementById('mixIn1').value;
+            var solid2Value = document.getElementById('mixIn2').value;
+            var milk1Value = document.getElementById('milkType1').value;
+            var milk2Value = document.getElementById('milkType2').value;
 
-            var liquidMix1 = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, document.getElementById('liquidMix1').value, document.getElementById('liquidMix1Amount').value, size, 'liquidMix1Price');
-            var liquidMix2 = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, document.getElementById('liquidMix2').value, document.getElementById('liquidMix2Amount').value, size, 'liquidMix2Price');
-            var sweetener1 = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, document.getElementById('sweetener1').value, document.getElementById('sweetener1Amount').value, size, 'sweetener1Price');
-            var sweetener2 = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, document.getElementById('sweetener2').value, document.getElementById('sweetener2Amount').value, size, 'sweetener2Price');
-            var solidSimulated = calculateSolidPrice(solidMixInWorksheet, solidSpecs, sizeSpecsDict, document.getElementById('mixIn1').value, document.getElementById('mixInAmount').value, size, 'mixIn1Price', document.getElementById('mixIn2').value, 'mixIn2Price');
+            var liquidMix1 = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix1Value, document.getElementById('liquidMix1Amount').value, size, 'liquidMix1Price');
+            var liquidMix2 = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix2Value, document.getElementById('liquidMix2Amount').value, size, 'liquidMix2Price');
+            var sweetener1 = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener1Value, document.getElementById('sweetener1Amount').value, size, 'sweetener1Price');
+            var sweetener2 = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener2Value, document.getElementById('sweetener2Amount').value, size, 'sweetener2Price');
+            var solidSimulated = calculateSolidPrice(solidMixInWorksheet, solidSpecs, sizeSpecsDict, solid1Value, document.getElementById('mixInAmount').value, size, 'mixIn1Price', solid2Value, 'mixIn2Price');
 
             var totalGramsBeforeMilk = liquidMix1.amount + liquidMix2.amount + solidSimulated.cupAmount;
 
-            var milkType1Price = calculateMilkPrice(milkWorksheet, sizeSpecsDict, document.getElementById('milkType1').value, size, 'milkType1Price', 2/3, totalGramsBeforeMilk);
-            var milkType2Price = calculateMilkPrice(milkWorksheet, sizeSpecsDict, document.getElementById('milkType2').value, size, 'milkType2Price', 1/3, totalGramsBeforeMilk);
+            var [milkType1Price,milkType1Grams] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, milk1Value, size, 'milkType1Price', 2/3, totalGramsBeforeMilk);
+            var [milkType2Price,milkType2Grams] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, milk2Value, size, 'milkType2Price', 1/3, totalGramsBeforeMilk);
+
+            var totalCalories = 0;
+
+            if (liquidMix1.amount && flavorWorksheet[liquidMix1Value] && flavorWorksheet[liquidMix1Value]["Calories"]) {
+                var liquidMix1Calories = (liquidMix1.amount / 15) * flavorWorksheet[liquidMix1Value]["Calories"];
+                totalCalories += liquidMix1Calories;
+            }
+
+            if (liquidMix2.amount && flavorWorksheet[liquidMix2Value] && flavorWorksheet[liquidMix2Value]["Calories"]) {
+                var liquidMix2Calories = (liquidMix2.amount / 15) * flavorWorksheet[liquidMix2Value]["Calories"];
+                totalCalories += liquidMix2Calories;
+            }
+
+            if (sweetener1.amount && sweetenerWorksheet[sweetener1Value] && sweetenerWorksheet[sweetener1Value]["gram equivalent (of 1/2 cup)"] && sweetenerWorksheet[sweetener1Value]["Calories"]) {
+                var sweetener1Calories = (sweetener1.amount / sweetenerWorksheet[sweetener1Value]["gram equivalent (of 1/2 cup)"]) * sweetenerWorksheet[sweetener1Value]["Calories"];
+                totalCalories += sweetener1Calories;
+            }
+
+            if (sweetener2.amount && sweetenerWorksheet[sweetener2Value] && sweetenerWorksheet[sweetener2Value]["gram equivalent (of 1/2 cup)"] && sweetenerWorksheet[sweetener2Value]["Calories"]) {
+                var sweetener2Calories = (sweetener2.amount / sweetenerWorksheet[sweetener2Value]["gram equivalent (of 1/2 cup)"]) * sweetenerWorksheet[sweetener2Value]["Calories"];
+                totalCalories += sweetener2Calories;
+            }
+
+            if (solidSimulated.amount1 && solidMixInWorksheet[solid1Value] && solidMixInWorksheet[solid1Value]["grams (from cups)"] && solidMixInWorksheet[solid1Value]["Calories"]) {
+                var solid1Calories = (solidSimulated.amount1 / solidMixInWorksheet[solid1Value]["grams (from cups)"]) * solidMixInWorksheet[solid1Value]["Calories"];
+                totalCalories += solid1Calories;
+            }
+
+            if (solidSimulated.amount2 && solidMixInWorksheet[solid2Value] && solidMixInWorksheet[solid2Value]["grams (from cups)"] && solidMixInWorksheet[solid2Value]["Calories"]) {
+                var solid2Calories = (solidSimulated.amount2 / solidMixInWorksheet[solid2Value]["grams (from cups)"]) * solidMixInWorksheet[solid2Value]["Calories"];
+                totalCalories += solid2Calories;
+            }
+
+            if (milkType1Grams && milkWorksheet[milk1Value] && milkWorksheet[milk1Value]["Calories"]) {
+                var milk1Calories = (milkType1Grams / 240) * milkWorksheet[milk1Value]["Calories"];
+                totalCalories += milk1Calories;
+            }
+
+            if (milkType2Grams && milkWorksheet[milk2Value] && milkWorksheet[milk2Value]["Calories"]) {
+                var milk2Calories = (milkType2Grams / 240) * milkWorksheet[milk2Value]["Calories"];
+                totalCalories += milk2Calories;
+            }
+            // Function to update nutrition facts function 
+            document.getElementById('serving-per-container').textContent = `Servings Per Container: ${(sizeSpecsDict[size].Amount/66).toFixed(0)}`; 
+            document.getElementById('serving-size').textContent = 'Serving Size: 1/2 cup (66g)';
+            document.getElementById('calories').textContent = `Calories: ${(totalCalories * (66/sizeSpecsDict[size].Amount)).toFixed(0)} | ${totalCalories.toFixed(0)}`;
+            calculateTotalCalories("Fat (g)", size, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
+            calculateTotalCalories("Protein (g)", size, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
+            calculateTotalCalories("Sugar (g)", size, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
+
 
             var currentAdditionalCosts = (additionalCosts + sizeSpecsDict[size].ContainerCost) * upcharge;
             document.getElementById("additionalCosts").innerText = `$${currentAdditionalCosts.toFixed(2)}`;
@@ -1265,6 +1424,83 @@
             var quantity = document.getElementById('quantity-customize').value;
             var totalPrice = pricePerQuantity * quantity;
             document.getElementById("totalPrice").innerText = `$${totalPrice.toFixed(2)}`;
+
+            //TODO add nutrition updating here
+        }
+
+        function calculateTotalCalories(fieldName, size, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet) {
+            var totalCalories = 0;
+
+            if (liquidMix1.amount && flavorWorksheet[liquidMix1Value] && flavorWorksheet[liquidMix1Value][fieldName]) {
+                var liquidMix1Calories = (liquidMix1.amount / 15) * flavorWorksheet[liquidMix1Value][fieldName];
+                console.log(`Liquid Mix 1: Amount = ${liquidMix1.amount}, ${fieldName} per 15g = ${flavorWorksheet[liquidMix1Value][fieldName]}, Calculation = ${liquidMix1.amount} / 15 * ${flavorWorksheet[liquidMix1Value][fieldName]}, Result = ${liquidMix1Calories}`);
+                totalCalories += liquidMix1Calories;
+            }
+
+            if (liquidMix2.amount && flavorWorksheet[liquidMix2Value] && flavorWorksheet[liquidMix2Value][fieldName]) {
+                var liquidMix2Calories = (liquidMix2.amount / 15) * flavorWorksheet[liquidMix2Value][fieldName];
+                console.log(`Liquid Mix 2: Amount = ${liquidMix2.amount}, ${fieldName} per 15g = ${flavorWorksheet[liquidMix2Value][fieldName]}, Calculation = ${liquidMix2.amount} / 15 * ${flavorWorksheet[liquidMix2Value][fieldName]}, Result = ${liquidMix2Calories}`);
+                totalCalories += liquidMix2Calories;
+            }
+
+            if (sweetener1.amount && sweetenerWorksheet[sweetener1Value] && sweetenerWorksheet[sweetener1Value]["gram equivalent (of 1/2 cup)"] && sweetenerWorksheet[sweetener1Value][fieldName]) {
+                var sweetener1Calories = (sweetener1.amount / sweetenerWorksheet[sweetener1Value]["gram equivalent (of 1/2 cup)"]) * sweetenerWorksheet[sweetener1Value][fieldName];
+                console.log(`Sweetener 1: Amount = ${sweetener1.amount}, Gram Equivalent (of 1/2 cup) = ${sweetenerWorksheet[sweetener1Value]["gram equivalent (of 1/2 cup)"]}, ${fieldName} per Gram Equivalent = ${sweetenerWorksheet[sweetener1Value][fieldName]}, Calculation = ${sweetener1.amount} / ${sweetenerWorksheet[sweetener1Value]["gram equivalent (of 1/2 cup)"]} * ${sweetenerWorksheet[sweetener1Value][fieldName]}, Result = ${sweetener1Calories}`);
+                totalCalories += sweetener1Calories;
+            }
+
+            if (sweetener2.amount && sweetenerWorksheet[sweetener2Value] && sweetenerWorksheet[sweetener2Value]["gram equivalent (of 1/2 cup)"] && sweetenerWorksheet[sweetener2Value][fieldName]) {
+                var sweetener2Calories = (sweetener2.amount / sweetenerWorksheet[sweetener2Value]["gram equivalent (of 1/2 cup)"]) * sweetenerWorksheet[sweetener2Value][fieldName];
+                console.log(`Sweetener 2: Amount = ${sweetener2.amount}, Gram Equivalent (of 1/2 cup) = ${sweetenerWorksheet[sweetener2Value]["gram equivalent (of 1/2 cup)"]}, ${fieldName} per Gram Equivalent = ${sweetenerWorksheet[sweetener2Value][fieldName]}, Calculation = ${sweetener2.amount} / ${sweetenerWorksheet[sweetener2Value]["gram equivalent (of 1/2 cup)"]} * ${sweetenerWorksheet[sweetener2Value][fieldName]}, Result = ${sweetener2Calories}`);
+                totalCalories += sweetener2Calories;
+            }
+
+            if (solidSimulated.amount1 && solidMixInWorksheet[solid1Value] && solidMixInWorksheet[solid1Value]["grams (from cups)"] && solidMixInWorksheet[solid1Value][fieldName]) {
+                var solid1Calories = (solidSimulated.amount1 / solidMixInWorksheet[solid1Value]["grams (from cups)"]) * solidMixInWorksheet[solid1Value][fieldName];
+                console.log(`Solid Mix In 1: Amount = ${solidSimulated.amount1}, Grams (from cups) = ${solidMixInWorksheet[solid1Value]["grams (from cups)"]}, ${fieldName} per Gram = ${solidMixInWorksheet[solid1Value][fieldName]}, Calculation = ${solidSimulated.amount1} / ${solidMixInWorksheet[solid1Value]["grams (from cups)"]} * ${solidMixInWorksheet[solid1Value][fieldName]}, Result = ${solid1Calories}`);
+                totalCalories += solid1Calories;
+            }
+
+            if (solidSimulated.amount2 && solidMixInWorksheet[solid2Value] && solidMixInWorksheet[solid2Value]["grams (from cups)"] && solidMixInWorksheet[solid2Value][fieldName]) {
+                var solid2Calories = (solidSimulated.amount2 / solidMixInWorksheet[solid2Value]["grams (from cups)"]) * solidMixInWorksheet[solid2Value][fieldName];
+                console.log(`Solid Mix In 2: Amount = ${solidSimulated.amount2}, Grams (from cups) = ${solidMixInWorksheet[solid2Value]["grams (from cups)"]}, ${fieldName} per Gram = ${solidMixInWorksheet[solid2Value][fieldName]}, Calculation = ${solidSimulated.amount2} / ${solidMixInWorksheet[solid2Value]["grams (from cups)"]} * ${solidMixInWorksheet[solid2Value][fieldName]}, Result = ${solid2Calories}`);
+                totalCalories += solid2Calories;
+            }
+
+            if (milkType1Grams && milkWorksheet[milk1Value] && milkWorksheet[milk1Value][fieldName]) {
+                var milk1Calories = (milkType1Grams / 240) * milkWorksheet[milk1Value][fieldName];
+                console.log(`Milk Type 1: Grams = ${milkType1Grams}, ${fieldName} per 240g = ${milkWorksheet[milk1Value][fieldName]}, Calculation = ${milkType1Grams} / 240 * ${milkWorksheet[milk1Value][fieldName]}, Result = ${milk1Calories}`);
+                totalCalories += milk1Calories;
+            }
+
+            if (milkType2Grams && milkWorksheet[milk2Value] && milkWorksheet[milk2Value][fieldName]) {
+                var milk2Calories = (milkType2Grams / 240) * milkWorksheet[milk2Value][fieldName];
+                console.log(`Milk Type 2: Grams = ${milkType2Grams}, ${fieldName} per 240g = ${milkWorksheet[milk2Value][fieldName]}, Calculation = ${milkType2Grams} / 240 * ${milkWorksheet[milk2Value][fieldName]}, Result = ${milk2Calories}`);
+                totalCalories += milk2Calories;
+            }
+
+            
+            addOrUpdateNutritionItem(fieldName,((totalCalories * (66/sizeSpecsDict[size].Amount)).toFixed(0)),totalCalories.toFixed(0));
+        }
+
+        // Function to add or update a nutrition item
+        function addOrUpdateNutritionItem(label, perServing, perContainer) {
+            const nutritionLabel = document.querySelector('.nutrition-label');
+            const existingItem = Array.from(nutritionLabel.querySelectorAll('.nutrition-item')).find(item => item.querySelector('.label').textContent === label);
+
+            if (existingItem) {
+                // Update the existing item
+                existingItem.querySelector('.value').innerHTML = `${perServing} | <span class="container-label">${perContainer}</span>`;
+            } else {
+                // Add a new item
+                const newItem = document.createElement('div');
+                newItem.classList.add('nutrition-item');
+                newItem.innerHTML = `
+                    <span class="label">${label}</span>
+                    <span class="value">${perServing} | <span class="container-label">${perContainer}</span></span>
+                `;
+                nutritionLabel.appendChild(newItem);
+            }
         }
 
 
@@ -1279,8 +1515,8 @@
 
             var totalGramsBeforeMilk = liquidMix1.amount + liquidMix2.amount + solidSimulated.cupAmount;
 
-            var milkType1Price = calculateMilkPrice(milkWorksheet, sizeSpecsDict, flavorValues["Milk Type 1 (2/3)"], size, null, 2/3, totalGramsBeforeMilk);
-            var milkType2Price = calculateMilkPrice(milkWorksheet, sizeSpecsDict, flavorValues["Milk Type 2 (1/3)"], size, null, 1/3, totalGramsBeforeMilk);
+            var [milkType1Price,milkType1Grams] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, flavorValues["Milk Type 1 (2/3)"], size, null, 2/3, totalGramsBeforeMilk);
+            var [milkType2Price,milkType2Grams] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, flavorValues["Milk Type 2 (1/3)"], size, null, 1/3, totalGramsBeforeMilk);
 
             var currentAdditionalCosts = (additionalCosts + sizeSpecsDict[size].ContainerCost) * upcharge;
 
