@@ -1,0 +1,394 @@
+#cart-items {
+    font-size: 0.9em; /* Adjust the font size as needed */
+}
+#cart-items th, #cart-items td {
+    padding: 5px; /* Adjust the padding as needed */
+}
+#cart-items th {
+    text-align: left;
+}
+
+/* Light mode styles */
+.featured-group {
+    background-color: #e0f7fa; /* Light cyan background */
+    border: 4px solid #00acc1; /* Cyan border */
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+.featured-group h3 {
+    color: #00796b; /* Teal color for the header text */
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* Dark mode styles */
+body.dark-mode .featured-group {
+    background-color: #263238; /* Dark blue-grey background */
+    border: 4px solid #37474f; /* Dark grey border */
+}
+
+body.dark-mode .featured-group h3 {
+    color: #80deea; /* Light cyan color for the header text */
+}
+
+
+.modal-content { 
+    display: flex; 
+    flex-direction: column; 
+    height: 100%;
+    }
+
+.modal-body .row {
+    flex: 1;
+    display: flex;
+}
+
+.modal-body .col-md-8 {
+    flex: 1;
+}
+
+.quantity-btn {
+    border-color: #ced4da; /* Match the border color of the input */
+    background-color: #ffffff; /* Match the background color of the input */
+    color: #495057; /* Match the text color of the input */
+}
+
+.quantity-btn:hover,
+.quantity-btn:focus,
+.quantity-btn:active {
+    background-color: #e9ecef; /* Slightly darker background on hover */
+    border-color: #ced4da; /* Match the border color of the input */
+    color: #6c757d; /* Darker color when highlighted */
+}
+
+.input-group .form-control {
+    border-color: #ced4da; /* Ensure the input has the same border color */
+}
+
+/* Override the btn-outline-secondary class */
+.btn-outline-secondary {
+    border-color: #ced4da !important; /* Match the border color of the input */
+    color: #495057 !important; /* Match the text color of the input */
+}
+
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus,
+.btn-outline-secondary:active {
+    background-color: #e9ecef !important; /* Slightly darker background on hover */
+    border-color: #ced4da !important; /* Match the border color of the input */
+    color: #6c757d !important; /* Darker color when highlighted */
+}
+
+.btn-group-toggle { 
+    display: flex; justify-content: center; flex-wrap: wrap;
+    }
+.btn-group-toggle .btn { 
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: auto; flex: 1 1 auto; 
+} 
+
+.modal-footer {
+    text-align: left;
+}
+
+.modal-footer h5,
+.modal-footer label,
+.modal-footer span {
+    display: block;
+    width: 100%;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.justify-content-center {
+    justify-content: center;
+}
+
+/* Mobile view */
+@media (max-width: 768px) {
+    .sticky-header {
+        position: -webkit-sticky; /* For Safari */
+        position: sticky;
+        top: 0;
+        z-index: 1000; /* Ensure it stays on top of other elements */
+        padding: 10px; /* Optional: add some padding if needed */
+        backdrop-filter: blur(5px); /* Add blur effect */
+        border-bottom: none; /* Remove bottom border */
+        width: 100%; /* Make the header span the entire width */
+        left: 0; /* Ensure it starts from the left edge */
+    }
+}
+
+@media (min-width: 769px) {
+    .sticky-header {
+        position: -webkit-sticky; /* For Safari */
+        top: 0;
+        z-index: 1000; /* Ensure it stays on top of other elements */
+        padding: 10px; /* Optional: add some padding if needed */
+        backdrop-filter: blur(5px); /* Add blur effect */
+        border-bottom: none; /* Remove bottom border */
+        width: 100%; /* Make the header span the entire width */
+        left: 0; /* Ensure it starts from the left edge */
+    }
+}
+
+.form-group {
+    display: flex;
+    justify-content: center; /* Center the content horizontally */
+    align-items: center; /* Center the content vertically */
+    width: 100%;
+}
+
+.btn-group-toggle {
+    display: flex;
+    justify-content: center; /* Center the buttons horizontally */
+    flex-wrap: wrap;
+}
+
+.btn-group-toggle .btn {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: auto;
+    flex: 1 1 auto;
+}
+
+.sticky-top {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 1020;
+}
+
+.shopping-cart {
+    position: fixed;
+    top: 0;
+    right: -300px; /* Adjust the width as needed */
+    width: 300px;
+    height: 100%;
+    background-color: white;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.5);
+    transition: right 0.3s ease;
+    z-index: 1050;
+}
+
+.shopping-cart.show {
+    right: 0;
+}
+
+.close { 
+    position: absolute; 
+    top: 10px; 
+    right: 10px; 
+    font-size: 1.5rem; 
+    cursor: pointer;
+    }
+
+    body {
+    background: linear-gradient(135deg, #00c6ff, #0072ff, #00c6ff);
+    /* Fallback for older browsers */
+    background: -webkit-linear-gradient(135deg, #00c6ff, #0072ff, #00c6ff);
+    background: -moz-linear-gradient(135deg, #00c6ff, #0072ff, #00c6ff);
+    background: -o-linear-gradient(135deg, #00c6ff, #0072ff, #00c6ff);
+    background: -ms-linear-gradient(135deg, #00c6ff, #0072ff, #00c6ff);
+}
+
+body.dark-mode {
+    background: linear-gradient(135deg, #333333, #000000, #333333);
+    /* Fallback for older browsers */
+    background: -webkit-linear-gradient(135deg, #333333, #000000, #333333);
+    background: -moz-linear-gradient(135deg, #333333, #000000, #333333);
+    background: -o-linear-gradient(135deg, #333333, #000000, #333333);
+    background: -ms-linear-gradient(135deg, #333333, #000000, #333333);
+}
+
+
+h2, h3 {
+    color: white; /* Default color for larger screens */
+    text-shadow: 1px 1px 2px #333333; /* Dark gray outline */
+}
+
+@media (max-width: 768px) {
+    h2, h3 {
+        color: black; /* Black text for mobile devices */
+        text-shadow: none; /* Remove the outline for mobile */
+    }
+}
+
+
+.logo {
+        max-width: 200px; /* Adjust the value as needed */ 
+        width: 50%; 
+        height: auto; 
+} 
+
+.btn-craft-flavor { 
+    background: linear-gradient(135deg, #ff7e5f, #feb47b); 
+    border: none; 
+    color: #ffffff; 
+    font-size: 3rem; /* Increase the font size */ 
+    padding: 20px 40px; /* Increase padding */ 
+    border-radius: 10px; 
+    transition: background 0.3s ease; 
+}
+
+.btn-craft-flavor:hover 
+{ 
+    background: linear-gradient(135deg, #feb47b, #ff7e5f); 
+}
+
+body.dark-mode {
+    background: linear-gradient(135deg, #333333, #000000, #333333);
+    /* Fallback for older browsers */
+    background: -webkit-linear-gradient(135deg, #333333, #000000, #333333);
+    background: -moz-linear-gradient(135deg, #333333, #000000, #333333);
+    background: -o-linear-gradient(135deg, #333333, #000000, #333333);
+    background: -ms-linear-gradient(135deg, #333333, #000000, #333333);
+    color: #ffffff;
+}
+
+.dark-mode .btn-primary {
+    background-color: #1a73e8;
+    border-color: #1a73e8;
+}
+
+.dark-mode .btn-secondary {
+    background-color: #333333;
+    border-color: #333333;
+}
+
+.dark-mode .card {
+    background-color: #1e1e1e;
+    color: #ffffff;
+}
+
+.dark-mode .shopping-cart {
+    background-color: #1e1e1e;
+    color: #ffffff;
+}
+
+.dark-mode h2, .dark-mode h3 {
+    color: #ffffff;
+}
+
+.dark-mode .modal-content {
+    background-color: #1e1e1e;
+    color: #ffffff;
+}
+
+.dark-mode .modal-header, .dark-mode .modal-body, .dark-mode .modal-footer {
+    border-color: #333333;
+}
+
+.btn-dark-mode {
+    background-color: #444444;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-dark-mode:hover {
+    background-color: #555555;
+}
+
+.dark-mode .btn-dark-mode {
+    background-color: #ffffff;
+    color: #444444;
+}
+
+.dark-mode .btn-dark-mode:hover {
+    background-color: #dddddd;
+}
+
+.dark-mode th, .dark-mode td { 
+    border-color: #333333;
+    color: #ffffff; /* Text color for table headers and cells */
+}
+
+.nutrition-label {
+    position: sticky;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 200px; /* Adjust the width to make it more compact */
+    background-color: #fff;
+    border: 1px solid #000;
+    padding: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+    font-size: 12px; /* Adjust the font size to make it smaller */
+    line-height: 1.2; /* Adjust the line height to make it more compact */
+    color: #000; /* Text color */
+}
+.nutrition-label h3 {
+    font-size: 18px; /* Adjust the font size to make it smaller */
+    margin-bottom: 5px;
+    color: #000; /* Text color */
+    border-bottom: 2px solid #000;
+    padding-bottom: 5px;
+}
+.nutrition-label .nutrition-item {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #000;
+    padding: 2px 0;
+}
+.nutrition-label .nutrition-item:last-child {
+    border-bottom: none;
+}
+.nutrition-label .nutrition-item .label {
+    font-weight: bold;
+}
+.nutrition-label .nutrition-item .value {
+    text-align: right;
+}
+.nutrition-label .serving-info {
+    font-size: 12px; /* Adjust the font size to make it smaller */
+    margin-bottom: 5px;
+}
+.nutrition-label .calories {
+    font-size: 14px; /* Adjust the font size to make it smaller */
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.nutrition-label .container-info {
+    font-size: 12px; /* Adjust the font size to make it smaller */
+    margin-top: 10px;
+    border-top: 2px solid #000;
+    padding-top: 5px;
+}
+.nutrition-label .container-info .nutrition-item {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #000;
+    padding: 2px 0;
+}
+.nutrition-label .container-info .nutrition-item:last-child {
+    border-bottom: none;
+}
+.nutrition-label .container-info .label {
+    font-weight: bold;
+}
+.nutrition-label .container-info .value {
+    text-align: right;
+}
+.nutrition-label .container-info .container-label {
+    font-weight: bold;
+    text-align: right;
+    margin-left: 10px;
+}
+.nutrition-label .per-serving-container {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+@media (max-width: 767.98px) { .nutrition-label { position: static; transform: none; top: auto; } }
+
+.modal-dialog { max-width: 1000px; /* Adjust the width as needed */ }
