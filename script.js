@@ -4,16 +4,22 @@ let upcharge;
 
 // storing worksheet as dictionaries to minimize future for loop needs
 let milkWorksheet;
+let thickenerWorksheet;
 let flavorWorksheet;
 let solidMixInWorksheet;
 let sweetenerWorksheet;
 let premadeWorksheet;
 
 // storing specs dictionaries for pricing
+let sizeOptions;
 let sizeSpecsDict = {}; 
 let liquidSpecs = {};
 let solidSpecs = {};
 let sweetenerSpecs = {};
+
+let address;
+let gallonCost;
+let carMpg;
 
 function toggleCart() {
     const cart = document.getElementById('shoppingCart');
@@ -48,6 +54,8 @@ function validateForm(button) {
         const iceCreamBase = document.getElementById('iceCreamBase').value;
         const milkType1 = document.getElementById('milkType1').value;
         const milkType2 = document.getElementById('milkType2').value;
+        const thickener = document.getElementById('thickener').value;
+        const thickenerAmount = document.getElementById('thickenerAmount').value;
         const liquidMix1 = document.getElementById('liquidMix1').value;
         const liquidMix1Amount = document.getElementById('liquidMix1Amount').value;
         const liquidMix2 = document.getElementById('liquidMix2').value;
@@ -73,6 +81,8 @@ function validateForm(button) {
         cartItem.querySelector('.ice-cream-base').textContent = iceCreamBase;
         cartItem.querySelector('.milk-type1').textContent = milkType1;
         cartItem.querySelector('.milk-type2').textContent = milkType2;
+        cartItem.querySelector('.thickener').textContent = thickener;
+        cartItem.querySelector('.thickener-amount').textContent = thickenerAmount;
         cartItem.querySelector('.liquid-mix1').textContent = liquidMix1;
         cartItem.querySelector('.liquid-mix1-amount').textContent = liquidMix1Amount;
         cartItem.querySelector('.liquid-mix2').textContent = liquidMix2;
@@ -151,17 +161,19 @@ function editCartItem(button) {
     const iceCreamBase = cartItemContainer.querySelector('tbody tr:nth-child(1) td:nth-child(2)').textContent;
     const milkType1 = cartItemContainer.querySelector('tbody tr:nth-child(2) td:nth-child(2)').textContent;
     const milkType2 = cartItemContainer.querySelector('tbody tr:nth-child(3) td:nth-child(2)').textContent;
-    const liquidMix1 = cartItemContainer.querySelector('tbody tr:nth-child(4) td:nth-child(2)').textContent;
-    const liquidMix1Amount = cartItemContainer.querySelector('tbody tr:nth-child(4) td:nth-child(3)').textContent;
-    const liquidMix2 = cartItemContainer.querySelector('tbody tr:nth-child(5) td:nth-child(2)').textContent;
-    const liquidMix2Amount = cartItemContainer.querySelector('tbody tr:nth-child(5) td:nth-child(3)').textContent;
-    const mixIn1 = cartItemContainer.querySelector('tbody tr:nth-child(6) td:nth-child(2)').textContent;
-    const mixInAmount = cartItemContainer.querySelector('tbody tr:nth-child(6) td:nth-child(3)').textContent;
-    const mixIn2 = cartItemContainer.querySelector('tbody tr:nth-child(7) td:nth-child(2)').textContent;
-    const sweetener1 = cartItemContainer.querySelector('tbody tr:nth-child(8) td:nth-child(2)').textContent;
-    const sweetener1Amount = cartItemContainer.querySelector('tbody tr:nth-child(8) td:nth-child(3)').textContent;
-    const sweetener2 = cartItemContainer.querySelector('tbody tr:nth-child(9) td:nth-child(2)').textContent;
-    const sweetener2Amount = cartItemContainer.querySelector('tbody tr:nth-child(9) td:nth-child(3)').textContent;
+    const thickener = cartItemContainer.querySelector('tbody tr:nth-child(4) td:nth-child(2)').textContent;
+    const thickenerAmount = cartItemContainer.querySelector('tbody tr:nth-child(4) td:nth-child(3)').textContent;
+    const liquidMix1 = cartItemContainer.querySelector('tbody tr:nth-child(5) td:nth-child(2)').textContent;
+    const liquidMix1Amount = cartItemContainer.querySelector('tbody tr:nth-child(5) td:nth-child(3)').textContent;
+    const liquidMix2 = cartItemContainer.querySelector('tbody tr:nth-child(6) td:nth-child(2)').textContent;
+    const liquidMix2Amount = cartItemContainer.querySelector('tbody tr:nth-child(6) td:nth-child(3)').textContent;
+    const mixIn1 = cartItemContainer.querySelector('tbody tr:nth-child(7) td:nth-child(2)').textContent;
+    const mixInAmount = cartItemContainer.querySelector('tbody tr:nth-child(7) td:nth-child(3)').textContent;
+    const mixIn2 = cartItemContainer.querySelector('tbody tr:nth-child(8) td:nth-child(2)').textContent;
+    const sweetener1 = cartItemContainer.querySelector('tbody tr:nth-child(9) td:nth-child(2)').textContent;
+    const sweetener1Amount = cartItemContainer.querySelector('tbody tr:nth-child(9) td:nth-child(3)').textContent;
+    const sweetener2 = cartItemContainer.querySelector('tbody tr:nth-child(10) td:nth-child(2)').textContent;
+    const sweetener2Amount = cartItemContainer.querySelector('tbody tr:nth-child(10) td:nth-child(3)').textContent;
     const quantity = cartItemContainer.querySelector('.quantity').value;
 
     // Set the values in the customize modal
@@ -169,6 +181,8 @@ function editCartItem(button) {
     document.getElementById('iceCreamBase').value = iceCreamBase;
     document.getElementById('milkType1').value = milkType1;
     document.getElementById('milkType2').value = milkType2;
+    document.getElementById('thickener').value = thickener;
+    document.getElementById('thickenerAmount').value = thickenerAmount;
     document.getElementById('liquidMix1').value = liquidMix1;
     document.getElementById('liquidMix1Amount').value = liquidMix1Amount;
     document.getElementById('liquidMix2').value = liquidMix2;
@@ -216,6 +230,9 @@ function resetCustomizeModal() {
     $('#milkType1Price').val(''); 
     $('#milkType2').val(''); 
     $('#milkType2Price').val(''); 
+    $('#thickener').val(''); 
+    $('#thickenerAmount').val(''); 
+    $('#thickenerPrice').val(''); 
     $('#liquidMix1').val(''); 
     $('#liquidMix1Amount').val(''); 
     $('#liquidMix1Price').val(''); 
@@ -255,7 +272,7 @@ function populateFlavorCards(sheetName) {
 
     // get size values
     // Handle size options as buttons
-    var sizeOptions = [];
+    sizeOptions = [];
 
     for (var i = 2; i <= Object.keys(specsWorksheet).length; i++) { // Skip header row 
         var cellAddress = `${"A"}${i}`; 
@@ -451,6 +468,8 @@ function addToCart(flavor, worksheet, quantity,price,size) {
 
     var milkType1 = worksheet[flavor]["Milk Type 1 (2/3)"];
     var milkType2 = worksheet[flavor]["Milk Type 2 (1/3)"];
+    var thickener = worksheet[flavor]["Thickener"];
+    var thickenerAmount = worksheet[flavor]["Thickener Amount (x tbsp)"];
     var liquidMix1 = worksheet[flavor]["Liquid Mix 1"];
     var liquidMix1Amount = worksheet[flavor]["Liquid Mix 1 Amount (x tbsp)"];
     var liquidMix2 = worksheet[flavor]["Liquid Mix 2"];
@@ -476,6 +495,8 @@ function addToCart(flavor, worksheet, quantity,price,size) {
     cartItem.querySelector('.ice-cream-base').textContent = iceCreamBase;
     cartItem.querySelector('.milk-type1').textContent = milkType1;
     cartItem.querySelector('.milk-type2').textContent = milkType2;
+    cartItem.querySelector('.thickener').textContent = thickener;
+    cartItem.querySelector('.thickener-amount').textContent = thickenerAmount;
     cartItem.querySelector('.liquid-mix1').textContent = liquidMix1;
     cartItem.querySelector('.liquid-mix1-amount').textContent = liquidMix1Amount;
     cartItem.querySelector('.liquid-mix2').textContent = liquidMix2;
@@ -508,8 +529,7 @@ function addToCart(flavor, worksheet, quantity,price,size) {
 
 }
 
-function setCustomizeValue(worksheet, i, column, elementId) { 
-    const value = worksheet[`${column}${i}`] ? worksheet[`${column}${i}`].v : ''; 
+function setCustomizeValue(value, elementId) { 
     document.getElementById(elementId).value = value;
 }
 
@@ -599,27 +619,35 @@ function calculateMilkPrice(worksheet, sizeSpecsDict, value, size, priceId, milk
 function calculateCustomizePrice() {
     var size = document.querySelector(`#size-customize input[name="size"]:checked`).value;
     
+    var milk1Value = document.getElementById('milkType1').value;
+    var milk2Value = document.getElementById('milkType2').value;
+    var thickenerValue = document.getElementById('thickener').value;
     var liquidMix1Value = document.getElementById('liquidMix1').value;
     var liquidMix2Value = document.getElementById('liquidMix2').value;
     var sweetener1Value = document.getElementById('sweetener1').value;
     var sweetener2Value = document.getElementById('sweetener2').value;
     var solid1Value = document.getElementById('mixIn1').value;
     var solid2Value = document.getElementById('mixIn2').value;
-    var milk1Value = document.getElementById('milkType1').value;
-    var milk2Value = document.getElementById('milkType2').value;
+    
 
+    var thickener = calculateSegmentPrice(thickenerWorksheet, liquidSpecs, sizeSpecsDict, thickenerValue, document.getElementById('thickenerAmount').value, size, 'thickenerPrice');
     var liquidMix1 = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix1Value, document.getElementById('liquidMix1Amount').value, size, 'liquidMix1Price');
     var liquidMix2 = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix2Value, document.getElementById('liquidMix2Amount').value, size, 'liquidMix2Price');
     var sweetener1 = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener1Value, document.getElementById('sweetener1Amount').value, size, 'sweetener1Price');
     var sweetener2 = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener2Value, document.getElementById('sweetener2Amount').value, size, 'sweetener2Price');
     var solidSimulated = calculateSolidPrice(solidMixInWorksheet, solidSpecs, sizeSpecsDict, solid1Value, document.getElementById('mixInAmount').value, size, 'mixIn1Price', solid2Value, 'mixIn2Price');
 
-    var totalGramsBeforeMilk = liquidMix1.amount + liquidMix2.amount + solidSimulated.cupAmount;
+    var totalGramsBeforeMilk = thickener.amount + liquidMix1.amount + liquidMix2.amount + solidSimulated.cupAmount;
 
     var [milkType1Price,milkType1Grams] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, milk1Value, size, 'milkType1Price', 2/3, totalGramsBeforeMilk);
     var [milkType2Price,milkType2Grams] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, milk2Value, size, 'milkType2Price', 1/3, totalGramsBeforeMilk);
 
     var totalCalories = 0;
+
+    if (thickener.amount && thickenerWorksheet[thickenerValue] && thickenerWorksheet[thickenerValue]["Calories"]) {
+        var thickenerCalories = (thickener.amount / 15) * thickenerWorksheet[thickenerValue]["Calories"];
+        totalCalories += thickenerCalories;
+    }
 
     if (liquidMix1.amount && flavorWorksheet[liquidMix1Value] && flavorWorksheet[liquidMix1Value]["Calories"]) {
         var liquidMix1Calories = (liquidMix1.amount / 15) * flavorWorksheet[liquidMix1Value]["Calories"];
@@ -664,14 +692,15 @@ function calculateCustomizePrice() {
     document.getElementById('serving-per-container').textContent = `Servings Per Container: ${(sizeSpecsDict[size].Amount/66).toFixed(0)}`; 
     document.getElementById('serving-size').textContent = 'Serving Size: 1/2 cup (66g)';
     document.getElementById('calories').textContent = `Calories: ${(totalCalories * (66/sizeSpecsDict[size].Amount)).toFixed(0)} | ${totalCalories.toFixed(0)}`;
-    calculateTotalCalories("Fat (g)", size, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
-    calculateTotalCalories("Protein (g)", size, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
-    calculateTotalCalories("Sugar (g)", size, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
+    calculateTotalCalories("Fat (g)", size, thickener, thickenerValue, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
+    calculateTotalCalories("Protein (g)", size, thickener, thickenerValue, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
+    calculateTotalCalories("Sugar (g)", size, thickener, thickenerValue, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
 
 
     var currentAdditionalCosts = (additionalCosts + sizeSpecsDict[size].ContainerCost) * upcharge;
     document.getElementById("additionalCosts").innerText = `$${currentAdditionalCosts.toFixed(2)}`;
 
+    var thickenerPrice = thickener.price || 0;
     var liquidMix1Price = liquidMix1.price || 0;
     var liquidMix2Price = liquidMix2.price || 0;
     var sweetener1Price = sweetener1.price || 0;
@@ -679,7 +708,7 @@ function calculateCustomizePrice() {
     var mixIn1Price = solidSimulated.price1 || 0;
     var mixIn2Price = solidSimulated.price2 || 0;
 
-    var pricePerQuantity = milkType1Price + milkType2Price + liquidMix1Price + liquidMix2Price + sweetener1Price + sweetener2Price + mixIn1Price + mixIn2Price + currentAdditionalCosts;
+    var pricePerQuantity = milkType1Price + milkType2Price + thickenerPrice + liquidMix1Price + liquidMix2Price + sweetener1Price + sweetener2Price + mixIn1Price + mixIn2Price + currentAdditionalCosts;
     document.getElementById("pricePerQuantity").innerText = `$${pricePerQuantity.toFixed(2)}`;
 
     var quantity = document.getElementById('quantity-customize').value;
@@ -689,8 +718,15 @@ function calculateCustomizePrice() {
     //TODO add nutrition updating here
 }
 
-function calculateTotalCalories(fieldName, size, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet) {
+function calculateTotalCalories(fieldName, size, thickener, thickenerValue,liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet) {
     var totalCalories = 0;
+
+    if (thickener.amount && flavorWorksheet[thickenerValue] && flavorWorksheet[thickenerValue][fieldName]) {
+        var thickenerCalories = (thickener.amount / 15) * flavorWorksheet[thickenerValue][fieldName];
+        console.log(`Liquid Mix 1: Amount = ${thickener.amount}, ${fieldName} per 15g = ${thickenerWorksheet[thickenerValue][fieldName]}, Calculation = ${thickener.amount} / 15 * ${thickenerWorksheet[thickenerValue][fieldName]}, Result = ${thickenerCalories}`);
+        totalCalories += thickenerCalories;
+    }
+
 
     if (liquidMix1.amount && flavorWorksheet[liquidMix1Value] && flavorWorksheet[liquidMix1Value][fieldName]) {
         var liquidMix1Calories = (liquidMix1.amount / 15) * flavorWorksheet[liquidMix1Value][fieldName];
@@ -768,19 +804,23 @@ function addOrUpdateNutritionItem(label, perServing, perContainer) {
 function calculateCustomizePriceFromFlavor(size,flavor) {
     var flavorValues = premadeWorksheet[flavor];
 
+    console.log("Flavor Values is ", flavorValues);
+
+    var thickener = calculateSegmentPrice(thickenerWorksheet, liquidSpecs, sizeSpecsDict, flavorValues["Thickener"], flavorValues["Thickener Amount (x tbsp)"], size, null);
     var liquidMix1 = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, flavorValues["Liquid Mix 1"], flavorValues["Liquid Mix 1 Amount (x tbsp)"], size, null);
     var liquidMix2 = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, flavorValues["Liquid Mix 2"], flavorValues["Liquid Mix 2 Amount (x tbsp)"], size, null);
     var sweetener1 = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, flavorValues["Sweetner Type 1"], flavorValues["Sweetner Type 1 Amount (x 100g)"], size, null);
     var sweetener2 = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, flavorValues["Sweetner Type 2"], flavorValues["Sweetner Type 2 Amount (x 100g)"], size, null);
     var solidSimulated = calculateSolidPrice(solidMixInWorksheet, solidSpecs, sizeSpecsDict, flavorValues["Solid Mix 1"], flavorValues["Solid Mix Amount (% of all ice cream)"], size, null, flavorValues["Solid Mix 2"], null);
 
-    var totalGramsBeforeMilk = liquidMix1.amount + liquidMix2.amount + solidSimulated.cupAmount;
+    var totalGramsBeforeMilk = thickener.amount + liquidMix1.amount + liquidMix2.amount + solidSimulated.cupAmount;
 
     var [milkType1Price,milkType1Grams] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, flavorValues["Milk Type 1 (2/3)"], size, null, 2/3, totalGramsBeforeMilk);
     var [milkType2Price,milkType2Grams] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, flavorValues["Milk Type 2 (1/3)"], size, null, 1/3, totalGramsBeforeMilk);
 
     var currentAdditionalCosts = (additionalCosts + sizeSpecsDict[size].ContainerCost) * upcharge;
 
+    var thickenerPrice = thickener.price || 0;
     var liquidMix1Price = liquidMix1.price || 0;
     var liquidMix2Price = liquidMix2.price || 0;
     var sweetener1Price = sweetener1.price || 0;
@@ -788,7 +828,7 @@ function calculateCustomizePriceFromFlavor(size,flavor) {
     var mixIn1Price = solidSimulated.price1 || 0;
     var mixIn2Price = solidSimulated.price2 || 0;
 
-    var pricePerQuantity = milkType1Price + milkType2Price + liquidMix1Price + liquidMix2Price + sweetener1Price + sweetener2Price + mixIn1Price + mixIn2Price + currentAdditionalCosts;
+    var pricePerQuantity = milkType1Price + milkType2Price + thickenerPrice + liquidMix1Price + liquidMix2Price + sweetener1Price + sweetener2Price + mixIn1Price + mixIn2Price + currentAdditionalCosts;
 
     return pricePerQuantity.toFixed(2);
 }
@@ -820,9 +860,11 @@ function autoSelectValues(flavor, worksheet,size,quantity) {
                 }
             });
 
+            console.log("Flavor is ", flavor);
+            console.log(premadeWorksheet);
             //TODO update this to use the dictionaries to simplify
-            setCustomizeValue(worksheet, i, 'B', 'milkType1'); 
-            setCustomizeValue(worksheet, i, 'C', 'milkType2'); 
+            setCustomizeValue(premadeWorksheet[flavor]["Milk Type 1 (2/3)"], 'milkType1'); 
+            setCustomizeValue(premadeWorksheet[flavor]["Milk Type 2 (1/3)"], 'milkType2'); 
 
             var milkType1 = document.getElementById("milkType1").value;
             var milkType2 = document.getElementById("milkType2").value;
@@ -833,17 +875,20 @@ function autoSelectValues(flavor, worksheet,size,quantity) {
                 document.getElementById('iceCreamBase').value = matchingBase;
             }
 
-            setCustomizeValue(worksheet, i, 'D', 'liquidMix1'); 
-            setCustomizeValue(worksheet, i, 'K', 'liquidMix1Amount'); 
-            setCustomizeValue(worksheet, i, 'E', 'liquidMix2'); 
-            setCustomizeValue(worksheet, i, 'L', 'liquidMix2Amount');
-            setCustomizeValue(worksheet, i, 'F', 'mixIn1'); 
-            setCustomizeValue(worksheet, i, 'G', 'mixIn2'); 
-            setCustomizeValue(worksheet, i, 'M', 'mixInAmount'); 
-            setCustomizeValue(worksheet, i, 'H', 'sweetener1'); 
-            setCustomizeValue(worksheet, i, 'N', 'sweetener1Amount'); 
-            setCustomizeValue(worksheet, i, 'I', 'sweetener2'); 
-            setCustomizeValue(worksheet, i, 'O', 'sweetener2Amount'); 
+            setCustomizeValue(premadeWorksheet[flavor]["Thickener"], 'thickener'); 
+            setCustomizeValue(premadeWorksheet[flavor]["Thickener Amount (x tbsp)"], 'thickenerAmount'); 
+
+            setCustomizeValue(premadeWorksheet[flavor]["Liquid Mix 1"], 'liquidMix1'); 
+            setCustomizeValue(premadeWorksheet[flavor]["Liquid Mix 1 Amount (x tbsp)"], 'liquidMix1Amount'); 
+            setCustomizeValue(premadeWorksheet[flavor]["Liquid Mix 2"], 'liquidMix2'); 
+            setCustomizeValue(premadeWorksheet[flavor]["Liquid Mix 2 Amount (x tbsp)"], 'liquidMix2Amount'); 
+            setCustomizeValue(premadeWorksheet[flavor]["Solid Mix 1"], 'mixIn1'); 
+            setCustomizeValue(premadeWorksheet[flavor]["Solid Mix 2"], 'mixIn2'); 
+            setCustomizeValue(premadeWorksheet[flavor]["Solid Mix Amount (% of all ice cream)"], 'mixInAmount'); 
+            setCustomizeValue(premadeWorksheet[flavor]["Sweetner Type 1"], 'sweetener1'); 
+            setCustomizeValue(premadeWorksheet[flavor]["Sweetner Type 1 Amount (x 100g)"], 'sweetener1Amount'); 
+            setCustomizeValue(premadeWorksheet[flavor]["Sweetner Type 2"], 'sweetener2'); 
+            setCustomizeValue(premadeWorksheet[flavor]["Sweetner Type 2 Amount (x 100g)"], 'sweetener2Amount'); 
             
             calculateCustomizePrice();
             break; 
@@ -1088,8 +1133,15 @@ function worksheetToDict(worksheetName) {
     return result;
 }
 
+function getFlavorFromURL() {
+    var params = new URLSearchParams(window.location.search);
+    return params.get('flavor');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
 
+    var flavorUrl = getFlavorFromURL();
+    
     // retrieve the workbook data
     fetch('Ice Cream Master Document.xlsm') // Adjust URL as needed 
     .then(response => response.arrayBuffer()) 
@@ -1099,6 +1151,7 @@ document.addEventListener('DOMContentLoaded', () => {
            
 
         milkWorksheet = worksheetToDict("Milk Types Nutrition Per Cup");
+        thickenerWorksheet = worksheetToDict("Thickener Nutrition");
         flavorWorksheet = worksheetToDict("Liquid Mix In Nutrition");
         solidMixInWorksheet = worksheetToDict("Solid Mix In Nutrition");
         sweetenerWorksheet = worksheetToDict("Sweetener Mix In Nutrition");
@@ -1127,8 +1180,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         additionalCosts = specsWorksheet['Q2'] ? specsWorksheet['Q2'].v : 0;
         upcharge = specsWorksheet['N2'] ? specsWorksheet['N2'].v : 0; 
-        
-        
+        address = specsWorksheet['L1'] ? specsWorksheet['L1'].v : 0; 
+        gallonCost = specsWorksheet['L2'] ? specsWorksheet['L2'].v : 0; 
+        carMpg = specsWorksheet['L3'] ? specsWorksheet['L3'].v : 0; 
+
 
         fillSpecsDictionary(specsWorksheet, 'D', 'E', liquidSpecs);
         fillSpecsDictionary(specsWorksheet, 'H', 'I', solidSpecs);
@@ -1140,17 +1195,23 @@ document.addEventListener('DOMContentLoaded', () => {
         populateOptions('Milk Types Nutrition Per Cup', "O", ['iceCreamBase']); 
 
         populateOptionsFromList(milkWorksheet,['milkType1', 'milkType2']);
+        populateOptionsFromList(thickenerWorksheet,['thickener']);
         populateOptionsFromList(flavorWorksheet,['liquidMix1', 'liquidMix2']);
         populateOptionsFromList(solidMixInWorksheet,['mixIn1', 'mixIn2']);
         populateOptionsFromList(sweetenerWorksheet,['sweetener1', 'sweetener2']);
 
         populateOptions('Specs', "A", ['size-customize']); 
-        populateOptions('Specs', "D", ['liquidMix1Amount','liquidMix2Amount']); 
+        populateOptions('Specs', "D", ['liquidMix1Amount','liquidMix2Amount','thickenerAmount']); 
         populateOptions('Specs', "F", ['sweetener1Amount','sweetener2Amount']); 
         populateOptions('Specs', "H", ['mixInAmount']);     
 
         // Populate all the flavors on then website
         populateFlavorCards('Premade Flavors');  
+
+        if (flavorUrl) {
+            console.log("Flavor URL value is ", flavorUrl);
+            addToCart(flavorUrl,premadeWorksheet, 1, calculateCustomizePriceFromFlavor(sizeOptions[0],flavorUrl), sizeOptions[0]); 
+        }
     });      
 });
 
@@ -1189,8 +1250,17 @@ if (isNightTime()) {
 
 // Checkout Modal Stuff
 function checkout() {
+    // Get the total price from the shopping cart
+    let totalPrice = parseFloat($('#total-price').text());
+
+    // Set the final cost in the checkout modal
+    $('#finalCost').text(totalPrice.toFixed(2));
+
+    // Show the checkout modal
     $('#checkoutModal').modal('show');
 }
+
+
 
 function submitCheckout(event) {
     event.preventDefault(); // Prevent the default form submission
@@ -1219,7 +1289,104 @@ function submitCheckout(event) {
     });
 }
 
+document.getElementById('deliveryOption').addEventListener('change', function() {
+    var addressFields = document.getElementById('addressFields');
+    if (this.value === 'delivery') {
+        addressFields.style.display = 'block';
+        document.getElementById('address1').required = true;
+        document.getElementById('city').required = true;
+        document.getElementById('state').required = true;
+        document.getElementById('zip').required = true;
+    } else {
+        addressFields.style.display = 'none';
+        document.getElementById('address1').required = false;
+        document.getElementById('city').required = false;
+        document.getElementById('state').required = false;
+        document.getElementById('zip').required = false;
+    }
+});
+
 // Attach the submit event listener to the form
 document.getElementById('checkoutForm').addEventListener('submit', submitCheckout);
 
+document.getElementById('deliveryOption').addEventListener('change', function() {
+    var addressFields = document.getElementById('addressFields');
+    if (this.value === 'delivery') {
+        addressFields.style.display = 'block';
+    } else {
+        addressFields.style.display = 'none';
+    }
+});
 
+var addressInputs = document.querySelectorAll('#address1, #address2, #city, #state, #zip');
+addressInputs.forEach(function(input) {
+    input.addEventListener('blur', function() {
+        var address1 = document.getElementById('address1').value;
+        var address2 = document.getElementById('address2').value;
+        var city = document.getElementById('city').value;
+        var state = document.getElementById('state').value;
+        var zip = document.getElementById('zip').value;
+        if (address1 && city && state && zip) {
+            var destination = address1 + ' ' + address2 + ', ' + city + ', ' + state + ' ' + zip;
+            calculateDeliveryCost(destination);
+        }
+    });
+});
+
+function geocodeAddress(address, callback) {
+    var apiKey = '5b3ce3597851110001cf62483004d26df1dd45f3bbb304bd8308b847';
+    var url = `https://api.openrouteservice.org/geocode/search?api_key=${apiKey}&text=${encodeURIComponent(address)}`;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.features && data.features.length > 0) {
+                var coordinates = data.features[0].geometry.coordinates;
+                callback(null, coordinates);
+            } else {
+                callback('Error: No results found for the address');
+            }
+        })
+        .catch(error => {
+            callback('Error in geocoding: ' + error);
+        });
+}
+
+function calculateDeliveryCost(destination) {
+
+    geocodeAddress(address, function(error, originCoordinates) {
+        if (error) {
+            console.error(error);
+            return;
+        }
+
+        geocodeAddress(destination, function(error, destinationCoordinates) {
+            if (error) {
+                console.error(error);
+                return;
+            }
+
+            var apiKey = '5b3ce3597851110001cf62483004d26df1dd45f3bbb304bd8308b847';
+            var url = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${apiKey}&start=${originCoordinates.join(',')}&end=${destinationCoordinates.join(',')}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.features && data.features.length > 0) {
+                        var distance = data.features[0].properties.segments[0].distance;
+                        var deliveryCost = ((distance / 1609.34) / carMpg) * gallonCost; // Convert meters to miles and calculate cost
+                        document.getElementById('deliveryCost').textContent = '$' + deliveryCost.toFixed(2);
+                        let totalPrice = parseFloat($('#total-price').text());
+                        totalPrice = totalPrice + deliveryCost;
+                        $('#finalCost').text(totalPrice.toFixed(2));
+
+                    } else {
+                        console.error('Error in else:', data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error in catch:', error);
+                });
+        });
+    });
+}
