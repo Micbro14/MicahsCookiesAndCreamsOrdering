@@ -332,6 +332,7 @@ function populateFlavorCards(sheetName) {
                     var price = calculateCustomizePriceFromFlavor(sizeOptions[0],flavor);
                     var imageUrl = `./images/${imageCell.v}.png`;
 
+                    
                     // Clone the template
                     var template = document.getElementById('flavor-card-template');
                     var clone = template.content.cloneNode(true);
