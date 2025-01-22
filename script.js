@@ -2,6 +2,7 @@ let workbook;
 let additionalCosts;
 let upcharge;
 
+
 // storing worksheet as dictionaries to minimize future for loop needs
 let milkWorksheet;
 let thickenerWorksheet;
@@ -1144,12 +1145,14 @@ document.addEventListener('DOMContentLoaded', () => {
     var flavorUrl = getFlavorFromURL();
     
     // retrieve the workbook data
-    fetch('Ice Cream Master Document.xlsm') // Adjust URL as needed 
-    .then(response => response.arrayBuffer()) 
-    .then(data => { 
-        workbook = XLSX.read(data, {type: 'array'});   
+    //fetch('Ice Cream Master Document.xlsm') // Adjust URL as needed 
+    //TODO was working for a hot second but not working anymore
+    const url = 'https://www.dropbox.com/scl/fi/mxl84the0jqwkae7vnas4/Ice-Cream-Master-Document.xlsm?rlkey=ytimoto3tudjn54uq0zehphsf&e=1&st=5hjd3iac&raw=1';
+    const proxyUrl = 'https://corsproxy.io/?url=';
 
-           
+    fetch(proxyUrl + url)
+    .then(data => { 
+        workbook = XLSX.read(data, {type: 'array'});           
 
         milkWorksheet = worksheetToDict("Milk Types Nutrition Per Cup");
         thickenerWorksheet = worksheetToDict("Thickener Nutrition");
