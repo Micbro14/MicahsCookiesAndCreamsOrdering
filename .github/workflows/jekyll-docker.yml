@@ -26,6 +26,9 @@ jobs:
              -o docs/IceCreamMasterDocumentTemp.xlsm \
              -L "https://api.github.com/repos/Micbro14/MicahsCookiesAndCreamsOrderingPrivate/contents/IceCreamMasterDocument.xlsm"
 
+    - name: Set file permissions
+      run: chmod 644 docs/Ice-Cream-Master-Document.xlsm
+
     - name: List docs directory contents
       run: ls -l docs
 
