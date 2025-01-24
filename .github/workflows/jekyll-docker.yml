@@ -21,7 +21,7 @@ jobs:
       env:
         TOKEN: ${{ secrets.TOKEN }}
       run: |
-        curl -H "Authorization: token $TOKEN" \
+        curl -H "Authorization: Bearer $TOKEN" \
              -H "Accept: application/vnd.github.v3.raw" \
              -o docs/IceCreamMasterDocumentTemp.xlsm \
              -L "https://api.github.com/repos/Micbro14/MicahsCookiesAndCreamsOrderingPrivate/contents/IceCreamMasterDocument.xlsm"
