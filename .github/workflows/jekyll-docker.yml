@@ -26,8 +26,17 @@ jobs:
              -o docs/IceCreamMasterDocumentTemp.xlsm \
              -L "https://api.github.com/repos/Micbro14/MicahsCookiesAndCreamsOrderingPrivate/contents/IceCreamMasterDocument.xlsm"
 
+    - name: Print curl response
+      run: |
+        curl -H "Authorization: token $TOKEN" \
+             -H "Accept: application/vnd.github.v3.raw" \
+             -L "https://api.github.com/repos/Micbro14/MicahsCookiesAndCreamsOrderingPrivate/contents/IceCreamMasterDocument.xlsm"
+    
     - name: Set file permissions
       run: chmod 644 docs/IceCreamMasterDocumentTemp.xlsm
+
+    - name: List docs directory contents
+      run: ls -l docs
 
     - name: Build the site in the jekyll/builder container
       run: |
