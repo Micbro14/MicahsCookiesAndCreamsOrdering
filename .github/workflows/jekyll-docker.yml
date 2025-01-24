@@ -34,6 +34,3 @@ jobs:
         docker run \
         -v ${{ github.workspace }}:/srv/jekyll -v ${{ github.workspace }}/_site:/srv/jekyll/_site \
         jekyll/builder:latest /bin/bash -c "chmod -R 777 /srv/jekyll && jekyll build --future"
-
-    - name: Provide file URL
-      run: echo "File URL: https://micbro14.github.io/MicahsCookiesAndCreamsOrdering/IceCreamMasterDocumentTemp.xlsm"
