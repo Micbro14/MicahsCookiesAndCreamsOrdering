@@ -14,6 +14,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Create _data directory
+      run: mkdir -p _data
+
     - name: Fetch file from private repo
       env:
         TOKEN: ${{ secrets.TOKEN }}
@@ -21,7 +24,7 @@ jobs:
         curl -H "Authorization: token $TOKEN" \
              -H "Accept: application/vnd.github.v3.raw" \
              -o _data/Ice-Cream-Master-Document.xlsm \
-             -L "https://api.github.com/repos/Micbro14/MicahsCookiesAndCreamsOrderingPrivate/Ice%20Cream%20Master%20Document.xlsm"
+             -L "https://api.github.com/repos/Micbro14/MicahsCookiesAndCreamsOrderingPrivate/contents/Ice%20Cream%20Master%20Document.xlsm"
 
     - name: Build the site in the jekyll/builder container
       run: |
