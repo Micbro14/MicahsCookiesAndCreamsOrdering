@@ -23,7 +23,7 @@ jobs:
       run: |
         curl -H "Authorization: token $TOKEN" \
              -H "Accept: application/vnd.github.v3.raw" \
-             -o _data/IceCreamMasterDocument.xlsm \
+             -o _data/IceCreamMasterDocumentTemp.xlsm \
              -L "https://api.github.com/repos/Micbro14/MicahsCookiesAndCreamsOrderingPrivate/contents/IceCreamMasterDocument.xlsm"
 
     - name: Build the site in the jekyll/builder container
