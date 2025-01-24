@@ -1148,18 +1148,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // retrieve the workbook data
     //TODO was working for a hot second but not working anymore
     //fetch(proxyUrl + url)
-    fetch('docs/IceCreamMasterDocumentTemp.xlsm') // Adjust URL as needed 
-    .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.blob();
-      })
-      .then(blob => {
-        return new Response(blob).arrayBuffer();
-    })
-    .then(data => { 
-        workbook = XLSX.read(data, {type: 'array'});           
+    fetch('https://micbro14.github.io/MicahsCookiesAndCreamsOrdering/Ice-Cream-Master-Document.json') // Adjust URL as needed 
+    .then(response => response.text())
+    .then(data => {
+        const byteArray = new Uint8Array(data.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+        const workbook = XLSX.read(byteArray, { type: 'array'   });       
 
         milkWorksheet = worksheetToDict("Milk Types Nutrition Per Cup");
         thickenerWorksheet = worksheetToDict("Thickener Nutrition");

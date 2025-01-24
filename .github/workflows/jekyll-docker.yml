@@ -26,12 +26,10 @@ jobs:
              -o docs/IceCreamMasterDocumentTemp.xlsm \
              -L "https://api.github.com/repos/Micbro14/MicahsCookiesAndCreamsOrderingPrivate/contents/IceCreamMasterDocument.xlsm"
   
-    - name: Set file permissions
-      run: chmod 644 docs/IceCreamMasterDocumentTemp.xlsm
-
-    - name: List docs directory contents
-      run: ls -l docs
-
+    - name: Convert file to JSON array
+      run: |
+        xxd -p docs/Ice-Cream-Master-Document.xlsm | tr -d '\n' > docs/Ice-Cream-Master-Document.json
+        
     - name: Build the site in the jekyll/builder container
       run: |
         docker run \
