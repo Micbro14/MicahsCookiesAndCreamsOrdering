@@ -29,9 +29,9 @@ jobs:
     - name: Convert file to JSON array
       run: |
         if [ -f Ice-Cream-Master-Document.json ]; then \
-          xxd -p IceCreamMasterDocumentTemp.xlsm | tr -d '\n' >> Ice-Cream-Master-Document.json; \
+          xxd -p docs/IceCreamMasterDocumentTemp.xlsm | tr -d '\n' >> Ice-Cream-Master-Document.json; \
         else \
-          xxd -p IceCreamMasterDocumentTemp.xlsm | tr -d '\n' > Ice-Cream-Master-Document.json; \
+          xxd -p docs/IceCreamMasterDocumentTemp.xlsm | tr -d '\n' > Ice-Cream-Master-Document.json; \
         fi
 
     - name: Move JSON file to docs directory
