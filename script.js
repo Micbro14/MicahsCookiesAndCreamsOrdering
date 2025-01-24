@@ -1145,12 +1145,18 @@ document.addEventListener('DOMContentLoaded', () => {
     var flavorUrl = getFlavorFromURL();
     
     // retrieve the workbook data
-    //fetch('Ice Cream Master Document.xlsm') // Adjust URL as needed 
     //TODO was working for a hot second but not working anymore
-    const url = 'https://www.dropbox.com/scl/fi/mxl84the0jqwkae7vnas4/Ice-Cream-Master-Document.xlsm?rlkey=ytimoto3tudjn54uq0zehphsf&e=1&st=5hjd3iac&raw=1';
-    const proxyUrl = 'https://corsproxy.io/?url=';
-
-    fetch(proxyUrl + url)
+    //fetch(proxyUrl + url)
+    fetch('/_data/Ice-Cream-Master-Document.xlsm') // Adjust URL as needed 
+    .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.blob();
+      })
+      .then(blob => {
+        return new Response(blob).arrayBuffer();
+    })
     .then(data => { 
         workbook = XLSX.read(data, {type: 'array'});           
 
