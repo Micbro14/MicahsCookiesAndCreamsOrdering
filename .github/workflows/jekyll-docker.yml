@@ -28,7 +28,14 @@ jobs:
   
     - name: Convert file to JSON array
       run: |
-        xxd -p docs/IceCreamMasterDocumentTemp.xlsm | tr -d '\n' > docs/Ice-Cream-Master-Document.json
+        if [ -f docs/Ice-Cream-Master-Document.json ]; then \
+          xxd -p docs/Ice-Cream-Master-Document.xlsm | tr -d '\n' >> docs/Ice-Cream-Master-Document.json; \
+        else \
+          xxd -p docs/Ice-Cream-Master-Document.xlsm | tr -d '\n' > docs/Ice-Cream-Master-Document.json; \
+        fi
+
+    - name: List docs directory contents
+      run: ls -l 
 
     - name: Build the site in the jekyll/builder container
       run: |

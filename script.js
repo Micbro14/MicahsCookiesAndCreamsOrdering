@@ -1148,7 +1148,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // retrieve the workbook data
     //TODO was working for a hot second but not working anymore
     //fetch(proxyUrl + url)
-    fetch('https://micbro14.github.io/MicahsCookiesAndCreamsOrdering/Ice-Cream-Master-Document.json') // Adjust URL as needed 
+    fetch('https://micbro14.github.io/MicahsCookiesAndCreamsOrdering/docs/Ice-Cream-Master-Document.json') // Adjust URL as needed 
     .then(response => response.text())
     .then(data => {
         const byteArray = new Uint8Array(data.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
