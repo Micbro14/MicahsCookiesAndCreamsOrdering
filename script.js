@@ -1147,7 +1147,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // retrieve the workbook data
     //TODO was working for a hot second but not working anymore
     //fetch(proxyUrl + url)
-    fetch('_data/IceCreamMasterDocumentTemp.xlsm') // Adjust URL as needed 
+    fetch('https://micbro14.github.io/MicahsCookiesAndCreamsOrdering/IceCreamMasterDocumentTemp.xlsm') // Adjust URL as needed 
     .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');

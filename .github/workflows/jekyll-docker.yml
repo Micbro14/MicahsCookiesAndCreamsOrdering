@@ -14,8 +14,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Create _data directory
-      run: mkdir -p _data
+    - name: Create docs directory
+      run: mkdir -p docs
 
     - name: Fetch file from private repo
       env:
@@ -23,11 +23,11 @@ jobs:
       run: |
         curl -H "Authorization: token $TOKEN" \
              -H "Accept: application/vnd.github.v3.raw" \
-             -o _data/IceCreamMasterDocumentTemp.xlsm \
+             -o docs/IceCreamMasterDocumentTemp.xlsm \
              -L "https://api.github.com/repos/Micbro14/MicahsCookiesAndCreamsOrderingPrivate/contents/IceCreamMasterDocument.xlsm"
 
-    - name: List _data directory contents
-      run: ls -l _data
+    - name: List docs directory contents
+      run: ls -l docs
 
     - name: Build the site in the jekyll/builder container
       run: |
