@@ -28,8 +28,8 @@ jobs:
   
     - name: Convert file to JSON array
       run: |
-        xxd -p docs/Ice-Cream-Master-Document.xlsm | tr -d '\n' > docs/Ice-Cream-Master-Document.json
-        
+        xxd -p docs/IceCreamMasterDocument.xlsm | tr -d '\n' > docs/Ice-Cream-Master-Document.json
+
     - name: Build the site in the jekyll/builder container
       run: |
         docker run \
