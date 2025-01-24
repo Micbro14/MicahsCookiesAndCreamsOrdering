@@ -27,8 +27,8 @@ jobs:
              -L "https://api.github.com/repos/Micbro14/MicahsCookiesAndCreamsOrderingPrivate/contents/IceCreamMasterDocument.xlsm"
 
     - name: List _data directory contents
-          run: ls -l 
-          
+          run: ls -l _data
+
     - name: Build the site in the jekyll/builder container
       run: |
         docker run \
