@@ -18,7 +18,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN }}
       run: |
-        curl -H "Authorization: token $TOKEN" \
+        curl -H "Authorization: token $GITHUB_TOKEN" \
              -H "Accept: application/vnd.github.v3.raw" \
              -o _data/Ice-Cream-Master-Document.xlsm \
              -L "https://api.github.com/repos/Micbro14/MicahsCookiesAndCreamsOrderingPrivate/Ice Cream Master Document.xlsm"
