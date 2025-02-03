@@ -34,6 +34,18 @@ jobs:
           xxd -p docs/IceCreamMasterDocumentTemp.xlsm | tr -d '\n' > ${{ github.workspace }}/Ice-Cream-Master-Document.json; \
         fi
 
+    - name: Upload JSON file as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ice-cream-master-document
+        path: ${{ github.workspace }}/Ice-Cream-Master-Document.json
+
+    - name: Download JSON file artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: ice-cream-master-document
+        path: ${{ github.workspace }}
+
     - name: List workspace directory contents
       run: ls -l ${{ github.workspace }}
 
