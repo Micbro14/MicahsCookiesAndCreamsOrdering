@@ -35,10 +35,10 @@ jobs:
         fi
 
     - name: Move JSON file to docs directory
-      run: mv Ice-Cream-Master-Document.json docs/Ice-Cream-Master-Document.json
+      run: mv Ice-Cream-Master-Document.json ${{ github.workspace }}/Ice-Cream-Master-Document.json
 
-    - name: List docs directory contents
-      run: ls -l docs
+    - name: List workspace directory contents
+      run: ls -l ${{ github.workspace }}
 
     - name: Build the site in the jekyll/builder container
       run: |
