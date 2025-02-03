@@ -28,14 +28,11 @@ jobs:
   
     - name: Convert file to JSON array
       run: |
-        if [ -f Ice-Cream-Master-Document.json ]; then \
-          xxd -p docs/IceCreamMasterDocumentTemp.xlsm | tr -d '\n' >> Ice-Cream-Master-Document.json; \
+        if [ -f ${{ github.workspace }}/Ice-Cream-Master-Document.json ]; then \
+          xxd -p docs/IceCreamMasterDocumentTemp.xlsm | tr -d '\n' >> ${{ github.workspace }}/Ice-Cream-Master-Document.json; \
         else \
-          xxd -p docs/IceCreamMasterDocumentTemp.xlsm | tr -d '\n' > Ice-Cream-Master-Document.json; \
+          xxd -p docs/IceCreamMasterDocumentTemp.xlsm | tr -d '\n' > ${{ github.workspace }}/Ice-Cream-Master-Document.json; \
         fi
-
-    - name: Move JSON file to docs directory
-      run: mv Ice-Cream-Master-Document.json ${{ github.workspace }}/Ice-Cream-Master-Document.json
 
     - name: List workspace directory contents
       run: ls -l ${{ github.workspace }}
