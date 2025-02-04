@@ -17,6 +17,18 @@
     border-radius: 5px;
 }
 
+/* Style for <pre> to match <p> */
+.card-description {
+    font-family: inherit; /* Match the font family */
+    font-size: inherit; /* Match the font size */
+    color: inherit; /* Match the text color */
+    line-height: inherit; /* Match the line height */
+    margin: inherit; /* Match the margin */
+    padding: inherit; /* Match the padding */
+    white-space: pre-wrap; /* Ensure that the text wraps */
+}
+
+
 .featured-group h3 {
     color: #00796b; /* Teal color for the header text */
     font-weight: bold;
@@ -40,10 +52,16 @@ body.dark-mode .featured-group h3 {
     height: 100%;
     }
 
-.modal-body .row {
-    flex: 1;
-    display: flex;
+
+    
+.sticky-header {
+    width: 100%; /* Make sure the header takes up the full width */
+    padding: 10px; /* Add some padding to the header */
+    box-sizing: border-box; /* Ensure padding is included in the width */
 }
+    
+
+    
 
 .modal-body .col-md-8 {
     flex: 1;
@@ -112,26 +130,17 @@ body.dark-mode .featured-group h3 {
     .sticky-header {
         position: -webkit-sticky; /* For Safari */
         position: sticky;
-        top: 0;
-        z-index: 1000; /* Ensure it stays on top of other elements */
+        top: 60px;
+        z-index: 500; /* Ensure it stays on top of other elements */
         padding: 10px; /* Optional: add some padding if needed */
         backdrop-filter: blur(5px); /* Add blur effect */
         border-bottom: none; /* Remove bottom border */
         width: 100%; /* Make the header span the entire width */
         left: 0; /* Ensure it starts from the left edge */
     }
-}
 
-@media (min-width: 769px) {
-    .sticky-header {
-        position: -webkit-sticky; /* For Safari */
-        top: 0;
-        z-index: 1000; /* Ensure it stays on top of other elements */
-        padding: 10px; /* Optional: add some padding if needed */
+    .fixed-top{
         backdrop-filter: blur(5px); /* Add blur effect */
-        border-bottom: none; /* Remove bottom border */
-        width: 100%; /* Make the header span the entire width */
-        left: 0; /* Ensure it starts from the left edge */
     }
 }
 

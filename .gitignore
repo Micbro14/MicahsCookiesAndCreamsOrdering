@@ -1,2 +1,5 @@
 # .gitignore
 .env
+docs/Ice-Cream-Master-Document.xlsm
+ice-cream-master-document.zip
+XlsmToJson.sh

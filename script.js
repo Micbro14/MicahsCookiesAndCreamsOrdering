@@ -261,6 +261,18 @@ function resetCustomizeModal() {
     // Optionally, reset other elements or states within the modal
 }
 
+function adjustColor(hex, factor) {
+    let r = parseInt(hex.slice(1, 3), 16);
+    let g = parseInt(hex.slice(3, 5), 16);
+    let b = parseInt(hex.slice(5, 7), 16);
+
+    r = Math.min(255, Math.max(0, r + factor));
+    g = Math.min(255, Math.max(0, g + factor));
+    b = Math.min(255, Math.max(0, b + factor));
+
+    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+}
+
 function populateFlavorCards(sheetName) {
     var worksheet = workbook.Sheets[sheetName]; 
     var specsWorksheet = workbook.Sheets["Specs"]; 
@@ -301,32 +313,40 @@ function populateFlavorCards(sheetName) {
 
             if (flavor.startsWith('_')) {
                 if (flavor.includes("FEATURED:")) {
-                        // Create a new featured group header
-                        featuredGroup = document.createElement('div'); 
-                        featuredGroup.className = 'row flavor-group featured-group'; 
+                    // Create a new featured group header
+                    featuredGroup = document.createElement('div'); 
+                    featuredGroup.className = 'row flavor-group featured-group'; 
+                
+                    // Create a sticky header
+                    var header = document.createElement('div');
+                    header.className = 'sticky-header';
+                    header.innerHTML = `<h3 class="col-12">${flavor.replace("FEATURED:", "").trim().substring(1)}</h3>`;
+                    featuredGroup.appendChild(header);
+                
+                    // Update colors based on provided hex code
+                    const hexCode = premadeWorksheet[flavor]["Description"]; // Replace with your desired hex code
 
-                        // Create a sticky header
-                        var header = document.createElement('div');
-                        header.className = 'sticky-header';
-                        header.innerHTML = `<h3 class="col-12">${flavor.replace("FEATURED:", "").trim().substring(1)}</h3>`;
-                        featuredGroup.appendChild(header);
-
-                        flavorCardsContainer.insertAdjacentElement('afterbegin', featuredGroup);
+                    if (hexCode != null){
+                        featuredGroup.style.backgroundColor = hexCode;
+                        featuredGroup.style.borderColor = hexCode;
+                        header.querySelector('h3').style.color = adjustColor(hexCode, 40);
                     }
-                    else {
+                
+                    flavorCardsContainer.insertAdjacentElement('afterbegin', featuredGroup);
+                } else {
                     // Create a new group header
                     featuredGroup = null;
                     currentGroup = document.createElement('div'); 
                     currentGroup.className = 'row flavor-group'; 
-
+                
                     // Create a sticky header
                     var header = document.createElement('div');
                     header.className = 'sticky-header';
                     header.innerHTML = `<h3 class="col-12">${flavor.substring(1)}</h3>`;
                     currentGroup.appendChild(header);
-
+                
                     flavorCardsContainer.appendChild(currentGroup);
-                }
+                }                
 
             } else {
                 if (priceCell && priceCell.v && imageCell && imageCell.v) { 
@@ -342,6 +362,14 @@ function populateFlavorCards(sheetName) {
                     clone.querySelector('.card-img-top').src = imageUrl;
                     clone.querySelector('.card-img-top').alt = flavor;
                     clone.querySelector('.card-title').textContent = flavor;
+                    
+                    const description = premadeWorksheet[flavor]["Description"];
+                    console.log("Split description is ", description ? description.split(/(?<=[.?!])\s+/) : "");
+                    const formattedDescription = description ? description.split(/(?<=[.?!])\s+/).join('\n') : "";
+                    clone.querySelector('.card-description').innerHTML = formattedDescription.replace(/\n/g, '<br>');
+
+
+
                     clone.querySelector('.card-price').textContent = `$${price}`;
 
                     // Create a new sizeElement for each flavor card
@@ -364,9 +392,12 @@ function populateFlavorCards(sheetName) {
                             label.classList.add('active', 'focus'); // Add the "active" and "focus" classes to the first label
                         }
                         // Append the input element to the label 
-                        label.appendChild(input);
+                        if (!optionValue.startsWith('_')) {
+                            label.appendChild(input);
+                            sizeElement.appendChild(label);
+                        }
 
-                        sizeElement.appendChild(label);
+                        
                     });
 
                     clone.querySelector('#size-flavor').innerHTML = sizeElement.innerHTML;
@@ -806,8 +837,6 @@ function addOrUpdateNutritionItem(label, perServing, perContainer) {
 function calculateCustomizePriceFromFlavor(size,flavor) {
     var flavorValues = premadeWorksheet[flavor];
 
-    console.log("Flavor Values is ", flavorValues);
-
     var thickener = calculateSegmentPrice(thickenerWorksheet, liquidSpecs, sizeSpecsDict, flavorValues["Thickener"], flavorValues["Thickener Amount (x tbsp)"], size, null);
     var liquidMix1 = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, flavorValues["Liquid Mix 1"], flavorValues["Liquid Mix 1 Amount (x tbsp)"], size, null);
     var liquidMix2 = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, flavorValues["Liquid Mix 2"], flavorValues["Liquid Mix 2 Amount (x tbsp)"], size, null);
@@ -1147,12 +1176,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // retrieve the workbook data
     //TODO was working for a hot second but not working anymore
-    //fetch(proxyUrl + url)
-    fetch('https://micbro14.github.io/MicahsCookiesAndCreamsOrdering/docs/Ice-Cream-Master-Document.json') // Adjust URL as needed 
+    fetch('docs/Ice-Cream-Master-Document.json') // Adjust URL as needed 
+    //fetch('docs/Ice-Cream-Master-Document.xlsm') // Adjust URL as needed 
     .then(response => response.text())
+    //.then(response => response.arrayBuffer()) // Use arrayBuffer() to handle binary data
     .then(data => {
+        
+        //const byteArray = new Uint8Array(data);
         const byteArray = new Uint8Array(data.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
-        const workbook = XLSX.read(byteArray, { type: 'array'   });       
+        workbook = XLSX.read(byteArray, { type: 'array'   });
+
+        console.log("Workbook is ", workbook);       
 
         milkWorksheet = worksheetToDict("Milk Types Nutrition Per Cup");
         thickenerWorksheet = worksheetToDict("Thickener Nutrition");
