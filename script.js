@@ -1172,7 +1172,6 @@ function getFlavorFromURL() {
 document.addEventListener('DOMContentLoaded', () => {
 
     var flavorUrl = getFlavorFromURL();
-    
 
     // retrieve the workbook data
     //TODO was working for a hot second but not working anymore
