@@ -95,7 +95,6 @@ function validateForm(button) {
         cartItem.querySelector('.sweetener1-amount').textContent = sweetener1Amount;
         cartItem.querySelector('.sweetener2').textContent = sweetener2;
         cartItem.querySelector('.sweetener2-amount').textContent = sweetener2Amount;
-        console.log("Setting quantity to ", quantity);
         cartItem.querySelector('.quantity').value = quantity;
         cartItem.querySelector('.cart-item-price').textContent = `${totalPrice}`;
 
@@ -133,13 +132,10 @@ function updateTotalPrice() {
     // Iterate through each cart item and calculate the total price
     document.querySelectorAll('.cart-item').forEach(cartItem => {
         const quantity = parseInt(cartItem.querySelector('.quantity').value);
-        console.log("Quantity is: ", quantity);
         const price = parseFloat(cartItem.querySelector('.cart-item-price').textContent.replace('$', ''));
-        console.log("Price is: ", price);
         totalPrice += quantity * price;
     });
 
-    console.log("Total price is now : ", totalPrice);
 
     // Update the total price element
     document.getElementById('total-price').textContent = totalPrice.toFixed(2);
@@ -152,7 +148,6 @@ function editCartItem(button) {
 
     cartItemId = cartItem.id;
 
-    console.log("Cart item ID is ", cartItemId);
     // Get the cart item row 
     const cartItemContainer = document.getElementById(cartItemId); 
     
@@ -364,7 +359,6 @@ function populateFlavorCards(sheetName) {
                     clone.querySelector('.card-title').textContent = flavor;
                     
                     const description = premadeWorksheet[flavor]["Description"];
-                    console.log("Split description is ", description ? description.split(/(?<=[.?!])\s+/) : "");
                     const formattedDescription = description ? description.split(/(?<=[.?!])\s+/).join('\n') : "";
                     clone.querySelector('.card-description').innerHTML = formattedDescription.replace(/\n/g, '<br>');
 
@@ -581,10 +575,10 @@ function calculateSegmentPrice(worksheet, specsDict, sizeSpecsDict, value, amoun
     
     if (priceId) document.getElementById(priceId).innerText = `$${price}`;
 
+    var thick;
+
     if (worksheet[value].hasOwnProperty("Thick?")) {
-        if (worksheet[value]["Thick?"] === "Yes") {
-            amount = 0;               
-        }
+        thick = worksheet[value]["Thick?"];
     }
 
     if (worksheet === flavorWorksheet) {
@@ -594,7 +588,7 @@ function calculateSegmentPrice(worksheet, specsDict, sizeSpecsDict, value, amoun
         // TODO: need to use custom gram value when calculating costs
     }
 
-    return { amount: amount, price: parseFloat(price) };
+    return { amount: amount, price: parseFloat(price), thick: thick };
 }
 
 function calculateSolidPrice(worksheet, specsDict, sizeSpecsDict, value1, amountValue, size, priceId, value2, price2Id) {
@@ -670,10 +664,25 @@ function calculateCustomizePrice() {
     var sweetener2 = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener2Value, document.getElementById('sweetener2Amount').value, size, 'sweetener2Price');
     var solidSimulated = calculateSolidPrice(solidMixInWorksheet, solidSpecs, sizeSpecsDict, solid1Value, document.getElementById('mixInAmount').value, size, 'mixIn1Price', solid2Value, 'mixIn2Price');
 
-    var totalGramsBeforeMilk = thickener.amount + liquidMix1.amount + liquidMix2.amount + solidSimulated.cupAmount;
+    var totalGramsBeforeMilk = thickener.amount + (liquidMix1.thick === "Yes" ? liquidMix1.amount : 0) + (liquidMix2.thick === "Yes" ? liquidMix2.amount : 0) + solidSimulated.cupAmount;
 
     var [milkType1Price,milkType1Grams] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, milk1Value, size, 'milkType1Price', 2/3, totalGramsBeforeMilk);
     var [milkType2Price,milkType2Grams] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, milk2Value, size, 'milkType2Price', 1/3, totalGramsBeforeMilk);
+
+    var gramAmountsDevMode = `
+        milkType1Grams: ${milkType1Grams} <br>
+        milkType2Grams: ${milkType2Grams} <br>
+        thickener.amount: ${thickener.amount} <br>
+        Sweetener 1 Amount: ${sweetener1.amount} <br>
+        Sweetener 2 Amount: ${sweetener2.amount} <br>
+        liquidMix1.amount: ${liquidMix1.amount} <br>
+        liquidMix2.amount: ${liquidMix2.amount} <br>    
+        Solid 1 Amount: ${solidSimulated.amount1} <br>
+        Solid 2 Amount: ${solidSimulated.amount2} <br>     
+        `;
+
+    console.log(gramAmountsDevMode);
+        
 
     var totalCalories = 0;
 
@@ -728,7 +737,7 @@ function calculateCustomizePrice() {
     calculateTotalCalories("Fat (g)", size, thickener, thickenerValue, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
     calculateTotalCalories("Protein (g)", size, thickener, thickenerValue, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
     calculateTotalCalories("Sugar (g)", size, thickener, thickenerValue, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
-
+    document.getElementById('developerMode-Amounts').innerHTML = gramAmountsDevMode;
 
     var currentAdditionalCosts = (additionalCosts + sizeSpecsDict[size].ContainerCost) * upcharge;
     document.getElementById("additionalCosts").innerText = `$${currentAdditionalCosts.toFixed(2)}`;
@@ -756,56 +765,47 @@ function calculateTotalCalories(fieldName, size, thickener, thickenerValue,liqui
 
     if (thickener.amount && flavorWorksheet[thickenerValue] && flavorWorksheet[thickenerValue][fieldName]) {
         var thickenerCalories = (thickener.amount / 15) * flavorWorksheet[thickenerValue][fieldName];
-        console.log(`Liquid Mix 1: Amount = ${thickener.amount}, ${fieldName} per 15g = ${thickenerWorksheet[thickenerValue][fieldName]}, Calculation = ${thickener.amount} / 15 * ${thickenerWorksheet[thickenerValue][fieldName]}, Result = ${thickenerCalories}`);
         totalCalories += thickenerCalories;
     }
 
 
     if (liquidMix1.amount && flavorWorksheet[liquidMix1Value] && flavorWorksheet[liquidMix1Value][fieldName]) {
         var liquidMix1Calories = (liquidMix1.amount / 15) * flavorWorksheet[liquidMix1Value][fieldName];
-        console.log(`Liquid Mix 1: Amount = ${liquidMix1.amount}, ${fieldName} per 15g = ${flavorWorksheet[liquidMix1Value][fieldName]}, Calculation = ${liquidMix1.amount} / 15 * ${flavorWorksheet[liquidMix1Value][fieldName]}, Result = ${liquidMix1Calories}`);
         totalCalories += liquidMix1Calories;
     }
 
     if (liquidMix2.amount && flavorWorksheet[liquidMix2Value] && flavorWorksheet[liquidMix2Value][fieldName]) {
         var liquidMix2Calories = (liquidMix2.amount / 15) * flavorWorksheet[liquidMix2Value][fieldName];
-        console.log(`Liquid Mix 2: Amount = ${liquidMix2.amount}, ${fieldName} per 15g = ${flavorWorksheet[liquidMix2Value][fieldName]}, Calculation = ${liquidMix2.amount} / 15 * ${flavorWorksheet[liquidMix2Value][fieldName]}, Result = ${liquidMix2Calories}`);
         totalCalories += liquidMix2Calories;
     }
 
     if (sweetener1.amount && sweetenerWorksheet[sweetener1Value] && sweetenerWorksheet[sweetener1Value]["gram equivalent (of 1/2 cup)"] && sweetenerWorksheet[sweetener1Value][fieldName]) {
         var sweetener1Calories = (sweetener1.amount / sweetenerWorksheet[sweetener1Value]["gram equivalent (of 1/2 cup)"]) * sweetenerWorksheet[sweetener1Value][fieldName];
-        console.log(`Sweetener 1: Amount = ${sweetener1.amount}, Gram Equivalent (of 1/2 cup) = ${sweetenerWorksheet[sweetener1Value]["gram equivalent (of 1/2 cup)"]}, ${fieldName} per Gram Equivalent = ${sweetenerWorksheet[sweetener1Value][fieldName]}, Calculation = ${sweetener1.amount} / ${sweetenerWorksheet[sweetener1Value]["gram equivalent (of 1/2 cup)"]} * ${sweetenerWorksheet[sweetener1Value][fieldName]}, Result = ${sweetener1Calories}`);
         totalCalories += sweetener1Calories;
     }
 
     if (sweetener2.amount && sweetenerWorksheet[sweetener2Value] && sweetenerWorksheet[sweetener2Value]["gram equivalent (of 1/2 cup)"] && sweetenerWorksheet[sweetener2Value][fieldName]) {
         var sweetener2Calories = (sweetener2.amount / sweetenerWorksheet[sweetener2Value]["gram equivalent (of 1/2 cup)"]) * sweetenerWorksheet[sweetener2Value][fieldName];
-        console.log(`Sweetener 2: Amount = ${sweetener2.amount}, Gram Equivalent (of 1/2 cup) = ${sweetenerWorksheet[sweetener2Value]["gram equivalent (of 1/2 cup)"]}, ${fieldName} per Gram Equivalent = ${sweetenerWorksheet[sweetener2Value][fieldName]}, Calculation = ${sweetener2.amount} / ${sweetenerWorksheet[sweetener2Value]["gram equivalent (of 1/2 cup)"]} * ${sweetenerWorksheet[sweetener2Value][fieldName]}, Result = ${sweetener2Calories}`);
         totalCalories += sweetener2Calories;
     }
 
     if (solidSimulated.amount1 && solidMixInWorksheet[solid1Value] && solidMixInWorksheet[solid1Value]["grams (from cups)"] && solidMixInWorksheet[solid1Value][fieldName]) {
         var solid1Calories = (solidSimulated.amount1 / solidMixInWorksheet[solid1Value]["grams (from cups)"]) * solidMixInWorksheet[solid1Value][fieldName];
-        console.log(`Solid Mix In 1: Amount = ${solidSimulated.amount1}, Grams (from cups) = ${solidMixInWorksheet[solid1Value]["grams (from cups)"]}, ${fieldName} per Gram = ${solidMixInWorksheet[solid1Value][fieldName]}, Calculation = ${solidSimulated.amount1} / ${solidMixInWorksheet[solid1Value]["grams (from cups)"]} * ${solidMixInWorksheet[solid1Value][fieldName]}, Result = ${solid1Calories}`);
         totalCalories += solid1Calories;
     }
 
     if (solidSimulated.amount2 && solidMixInWorksheet[solid2Value] && solidMixInWorksheet[solid2Value]["grams (from cups)"] && solidMixInWorksheet[solid2Value][fieldName]) {
         var solid2Calories = (solidSimulated.amount2 / solidMixInWorksheet[solid2Value]["grams (from cups)"]) * solidMixInWorksheet[solid2Value][fieldName];
-        console.log(`Solid Mix In 2: Amount = ${solidSimulated.amount2}, Grams (from cups) = ${solidMixInWorksheet[solid2Value]["grams (from cups)"]}, ${fieldName} per Gram = ${solidMixInWorksheet[solid2Value][fieldName]}, Calculation = ${solidSimulated.amount2} / ${solidMixInWorksheet[solid2Value]["grams (from cups)"]} * ${solidMixInWorksheet[solid2Value][fieldName]}, Result = ${solid2Calories}`);
         totalCalories += solid2Calories;
     }
 
     if (milkType1Grams && milkWorksheet[milk1Value] && milkWorksheet[milk1Value][fieldName]) {
         var milk1Calories = (milkType1Grams / 240) * milkWorksheet[milk1Value][fieldName];
-        console.log(`Milk Type 1: Grams = ${milkType1Grams}, ${fieldName} per 240g = ${milkWorksheet[milk1Value][fieldName]}, Calculation = ${milkType1Grams} / 240 * ${milkWorksheet[milk1Value][fieldName]}, Result = ${milk1Calories}`);
         totalCalories += milk1Calories;
     }
 
     if (milkType2Grams && milkWorksheet[milk2Value] && milkWorksheet[milk2Value][fieldName]) {
         var milk2Calories = (milkType2Grams / 240) * milkWorksheet[milk2Value][fieldName];
-        console.log(`Milk Type 2: Grams = ${milkType2Grams}, ${fieldName} per 240g = ${milkWorksheet[milk2Value][fieldName]}, Calculation = ${milkType2Grams} / 240 * ${milkWorksheet[milk2Value][fieldName]}, Result = ${milk2Calories}`);
         totalCalories += milk2Calories;
     }
 
@@ -891,8 +891,6 @@ function autoSelectValues(flavor, worksheet,size,quantity) {
                 }
             });
 
-            console.log("Flavor is ", flavor);
-            console.log(premadeWorksheet);
             //TODO update this to use the dictionaries to simplify
             setCustomizeValue(premadeWorksheet[flavor]["Milk Type 1 (2/3)"], 'milkType1'); 
             setCustomizeValue(premadeWorksheet[flavor]["Milk Type 2 (1/3)"], 'milkType2'); 
@@ -1185,8 +1183,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const byteArray = new Uint8Array(data.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
         workbook = XLSX.read(byteArray, { type: 'array'   });
 
-        console.log("Workbook is ", workbook);       
-
         milkWorksheet = worksheetToDict("Milk Types Nutrition Per Cup");
         thickenerWorksheet = worksheetToDict("Thickener Nutrition");
         flavorWorksheet = worksheetToDict("Liquid Mix In Nutrition");
@@ -1246,7 +1242,6 @@ document.addEventListener('DOMContentLoaded', () => {
         populateFlavorCards('Premade Flavors');  
 
         if (flavorUrl) {
-            console.log("Flavor URL value is ", flavorUrl);
             addToCart(flavorUrl,premadeWorksheet, 1, calculateCustomizePriceFromFlavor(sizeOptions[0],flavorUrl), sizeOptions[0]); 
         }
     });      
