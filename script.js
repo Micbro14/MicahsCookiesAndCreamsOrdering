@@ -581,7 +581,7 @@ function calculateSegmentPrice(worksheet, specsDict, sizeSpecsDict, value, amoun
         thick = worksheet[value]["Thick?"];
     }
 
-    if (worksheet === flavorWorksheet) {
+    if (worksheet === flavorWorksheet || worksheet === thickenerWorksheet) {
         amount = amount * 15;
     } else if (worksheet === sweetenerWorksheet) {
         amount = amount * sweetenerWorksheet[value]["gram equivalent (of 1/2 cup)"];
@@ -597,7 +597,7 @@ function calculateSolidPrice(worksheet, specsDict, sizeSpecsDict, value1, amount
     if (value1 === '' || amountValue === '' || !worksheet.hasOwnProperty(value1)) {
         if (priceId) document.getElementById(priceId).innerText = ``;
         if (price2Id) document.getElementById(price2Id).innerText = ``;
-        return { cupAmount: 0, price1: 0, price2: 0 };
+        return { cupAmount: 0, price1: 0, price2: 0, amount1: 0, amount2:0, gramsPerCup1: 0, gramsPerCup2:0 };
     }
 
     if (value2 === '' || !worksheet.hasOwnProperty(value2)) {
@@ -616,8 +616,9 @@ function calculateSolidPrice(worksheet, specsDict, sizeSpecsDict, value1, amount
     
     var value2Grams = 0;
     var price2 = 0;
+    var value2gramsPerCup = 0;
     if (value2 !== '' && worksheet.hasOwnProperty(value2) && worksheet[value2].hasOwnProperty("grams (from cups)")) {
-        var value2gramsPerCup = worksheet[value2]["grams (from cups)"];
+        value2gramsPerCup = worksheet[value2]["grams (from cups)"];
         value2Grams = cupAmount / 240 * value2gramsPerCup * splitAmount;
         var cost2 = worksheet[value2]["Cost ($)"];
         price2 = (value2Grams / value2gramsPerCup) * upcharge * cost2;
@@ -625,7 +626,7 @@ function calculateSolidPrice(worksheet, specsDict, sizeSpecsDict, value1, amount
         if (price2Id) document.getElementById(price2Id).innerText = `$${price2}`;
     }
 
-    return { cupAmount: cupAmount, price1: parseFloat(price1), price2: parseFloat(price2), amount1: value1Grams, amount2:value2Grams };
+    return { cupAmount: cupAmount, price1: parseFloat(price1), price2: parseFloat(price2), amount1: value1Grams, amount2:value2Grams, gramsPerCup1:value1gramsPerCup, gramsPerCup2:value2gramsPerCup };
 }
 
 function calculateMilkPrice(worksheet, sizeSpecsDict, value, size, priceId, milkPortion, totalGramsBeforeMilk) {
@@ -664,7 +665,9 @@ function calculateCustomizePrice() {
     var sweetener2 = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener2Value, document.getElementById('sweetener2Amount').value, size, 'sweetener2Price');
     var solidSimulated = calculateSolidPrice(solidMixInWorksheet, solidSpecs, sizeSpecsDict, solid1Value, document.getElementById('mixInAmount').value, size, 'mixIn1Price', solid2Value, 'mixIn2Price');
 
-    var totalGramsBeforeMilk = thickener.amount + (liquidMix1.thick === "Yes" ? liquidMix1.amount : 0) + (liquidMix2.thick === "Yes" ? liquidMix2.amount : 0) + solidSimulated.cupAmount;
+
+    console.log("Grams per cup 1 is ", solidSimulated.gramsPerCup1 );
+    var totalGramsBeforeMilk = thickener.amount + (liquidMix1.thick === "Yes" ? liquidMix1.amount : 0) + (liquidMix2.thick === "Yes" ? liquidMix2.amount : 0) + (solidSimulated.gramsPerCup1 === 0 ? 0 : ((solidSimulated.amount1 / solidSimulated.gramsPerCup1) * 240) ) + (solidSimulated.gramsPerCup2 === 0 ? 0 : ((solidSimulated.amount2 / solidSimulated.gramsPerCup2) * 240) );
 
     var [milkType1Price,milkType1Grams] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, milk1Value, size, 'milkType1Price', 2/3, totalGramsBeforeMilk);
     var [milkType2Price,milkType2Grams] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, milk2Value, size, 'milkType2Price', 1/3, totalGramsBeforeMilk);
