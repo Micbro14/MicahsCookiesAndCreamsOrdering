@@ -70,6 +70,7 @@ function validateForm(button) {
         const sweetener2Amount = document.getElementById('sweetener2Amount').value;
         const size = document.querySelector('input[name="size"]:checked').value; // Get the selected size value
         const quantity = document.getElementById('quantity-customize').value;
+        const pricePerQuantity = document.getElementById('pricePerQuantity').textContent;
         const totalPrice = document.getElementById('totalPrice').textContent;
 
         // Create a cart item using the template
@@ -95,8 +96,15 @@ function validateForm(button) {
         cartItem.querySelector('.sweetener1-amount').textContent = sweetener1Amount;
         cartItem.querySelector('.sweetener2').textContent = sweetener2;
         cartItem.querySelector('.sweetener2-amount').textContent = sweetener2Amount;
-        cartItem.querySelector('.quantity').value = quantity;
-        cartItem.querySelector('.cart-item-price').textContent = `${totalPrice}`;
+        const quantityInput = cartItem.querySelector('.quantity');
+        if (quantityInput) {
+            quantityInput.value = quantity;
+            quantityInput.setAttribute("value", quantity);  // Update the value attribute
+            quantityInput.dispatchEvent(new Event('change'));  // Ensure any change events are triggered
+        } else {
+        }
+
+        cartItem.querySelector('.cart-item-price').textContent = `${pricePerQuantity}`;
 
         if (cartItemId) {
             // Update the existing cart item
@@ -139,6 +147,7 @@ function updateTotalPrice() {
 
     // Update the total price element
     document.getElementById('total-price').textContent = totalPrice.toFixed(2);
+    saveCart();
 }
 
 
@@ -204,12 +213,12 @@ function editCartItem(button) {
 function removeCartItem(button) {
 
     cartItem = button.closest('.cart-item');
-
     // Remove the cart item
     document.getElementById(cartItem.id).remove();
 
     // Update the total price (assuming you have a function to calculate the total price)
     updateTotalPrice();
+    saveCart();
 }
 
 $(document).ready(function() {
@@ -285,7 +294,7 @@ function populateFlavorCards(sheetName) {
     for (var i = 2; i <= Object.keys(specsWorksheet).length; i++) { // Skip header row 
         var cellAddress = `${"A"}${i}`; 
         var cell = specsWorksheet[cellAddress]; 
-        if (cell && cell.v) { 
+        if (cell && cell.v && !cell.v.startsWith("_")) { 
             sizeOptions.push(cell.v);
         }
     }
@@ -306,7 +315,7 @@ function populateFlavorCards(sheetName) {
                 break; // End the loop if the flavor is "_NOT FEATURED" 
             }
 
-            if (flavor.startsWith('_')) {
+            if (flavor.startsWith('_') && !flavor.startsWith('__') ) {
                 if (flavor.includes("FEATURED:")) {
                     // Create a new featured group header
                     featuredGroup = document.createElement('div'); 
@@ -342,8 +351,11 @@ function populateFlavorCards(sheetName) {
                 
                     flavorCardsContainer.appendChild(currentGroup);
                 }                
-
-            } else {
+            
+            }else if (flavor.startsWith('_') && flavor.startsWith('__') ){
+                // do nothing
+            }
+            else {
                 if (priceCell && priceCell.v && imageCell && imageCell.v) { 
                     var price = calculateCustomizePriceFromFlavor(sizeOptions[0],flavor);
                     var imageUrl = `./images/${imageCell.v}.png`;
@@ -461,11 +473,12 @@ function populateFlavorCards(sheetName) {
             var flavor = this.getAttribute('data-flavor'); 
             var quantity = this.closest('.card-body').querySelector('.quantity').value;
             var sizeElement = this.closest('.card-body').querySelector('input[name^="size-flavor-"]:checked');
-            var size = sizeElement ? sizeElement.value : '';
+            var size = sizeElement ? sizeElement.value : sizeOptions[0];
 
             var priceElement = this.closest('.card-body').querySelector('.card-price'); 
 
             addToCart(flavor, premadeWorksheet, quantity, priceElement.innerText, size); 
+            saveCart();
         }); 
     });
 
@@ -666,7 +679,6 @@ function calculateCustomizePrice() {
     var solidSimulated = calculateSolidPrice(solidMixInWorksheet, solidSpecs, sizeSpecsDict, solid1Value, document.getElementById('mixInAmount').value, size, 'mixIn1Price', solid2Value, 'mixIn2Price');
 
 
-    console.log("Grams per cup 1 is ", solidSimulated.gramsPerCup1 );
     var totalGramsBeforeMilk = thickener.amount + (liquidMix1.thick === "Yes" ? liquidMix1.amount : 0) + (liquidMix2.thick === "Yes" ? liquidMix2.amount : 0) + (solidSimulated.gramsPerCup1 === 0 ? 0 : ((solidSimulated.amount1 / solidSimulated.gramsPerCup1) * 240) ) + (solidSimulated.gramsPerCup2 === 0 ? 0 : ((solidSimulated.amount2 / solidSimulated.gramsPerCup2) * 240) );
 
     var [milkType1Price,milkType1Grams] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, milk1Value, size, 'milkType1Price', 2/3, totalGramsBeforeMilk);
@@ -682,10 +694,7 @@ function calculateCustomizePrice() {
         liquidMix2.amount: ${liquidMix2.amount} <br>    
         Solid 1 Amount: ${solidSimulated.amount1} <br>
         Solid 2 Amount: ${solidSimulated.amount2} <br>     
-        `;
-
-    console.log(gramAmountsDevMode);
-        
+        `;        
 
     var totalCalories = 0;
 
@@ -894,7 +903,6 @@ function autoSelectValues(flavor, worksheet,size,quantity) {
                 }
             });
 
-            //TODO update this to use the dictionaries to simplify
             setCustomizeValue(premadeWorksheet[flavor]["Milk Type 1 (2/3)"], 'milkType1'); 
             setCustomizeValue(premadeWorksheet[flavor]["Milk Type 2 (1/3)"], 'milkType2'); 
 
@@ -1000,7 +1008,9 @@ function populateOptions(sheetName, columnLetter, selectIds) {
                 var cellAddress = `${columnLetter}${i}`; 
                 var cell = worksheet[cellAddress]; 
                 if (cell && cell.v) { 
+                    if(!cell.v.startsWith("_")){
                     sizeOptions.push(cell.v);
+                    }
                 }
             }
 
@@ -1128,7 +1138,6 @@ document.querySelector('#quantity-customize').addEventListener('change', functio
 });
 
 function worksheetToDict(worksheetName) {
-
     worksheet = workbook.Sheets[worksheetName];
 
     let result = {};
@@ -1150,7 +1159,7 @@ function worksheetToDict(worksheetName) {
     // Iterate through each row and create the dictionary
     for (let row = firstRow + 1; row <= range.e.r; row++) {
         let keyCell = worksheet[XLSX.utils.encode_cell({r: row, c: firstCol})];
-        if (keyCell && keyCell.v) {
+        if (keyCell && keyCell.v && !keyCell.v.startsWith("__")) {
             let key = keyCell.v;
             result[key] = {};
             for (let col = firstCol + 1; col <= range.e.c; col++) {
@@ -1165,13 +1174,94 @@ function worksheetToDict(worksheetName) {
     return result;
 }
 
+
+
 function getFlavorFromURL() {
     var params = new URLSearchParams(window.location.search);
     return params.get('flavor');
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function saveCart() {
+    const cartItems = document.querySelectorAll('#cart-items .cart-item');
+    const cartData = [];
 
+    cartItems.forEach(item => {
+        console.log("Current quantity value is ", item.querySelector('.quantity').value);
+        const itemData = {
+            id: item.id,
+            name: item.querySelector('.cart-item-name').textContent,
+            price: item.querySelector('.cart-item-price').textContent,
+            iceCreamBase: item.querySelector('.ice-cream-base').textContent,
+            milkType1: item.querySelector('.milk-type1').textContent,
+            milkType2: item.querySelector('.milk-type2').textContent,
+            thickener: item.querySelector('.thickener').textContent,
+            thickenerAmount: item.querySelector('.thickener-amount').textContent,
+            liquidMix1: item.querySelector('.liquid-mix1').textContent,
+            liquidMix1Amount: item.querySelector('.liquid-mix1-amount').textContent,
+            liquidMix2: item.querySelector('.liquid-mix2').textContent,
+            liquidMix2Amount: item.querySelector('.liquid-mix2-amount').textContent,
+            mixIn1: item.querySelector('.mix-in1').textContent,
+            mixIn2: item.querySelector('.mix-in2').textContent,
+            mixInAmount: item.querySelector('.mix-in-amount').textContent,
+            sweetener1: item.querySelector('.sweetener1').textContent,
+            sweetener1Amount: item.querySelector('.sweetener1-amount').textContent,
+            sweetener2: item.querySelector('.sweetener2').textContent,
+            sweetener2Amount: item.querySelector('.sweetener2-amount').textContent,
+            quantity: item.querySelector('.quantity').value
+        };
+        cartData.push(itemData);
+    });
+
+    localStorage.setItem('cartItems', JSON.stringify(cartData));
+}
+
+function loadCart() {
+    const cartData = JSON.parse(localStorage.getItem('cartItems'));
+
+    console.log("Cart data is ", cartData);
+
+    if (cartData && cartData.length > 0) {
+        const cartItemsContainer = document.getElementById('cart-items');
+        cartItemsContainer.innerHTML = '';  // Clear existing items
+
+        cartData.forEach(itemData => {
+            const template = document.getElementById('cart-item-template');
+            const cartItem = template.content.cloneNode(true).querySelector('.cart-item');
+            cartItem.id = itemData.id;
+
+            cartItem.querySelector('.cart-item-name').textContent = itemData.name;
+            cartItem.querySelector('.cart-item-price').textContent = itemData.price;
+            cartItem.querySelector('.ice-cream-base').textContent = itemData.iceCreamBase;
+            cartItem.querySelector('.milk-type1').textContent = itemData.milkType1;
+            cartItem.querySelector('.milk-type2').textContent = itemData.milkType2;
+            cartItem.querySelector('.thickener').textContent = itemData.thickener;
+            cartItem.querySelector('.thickener-amount').textContent = itemData.thickenerAmount;
+            cartItem.querySelector('.liquid-mix1').textContent = itemData.liquidMix1;
+            cartItem.querySelector('.liquid-mix1-amount').textContent = itemData.liquidMix1Amount;
+            cartItem.querySelector('.liquid-mix2').textContent = itemData.liquidMix2;
+            cartItem.querySelector('.liquid-mix2-amount').textContent = itemData.liquidMix2Amount;
+            cartItem.querySelector('.mix-in1').textContent = itemData.mixIn1;
+            cartItem.querySelector('.mix-in2').textContent = itemData.mixIn2;
+            cartItem.querySelector('.mix-in-amount').textContent = itemData.mixInAmount;
+            cartItem.querySelector('.sweetener1').textContent = itemData.sweetener1;
+            cartItem.querySelector('.sweetener1-amount').textContent = itemData.sweetener1Amount;
+            cartItem.querySelector('.sweetener2').textContent = itemData.sweetener2;
+            cartItem.querySelector('.sweetener2-amount').textContent = itemData.sweetener2Amount;
+            cartItem.querySelector('.quantity').value = itemData.quantity;
+
+            cartItemsContainer.appendChild(cartItem);
+
+        });
+
+        updateTotalPrice();
+        toggleCart();
+    }
+}
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadCart();
     var flavorUrl = getFlavorFromURL();
 
     // retrieve the workbook data
@@ -1290,19 +1380,61 @@ function checkout() {
 
     // Set the final cost in the checkout modal
     $('#finalCost').text(totalPrice.toFixed(2));
+    $('#deliveryCost').text("$0.00");
+
+    // Clear the existing order summary
+    $('#orderSummary ul').empty();
+
+    // Loop through the cart items and add them to the order summary
+    $('#cart-items .cart-item').each(function () {
+        let itemName = $(this).find('.cart-item-name').text();
+        let itemPrice = parseFloat($(this).find('.cart-item-price').text().replace('$', ''));
+        let itemQuantity = $(this).find('.quantity').val();
+        let ingredientsTable = $(this).find('table').clone();
+
+        // Append the item to the order summary
+        $('#orderSummary ul').append(`<li>${itemQuantity} x ${itemName} - $${(itemPrice * itemQuantity).toFixed(2)}</li>`);
+
+        // Extract text content from the ingredients table
+        let condensedTableText = '';
+        ingredientsTable.find('tbody tr').each(function () {
+            let rowText = '';
+            $(this).find('td').each(function () {
+                rowText += `${$(this).text()} | `;
+            });
+            condensedTableText += rowText.slice(0, -3) + '\n'; // Remove the last separator and add a new line
+        });
+
+        // Append the condensed table text to the order summary
+        $('#orderSummary ul').append(`<li style="margin-left: 20px; white-space: pre-wrap;">${condensedTableText}</li>`);
+    });
 
     // Show the checkout modal
     $('#checkoutModal').modal('show');
 }
 
 
-
 function submitCheckout(event) {
     event.preventDefault(); // Prevent the default form submission
+
+    // Check if the delivery cost contains "Pending"
+    const deliveryCost = $('#deliveryCost').text().trim();
+    if (deliveryCost.includes("Pending")) {
+        alert('Please wait until the delivery cost is confirmed before submitting your order.');
+        return; // Stop the form submission
+    }
 
     const form = document.getElementById('checkoutForm');
     const formData = new FormData(form);
 
+    // Manually add the order summary to the FormData object
+    let orderSummary = '';
+    $('#orderSummary ul li').each(function() {
+        orderSummary += $(this).text() + '\n';
+    });
+
+    formData.append('orderSummary', orderSummary);
+   
     fetch('https://formspree.io/f/xlddapjp', {
         method: 'POST',
         body: formData,
@@ -1312,7 +1444,7 @@ function submitCheckout(event) {
     })
     .then(response => {
         if (response.ok) {
-            alert('Thank you for your order! We will process it shortly.');
+            alert('Thank you for your order! You will hear from Micah shortly.');
             form.reset(); // Reset the form after successful submission
         } else {
             alert('Oops! There was a problem with your submission.');
@@ -1322,7 +1454,10 @@ function submitCheckout(event) {
         console.error('Error:', error);
         alert('Oops! There was a problem with your submission.');
     });
+    
 }
+
+
 
 document.getElementById('deliveryOption').addEventListener('change', function() {
     var addressFields = document.getElementById('addressFields');
@@ -1389,6 +1524,8 @@ function geocodeAddress(address, callback) {
 
 function calculateDeliveryCost(destination) {
 
+    document.getElementById('deliveryCost').textContent = "Pending...";
+
     geocodeAddress(address, function(error, originCoordinates) {
         if (error) {
             console.error(error);
@@ -1413,7 +1550,7 @@ function calculateDeliveryCost(destination) {
                         document.getElementById('deliveryCost').textContent = '$' + deliveryCost.toFixed(2);
                         let totalPrice = parseFloat($('#total-price').text());
                         totalPrice = totalPrice + deliveryCost;
-                        $('#finalCost').text(totalPrice.toFixed(2));
+                        $('#finalCost').text("$" + totalPrice.toFixed(2));
 
                     } else {
                         console.error('Error in else:', data);

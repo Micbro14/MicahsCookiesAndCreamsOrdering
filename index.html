@@ -41,7 +41,6 @@
                 <span aria-hidden="true">&times;</span>
             </button>
             <ul id="cart-items" class="list-group">
-                <!-- Cart items will be added here -->
             </ul>
             <p class="mt-2">Total: $<span id="total-price">0.00</span></p>
             <button type="button" class="btn btn-primary mt-2" onclick="checkout()">Checkout</button>
@@ -111,7 +110,7 @@
                                 </div>
                                 <label for="milkType1">Pick Your Primary Milk Type</label> 
                                 <div class="form-group mb-3"> 
-                                    <div class="d-flex align-items-center">
+                                    <div class="d-flex align-items-left">
                                         <select class="form-control" id="milkType1" required></select> 
                                         <span class="ml-2" id="milkType1Price"></span>
                                     </div>
@@ -133,7 +132,7 @@
                                 <label for="thickenerAmount">Amount</label> 
                                 <div class="form-group mb-3"> 
                                     <div class="d-flex align-items-center">
-                                        <select class="form-control" id="thickenerAmount" required></select> 
+                                        <select class="form-control" id="thickenerAmount"></select> 
                                         <span class="ml-2" id="thickenerPrice"></span>
                                     </div>
                                     <button type="button" class="btn btn-link" onclick="clearField('thickenerAmount');">Clear</button>
@@ -195,13 +194,13 @@
                                 <label for="sweetener1">Pick A First Sweetner</label> 
                                 <div class="form-group mb-3"> 
                                     <div class="d-flex align-items-center">
-                                        <select class="form-control" id="sweetener1" required></select>
+                                        <select class="form-control" id="sweetener1"></select>
                                     </div>
                                 </div>
                                 <label for="sweetener1Amount">Amount</label>
                                 <div class="form-group mb-3"> 
                                     <div class="d-flex align-items-center">
-                                        <select class="form-control" id="sweetener1Amount" required></select> 
+                                        <select class="form-control" id="sweetener1Amount"></select> 
                                         <span class="ml-2" id="sweetener1Price"></span>
                                     </div>
                                 </div>
@@ -392,40 +391,40 @@
                     <form id="checkoutForm" action="https://formspree.io/f/xlddapjp" method="POST">
                         <input type="hidden" name="_subject" value="New Order Submission">
                         <input type="hidden" name="_format" value="plain">
+                        <label for="name">Name</label>
                         <div class="form-group">
-                            <label for="name">Name</label>
                             <input type="text" class="form-control" id="name" name="name" required>
                         </div>
+                        <label for="email">Email</label>
                         <div class="form-group">
-                            <label for="email">Email</label>
                             <input type="email" class="form-control" id="email" name="email" required>
                         </div>
+                        <label for="phone">Phone Number</label>
                         <div class="form-group">
-                            <label for="phone">Phone Number</label>
                             <input type="tel" class="form-control" id="phone" name="phone" required>
                         </div>
+                        <label for="deliveryOption">Delivery or Pickup</label>
                         <div class="form-group">
-                            <label for="deliveryOption">Delivery or Pickup</label>
                             <select class="form-control" id="deliveryOption" name="deliveryOption" required>
                                 <option value="pickup">Pickup (Miramar,FL)</option>
                                 <option value="delivery">Delivery</option>
                             </select>
                         </div>
                         <div id="addressFields" style="display: none;">
+                            <label for="address1">Address Line 1</label>
                             <div class="form-group">
-                                <label for="address1">Address Line 1</label>
                                 <input type="text" class="form-control" id="address1" name="address1">
                             </div>
+                            <label for="address2">Address Line 2</label>
                             <div class="form-group">
-                                <label for="address2">Address Line 2</label>
                                 <input type="text" class="form-control" id="address2" name="address2">
                             </div>
+                            <label for="city">City</label>
                             <div class="form-group">
-                                <label for="city">City</label>
                                 <input type="text" class="form-control" id="city" name="city">
                             </div>
+                            <label for="state">State</label>
                             <div class="form-group">
-                                <label for="state">State</label>
                                 <select class="form-control" id="state" name="state">
                                     <option value="">Select State</option>
                                     <option value="AL">Alabama</option>
@@ -480,17 +479,25 @@
                                     <option value="WY">Wyoming</option>
                                 </select>
                             </div>
+                            <label for="zip">Zip Code</label>
                             <div class="form-group">
-                                <label for="zip">Zip Code</label>
                                 <input type="text" class="form-control" id="zip" name="zip">
                             </div>
                         </div>
+                         <!-- Order Summary -->
+                        <label for="orderSummary">Order Summary</label>
                         <div class="form-group">
-                            <label for="deliveryCost">Delivery Cost</label>
+                            <div id="orderSummary" class="form-control" style="background-color: #e9ecef; cursor: not-allowed; height: auto;">
+                                <ul>
+                                </ul>
+                            </div>
+                        </div>
+                        <label for="deliveryCost">Delivery Cost</label>
+                        <div class="form-group">
                             <span id="deliveryCost" class="form-control" style="background-color: #e9ecef; cursor: not-allowed;"></span>
                         </div>
+                        <label for="finalCost">Final Cost</label>
                         <div class="form-group">
-                            <label for="finalCost">Final Cost</label>
                             <span id="finalCost" class="form-control" style="background-color: #e9ecef; cursor: not-allowed;"></span>
                         </div>
                         <button type="submit" class="btn btn-primary">Submit</button>

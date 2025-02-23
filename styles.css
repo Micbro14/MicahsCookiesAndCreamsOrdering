@@ -60,7 +60,11 @@ body.dark-mode .featured-group h3 {
     box-sizing: border-box; /* Ensure padding is included in the width */
 }
     
-
+.custom-condensed-table {
+    font-size: smaller;
+    margin-left: 20px;
+    color: black !important; /* Ensure the text color remains black */
+}
     
 
 .modal-body .col-md-8 {
