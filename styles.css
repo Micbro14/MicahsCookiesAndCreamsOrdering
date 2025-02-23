@@ -1,5 +1,7 @@
 #cart-items {
     font-size: 0.9em; /* Adjust the font size as needed */
+    max-height: 500px;  /* Adjust this value as needed */
+    overflow-y: auto;
 }
 #cart-items th, #cart-items td {
     padding: 5px; /* Adjust the padding as needed */

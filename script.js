@@ -749,7 +749,7 @@ function calculateCustomizePrice() {
     calculateTotalCalories("Fat (g)", size, thickener, thickenerValue, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
     calculateTotalCalories("Protein (g)", size, thickener, thickenerValue, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
     calculateTotalCalories("Sugar (g)", size, thickener, thickenerValue, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
-    document.getElementById('developerMode-Amounts').innerHTML = gramAmountsDevMode;
+    //document.getElementById('developerMode-Amounts').innerHTML = gramAmountsDevMode;
 
     var currentAdditionalCosts = (additionalCosts + sizeSpecsDict[size].ContainerCost) * upcharge;
     document.getElementById("additionalCosts").innerText = `$${currentAdditionalCosts.toFixed(2)}`;
