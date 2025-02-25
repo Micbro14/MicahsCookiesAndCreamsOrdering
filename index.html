@@ -24,6 +24,12 @@
             <div class="col-md-12">
                 <button class="btn-craft-flavor btn-block mb-3 bsb-btn-5xl" data-toggle="modal" data-target="#customizeModal"> Craft A Flavor </button>
                 <h1 class="text-center">Pick A Flavor</h1>
+                <div class="navigation-menu">
+                    <h2 class="text-center">Categories</h1>
+                    <ul id="navigation-links">
+                      <!-- Links will be dynamically added here -->
+                    </ul>
+                  </div>                      
                 <div class="row" id="flavor-cards">
                 </div>
             </div>
@@ -303,6 +309,7 @@
                             <th>Ingredient</th>
                             <th>Details</th>
                             <th>Amount</th>
+                            <th>Grams</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -315,46 +322,55 @@
                             <td>Primary Milk Type</td>
                             <td class="milk-type1"></td>
                             <td></td>
+                            <td class="milk-type1-grams hidden-amount"></td>
                         </tr>
                         <tr>
                             <td>Secondary Milk Type</td>
                             <td class="milk-type2"></td>
                             <td></td>
+                            <td class="milk-type2-grams hidden-amount"></td>
                         </tr>
                         <tr>
                             <td>Thickener</td>
                             <td class="thickener"></td>
                             <td class="thickener-amount"></td>
+                            <td class="thickener-grams hidden-amount"></td>
                         </tr>
                         <tr>
                             <td>Flavor 1</td>
                             <td class="liquid-mix1"></td>
                             <td class="liquid-mix1-amount"></td>
+                            <td class="liquid-mix1-grams hidden-amount"></td>
                         </tr>
                         <tr>
                             <td>Flavor 2</td>
                             <td class="liquid-mix2"></td>
                             <td class="liquid-mix2-amount"></td>
+                            <td class="liquid-mix2-grams hidden-amount"></td>
                         </tr>
                         <tr>
                             <td>Mix In 1</td>
                             <td class="mix-in1"></td>
                             <td class="mix-in-amount"></td>
+                            <td class="mix-in1-grams hidden-amount"></td>
                         </tr>
                         <tr>
                             <td>Mix In 2</td>
                             <td class="mix-in2"></td>
                             <td class="mix-in-amount"></td>
+                            <td class="mix-in2-grams hidden-amount"></td>
                         </tr>
                         <tr>
                             <td>Sweetener 1</td>
                             <td class="sweetener1"></td>
                             <td class="sweetener1-amount"></td>
+                            <td class="sweetener1-grams hidden-amount"></td>
                         </tr>
                         <tr>
                             <td>Sweetener 2</td>
                             <td class="sweetener2"></td>
                             <td class="sweetener2-amount"></td>
+                            <td class="sweetener2-grams hidden-amount"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -483,23 +499,24 @@
                             <div class="form-group">
                                 <input type="text" class="form-control" id="zip" name="zip">
                             </div>
+                            
                         </div>
-                         <!-- Order Summary -->
                         <label for="orderSummary">Order Summary</label>
                         <div class="form-group">
-                            <div id="orderSummary" class="form-control" style="background-color: #e9ecef; cursor: not-allowed; height: auto;">
+                            <div id="orderSummary" class="form-control" name="orderSummary" style="background-color: #e9ecef; cursor: not-allowed; height: auto;">
                                 <ul>
                                 </ul>
                             </div>
                         </div>
                         <label for="deliveryCost">Delivery Cost</label>
                         <div class="form-group">
-                            <span id="deliveryCost" class="form-control" style="background-color: #e9ecef; cursor: not-allowed;"></span>
+                            <span id="deliveryCost" type="text" class="form-control" name="deliveryCost" style="background-color: #e9ecef; cursor: not-allowed;"></span>
                         </div>
                         <label for="finalCost">Final Cost</label>
                         <div class="form-group">
-                            <span id="finalCost" class="form-control" style="background-color: #e9ecef; cursor: not-allowed;"></span>
+                            <span id="finalCost" type="text" class="form-control" name="finalCost" style="background-color: #e9ecef; cursor: not-allowed;"></span>
                         </div>
+                         <!-- Order Summary -->
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </form>                                     
                 </div>

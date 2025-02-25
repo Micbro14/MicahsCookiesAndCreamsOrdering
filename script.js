@@ -78,24 +78,49 @@ function validateForm(button) {
         const cartItem = template.content.cloneNode(true).querySelector('.cart-item');
         cartItem.id = cartItemId || `cart-item-${Date.now()}`;
 
-        // Update the cart item with the selected values
+        //get grams
+        var thickenerData = calculateSegmentPrice(thickenerWorksheet, liquidSpecs, sizeSpecsDict, thickener, thickenerAmount, size, 'thickenerPrice');
+        var liquidMix1Data = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix1, liquidMix1Amount, size, 'liquidMix1Price');
+        var liquidMix2Data = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix2, liquidMix2Amount, size, 'liquidMix2Price');
+        var sweetener1Data = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener1, sweetener1Amount, size, 'sweetener1Price');
+        var sweetener2Data = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener2, sweetener2Amount, size, 'sweetener2Price');
+        var solidSimulated = calculateSolidPrice(solidMixInWorksheet, solidSpecs, sizeSpecsDict, mixIn1, mixInAmount, size, 'mixIn1Price', mixIn2, 'mixIn2Price');
+
+
+        var totalGramsBeforeMilk = thickenerData.amount + (liquidMix1Data.thick === "Yes" ? liquidMix1Data.amount : 0) + (liquidMix2Data.thick === "Yes" ? liquidMix2Data.amount : 0) + (solidSimulated.gramsPerCup1 === 0 ? 0 : ((solidSimulated.amount1 / solidSimulated.gramsPerCup1) * 240) ) + (solidSimulated.gramsPerCup2 === 0 ? 0 : ((solidSimulated.amount2 / solidSimulated.gramsPerCup2) * 240) );
+
+        var [milkType1Price,milkType1Grams] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, milkType1, size, 'milkType1Price', 2/3, totalGramsBeforeMilk);
+        var [milkType2Price,milkType2Grams] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, milkType2, size, 'milkType2Price', 1/3, totalGramsBeforeMilk);
+
+
+        // Set the values
         cartItem.querySelector('.cart-item-name').textContent = `${name} - ${size}`;
         cartItem.querySelector('.ice-cream-base').textContent = iceCreamBase;
         cartItem.querySelector('.milk-type1').textContent = milkType1;
+        cartItem.querySelector('.milk-type1-grams').textContent = milkType1Grams;
         cartItem.querySelector('.milk-type2').textContent = milkType2;
+        cartItem.querySelector('.milk-type2-grams').textContent = milkType2Grams;
         cartItem.querySelector('.thickener').textContent = thickener;
         cartItem.querySelector('.thickener-amount').textContent = thickenerAmount;
+        cartItem.querySelector('.thickener-grams').textContent = thickenerData.amount;
         cartItem.querySelector('.liquid-mix1').textContent = liquidMix1;
         cartItem.querySelector('.liquid-mix1-amount').textContent = liquidMix1Amount;
+        cartItem.querySelector('.liquid-mix1-grams').textContent = liquidMix1Data.amount;
         cartItem.querySelector('.liquid-mix2').textContent = liquidMix2;
         cartItem.querySelector('.liquid-mix2-amount').textContent = liquidMix2Amount;
+        cartItem.querySelector('.liquid-mix2-grams').textContent = liquidMix2Data.amount;
         cartItem.querySelector('.mix-in1').textContent = mixIn1;
+        cartItem.querySelector('.mix-in1-grams').textContent = solidSimulated.amount1;
         cartItem.querySelector('.mix-in2').textContent = mixIn2;
+        cartItem.querySelector('.mix-in2-grams').textContent = solidSimulated.amount2;
         cartItem.querySelector('.mix-in-amount').textContent = mixInAmount;
         cartItem.querySelector('.sweetener1').textContent = sweetener1;
         cartItem.querySelector('.sweetener1-amount').textContent = sweetener1Amount;
+        cartItem.querySelector('.sweetener1-grams').textContent = sweetener1Data.amount;
         cartItem.querySelector('.sweetener2').textContent = sweetener2;
         cartItem.querySelector('.sweetener2-amount').textContent = sweetener2Amount;
+        cartItem.querySelector('.sweetener2-grams').textContent = sweetener2Data.amount;
+
         const quantityInput = cartItem.querySelector('.quantity');
         if (quantityInput) {
             quantityInput.value = quantity;
@@ -315,44 +340,58 @@ function populateFlavorCards(sheetName) {
                 break; // End the loop if the flavor is "_NOT FEATURED" 
             }
 
-            if (flavor.startsWith('_') && !flavor.startsWith('__') ) {
-                if (flavor.includes("FEATURED:")) {
-                    // Create a new featured group header
-                    featuredGroup = document.createElement('div'); 
-                    featuredGroup.className = 'row flavor-group featured-group'; 
-                
-                    // Create a sticky header
-                    var header = document.createElement('div');
-                    header.className = 'sticky-header';
-                    header.innerHTML = `<h3 class="col-12">${flavor.replace("FEATURED:", "").trim().substring(1)}</h3>`;
-                    featuredGroup.appendChild(header);
-                
-                    // Update colors based on provided hex code
-                    const hexCode = premadeWorksheet[flavor]["Description"]; // Replace with your desired hex code
+            let navigationLinks = document.getElementById('navigation-links');
 
-                    if (hexCode != null){
-                        featuredGroup.style.backgroundColor = hexCode;
-                        featuredGroup.style.borderColor = hexCode;
-                        header.querySelector('h3').style.color = adjustColor(hexCode, 40);
-                    }
-                
-                    flavorCardsContainer.insertAdjacentElement('afterbegin', featuredGroup);
-                } else {
-                    // Create a new group header
-                    featuredGroup = null;
-                    currentGroup = document.createElement('div'); 
-                    currentGroup.className = 'row flavor-group'; 
-                
-                    // Create a sticky header
-                    var header = document.createElement('div');
-                    header.className = 'sticky-header';
-                    header.innerHTML = `<h3 class="col-12">${flavor.substring(1)}</h3>`;
-                    currentGroup.appendChild(header);
-                
-                    flavorCardsContainer.appendChild(currentGroup);
-                }                
+            if (flavor.startsWith('_') && !flavor.startsWith('__') ) {
+              if (flavor.includes("FEATURED:")) {
+                // Create a new featured group header
+                featuredGroup = document.createElement('div'); 
+                featuredGroup.className = 'row flavor-group featured-group'; 
             
-            }else if (flavor.startsWith('_') && flavor.startsWith('__') ){
+                // Create a sticky header with an ID
+                var header = document.createElement('div');
+                header.className = 'sticky-header';
+                var headerText = flavor.replace("FEATURED:", "").trim().substring(1);
+                header.innerHTML = `<h3 id="${headerText}" class="col-12">${headerText}</h3>`;
+                featuredGroup.appendChild(header);
+            
+                // Create and add navigation link
+                var navLink = document.createElement('li');
+                navLink.innerHTML = `<a href="#${headerText}">${headerText}</a>`;
+                navigationLinks.insertBefore(navLink, navigationLinks.firstChild);
+            
+                // Update colors based on provided hex code
+                const hexCode = premadeWorksheet[flavor]["Description"]; // Replace with your desired hex code
+            
+                if (hexCode != null) {
+                  featuredGroup.style.backgroundColor = hexCode;
+                  featuredGroup.style.borderColor = hexCode;
+                  header.querySelector('h3').style.color = adjustColor(hexCode, 40);
+                }
+            
+                flavorCardsContainer.insertAdjacentElement('afterbegin', featuredGroup);
+              } else {
+                // Create a new group header
+                featuredGroup = null;
+                currentGroup = document.createElement('div'); 
+                currentGroup.className = 'row flavor-group'; 
+            
+                // Create a sticky header with an ID
+                var header = document.createElement('div');
+                header.className = 'sticky-header';
+                var headerText = flavor.substring(1);
+                header.innerHTML = `<h3 id="${headerText}" class="col-12">${headerText}</h3>`;
+                currentGroup.appendChild(header);
+            
+                // Create and add navigation link
+                var navLink = document.createElement('li');
+                navLink.innerHTML = `<a href="#${headerText}">${headerText}</a>`;
+                navigationLinks.appendChild(navLink);
+            
+                flavorCardsContainer.appendChild(currentGroup);
+              }                
+            }
+            else if (flavor.startsWith('_') && flavor.startsWith('__') ){
                 // do nothing
             }
             else {
@@ -529,25 +568,48 @@ function addToCart(flavor, worksheet, quantity,price,size) {
     // Generate a unique ID for the cart item and collapse div
     const uniqueId = `cart-item-${Date.now()}`;
 
+    //get grams
+    var thickenerData = calculateSegmentPrice(thickenerWorksheet, liquidSpecs, sizeSpecsDict, thickener, thickenerAmount, size, 'thickenerPrice');
+    var liquidMix1Data = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix1, liquidMix1Amount, size, 'liquidMix1Price');
+    var liquidMix2Data = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix2, liquidMix2Amount, size, 'liquidMix2Price');
+    var sweetener1Data = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener1, sweetener1Amount, size, 'sweetener1Price');
+    var sweetener2Data = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener2, sweetener2Amount, size, 'sweetener2Price');
+    var solidSimulated = calculateSolidPrice(solidMixInWorksheet, solidSpecs, sizeSpecsDict, mixIn1, mixInAmount, size, 'mixIn1Price', mixIn2, 'mixIn2Price');
+
+
+    var totalGramsBeforeMilk = thickenerData.amount + (liquidMix1Data.thick === "Yes" ? liquidMix1Data.amount : 0) + (liquidMix2Data.thick === "Yes" ? liquidMix2Data.amount : 0) + (solidSimulated.gramsPerCup1 === 0 ? 0 : ((solidSimulated.amount1 / solidSimulated.gramsPerCup1) * 240) ) + (solidSimulated.gramsPerCup2 === 0 ? 0 : ((solidSimulated.amount2 / solidSimulated.gramsPerCup2) * 240) );
+
+    var [milkType1Price,milkType1Grams] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, milkType1, size, 'milkType1Price', 2/3, totalGramsBeforeMilk);
+    var [milkType2Price,milkType2Grams] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, milkType2, size, 'milkType2Price', 1/3, totalGramsBeforeMilk);
+
     // Set the values
     cartItem.querySelector('.cart-item').id = uniqueId;
     cartItem.querySelector('.cart-item-name').textContent = `${name} - ${size}`;
     cartItem.querySelector('.ice-cream-base').textContent = iceCreamBase;
     cartItem.querySelector('.milk-type1').textContent = milkType1;
+    cartItem.querySelector('.milk-type1-grams').textContent = milkType1Grams;
     cartItem.querySelector('.milk-type2').textContent = milkType2;
+    cartItem.querySelector('.milk-type2-grams').textContent = milkType2Grams;
     cartItem.querySelector('.thickener').textContent = thickener;
     cartItem.querySelector('.thickener-amount').textContent = thickenerAmount;
+    cartItem.querySelector('.thickener-grams').textContent = thickenerData.amount;
     cartItem.querySelector('.liquid-mix1').textContent = liquidMix1;
     cartItem.querySelector('.liquid-mix1-amount').textContent = liquidMix1Amount;
+    cartItem.querySelector('.liquid-mix1-grams').textContent = liquidMix1Data.amount;
     cartItem.querySelector('.liquid-mix2').textContent = liquidMix2;
     cartItem.querySelector('.liquid-mix2-amount').textContent = liquidMix2Amount;
+    cartItem.querySelector('.liquid-mix2-grams').textContent = liquidMix2Data.amount;
     cartItem.querySelector('.mix-in1').textContent = mixIn1;
+    cartItem.querySelector('.mix-in1-grams').textContent = solidSimulated.amount1;
     cartItem.querySelector('.mix-in2').textContent = mixIn2;
+    cartItem.querySelector('.mix-in2-grams').textContent = solidSimulated.amount2;
     cartItem.querySelector('.mix-in-amount').textContent = mixInAmount;
     cartItem.querySelector('.sweetener1').textContent = sweetener1;
     cartItem.querySelector('.sweetener1-amount').textContent = sweetener1Amount;
+    cartItem.querySelector('.sweetener1-grams').textContent = sweetener1Data.amount;
     cartItem.querySelector('.sweetener2').textContent = sweetener2;
     cartItem.querySelector('.sweetener2-amount').textContent = sweetener2Amount;
+    cartItem.querySelector('.sweetener2-grams').textContent = sweetener2Data.amount;
     cartItem.querySelector('.quantity').value = quantity;
     cartItem.querySelector('.cart-item-price').innerText = price;
 
@@ -1166,7 +1228,7 @@ function worksheetToDict(worksheetName) {
                 let header = headers[col - firstCol - 1];
                 if (header) {
                     let cell = worksheet[XLSX.utils.encode_cell({r: row, c: col})];
-                    result[key][header] = cell ? cell.v : null;
+                    result[key][header] = (cell && typeof cell.v === 'string') ? cell.v.trim() : (cell ? cell.v : null);
                 }
             }
         }
@@ -1424,6 +1486,9 @@ function submitCheckout(event) {
         return; // Stop the form submission
     }
 
+    const totalCost = $('#finalCost').text().trim();
+
+
     const form = document.getElementById('checkoutForm');
     const formData = new FormData(form);
 
@@ -1433,8 +1498,16 @@ function submitCheckout(event) {
         orderSummary += $(this).text() + '\n';
     });
 
+    
+
     formData.append('orderSummary', orderSummary);
-   
+    formData.append('deliveryCost',deliveryCost);
+    formData.append('finalCost',totalCost);
+
+   // Log the form data
+   for (let [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+    }
     fetch('https://formspree.io/f/xlddapjp', {
         method: 'POST',
         body: formData,
@@ -1454,7 +1527,6 @@ function submitCheckout(event) {
         console.error('Error:', error);
         alert('Oops! There was a problem with your submission.');
     });
-    
 }
 
 
