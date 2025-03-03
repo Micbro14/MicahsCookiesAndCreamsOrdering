@@ -15,6 +15,7 @@ let premadeWorksheet;
 let sizeOptions;
 let sizeSpecsDict = {}; 
 let liquidSpecs = {};
+let thickenerSpecs = {};
 let solidSpecs = {};
 let sweetenerSpecs = {};
 
@@ -79,18 +80,21 @@ function validateForm(button) {
         cartItem.id = cartItemId || `cart-item-${Date.now()}`;
 
         //get grams
-        var thickenerData = calculateSegmentPrice(thickenerWorksheet, liquidSpecs, sizeSpecsDict, thickener, thickenerAmount, size, 'thickenerPrice');
-        var liquidMix1Data = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix1, liquidMix1Amount, size, 'liquidMix1Price');
-        var liquidMix2Data = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix2, liquidMix2Amount, size, 'liquidMix2Price');
-        var sweetener1Data = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener1, sweetener1Amount, size, 'sweetener1Price');
-        var sweetener2Data = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener2, sweetener2Amount, size, 'sweetener2Price');
+        var liquidMix1Data = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix1, liquidMix1Amount, size, 'liquidMix1Price',null);
+        var liquidMix2Data = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix2, liquidMix2Amount, size, 'liquidMix2Price',null);
+        var sweetener1Data = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener1, sweetener1Amount, size, 'sweetener1Price',null);
+        var sweetener2Data = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener2, sweetener2Amount, size, 'sweetener2Price',null);
         var solidSimulated = calculateSolidPrice(solidMixInWorksheet, solidSpecs, sizeSpecsDict, mixIn1, mixInAmount, size, 'mixIn1Price', mixIn2, 'mixIn2Price');
 
 
-        var totalGramsBeforeMilk = thickenerData.amount + (liquidMix1Data.thick === "Yes" ? liquidMix1Data.amount : 0) + (liquidMix2Data.thick === "Yes" ? liquidMix2Data.amount : 0) + (solidSimulated.gramsPerCup1 === 0 ? 0 : ((solidSimulated.amount1 / solidSimulated.gramsPerCup1) * 240) ) + (solidSimulated.gramsPerCup2 === 0 ? 0 : ((solidSimulated.amount2 / solidSimulated.gramsPerCup2) * 240) );
+        var totalGramsBeforeMilk = (liquidMix1Data.thick === "Yes" ? liquidMix1Data.amount : 0) + (liquidMix2Data.thick === "Yes" ? liquidMix2Data.amount : 0) + (solidSimulated.gramsPerCup1 === 0 ? 0 : ((solidSimulated.amount1 / solidSimulated.gramsPerCup1) * 240) ) + (solidSimulated.gramsPerCup2 === 0 ? 0 : ((solidSimulated.amount2 / solidSimulated.gramsPerCup2) * 240) );
 
         var [milkType1Price,milkType1Grams] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, milkType1, size, 'milkType1Price', 2/3, totalGramsBeforeMilk);
         var [milkType2Price,milkType2Grams] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, milkType2, size, 'milkType2Price', 1/3, totalGramsBeforeMilk);
+
+        var totalMilk = milkType1Grams + milkType2Grams;
+
+        var thickenerData = calculateSegmentPrice(thickenerWorksheet, thickenerSpecs, sizeSpecsDict, thickener, thickenerAmount, size, 'thickenerPrice',null,totalMilk);
 
 
         // Set the values
@@ -569,18 +573,23 @@ function addToCart(flavor, worksheet, quantity,price,size) {
     const uniqueId = `cart-item-${Date.now()}`;
 
     //get grams
-    var thickenerData = calculateSegmentPrice(thickenerWorksheet, liquidSpecs, sizeSpecsDict, thickener, thickenerAmount, size, 'thickenerPrice');
-    var liquidMix1Data = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix1, liquidMix1Amount, size, 'liquidMix1Price');
-    var liquidMix2Data = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix2, liquidMix2Amount, size, 'liquidMix2Price');
-    var sweetener1Data = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener1, sweetener1Amount, size, 'sweetener1Price');
-    var sweetener2Data = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener2, sweetener2Amount, size, 'sweetener2Price');
-    var solidSimulated = calculateSolidPrice(solidMixInWorksheet, solidSpecs, sizeSpecsDict, mixIn1, mixInAmount, size, 'mixIn1Price', mixIn2, 'mixIn2Price');
+    var liquidMix1Data = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix1, liquidMix1Amount, size, 'liquidMix1Price',null);
+    var liquidMix2Data = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix2, liquidMix2Amount, size, 'liquidMix2Price',null);
+    var sweetener1Data = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener1, sweetener1Amount, size, 'sweetener1Price',null);
+    var sweetener2Data = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener2, sweetener2Amount, size, 'sweetener2Price',null);
+    var solidSimulated = calculateSolidPrice(solidMixInWorksheet, solidSpecs, sizeSpecsDict, mixIn1, mixInAmount, size, 'mixIn1Price', mixIn2, 'mixIn2Price',null);
 
 
-    var totalGramsBeforeMilk = thickenerData.amount + (liquidMix1Data.thick === "Yes" ? liquidMix1Data.amount : 0) + (liquidMix2Data.thick === "Yes" ? liquidMix2Data.amount : 0) + (solidSimulated.gramsPerCup1 === 0 ? 0 : ((solidSimulated.amount1 / solidSimulated.gramsPerCup1) * 240) ) + (solidSimulated.gramsPerCup2 === 0 ? 0 : ((solidSimulated.amount2 / solidSimulated.gramsPerCup2) * 240) );
+    var totalGramsBeforeMilk = (liquidMix1Data.thick === "Yes" ? liquidMix1Data.amount : 0) + (liquidMix2Data.thick === "Yes" ? liquidMix2Data.amount : 0) + (solidSimulated.gramsPerCup1 === 0 ? 0 : ((solidSimulated.amount1 / solidSimulated.gramsPerCup1) * 240) ) + (solidSimulated.gramsPerCup2 === 0 ? 0 : ((solidSimulated.amount2 / solidSimulated.gramsPerCup2) * 240) );
 
     var [milkType1Price,milkType1Grams] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, milkType1, size, 'milkType1Price', 2/3, totalGramsBeforeMilk);
     var [milkType2Price,milkType2Grams] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, milkType2, size, 'milkType2Price', 1/3, totalGramsBeforeMilk);
+
+
+    var totalMilk = milkType1Grams + milkType2Grams;
+
+    var thickenerData = calculateSegmentPrice(thickenerWorksheet, thickenerSpecs, sizeSpecsDict, thickener, thickenerAmount, size, 'thickenerPrice',totalMilk);
+
 
     // Set the values
     cartItem.querySelector('.cart-item').id = uniqueId;
@@ -635,11 +644,12 @@ function setCustomizeValue(value, elementId) {
     document.getElementById(elementId).value = value;
 }
 
-function calculateSegmentPrice(worksheet, specsDict, sizeSpecsDict, value, amountValue, size, priceId) {
+function calculateSegmentPrice(worksheet, specsDict, sizeSpecsDict, value, amountValue, size, priceId,milkAmount) {
     if (value === '' || amountValue === '' || !worksheet.hasOwnProperty(value)) {
         if (priceId) document.getElementById(priceId).innerText = ``;
         return { amount: 0, price: 0 };
     }
+
 
     var amount = (specsDict[amountValue] * sizeSpecsDict[size].Multiplier); 
       
@@ -648,20 +658,30 @@ function calculateSegmentPrice(worksheet, specsDict, sizeSpecsDict, value, amoun
     var price = amount * cost * upcharge;
     price = price.toFixed(2);
     
-    if (priceId) document.getElementById(priceId).innerText = `$${price}`;
-
     var thick;
 
     if (worksheet[value].hasOwnProperty("Thick?")) {
         thick = worksheet[value]["Thick?"];
     }
 
-    if (worksheet === flavorWorksheet || worksheet === thickenerWorksheet) {
+    if (worksheet === flavorWorksheet || (worksheet === thickenerWorksheet && amountValue !== "Auto")) {
         amount = amount * 15;
     } else if (worksheet === sweetenerWorksheet) {
         amount = amount * sweetenerWorksheet[value]["gram equivalent (of 1/2 cup)"];
         // TODO: need to use custom gram value when calculating costs
+    } else if (worksheet === thickenerWorksheet && amountValue === "Auto"){
+        console.log("Found Auto");
+        amount = (thickenerWorksheet[value]["Amount per 100g of milk"] / 100) * milkAmount;
+        console.log("Amount divided by 15:", amount / 15);
+        console.log("Cost:", cost);
+        console.log("Upcharge:", upcharge);
+        console.log("Price:", (amount / 15) * cost * upcharge);
+
+        price = (amount / 15) * cost * upcharge;
+        price = price.toFixed(2);
     }
+
+    if (priceId) document.getElementById(priceId).innerText = `$${price}`;
 
     return { amount: amount, price: parseFloat(price), thick: thick };
 }
@@ -733,18 +753,20 @@ function calculateCustomizePrice() {
     var solid2Value = document.getElementById('mixIn2').value;
     
 
-    var thickener = calculateSegmentPrice(thickenerWorksheet, liquidSpecs, sizeSpecsDict, thickenerValue, document.getElementById('thickenerAmount').value, size, 'thickenerPrice');
-    var liquidMix1 = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix1Value, document.getElementById('liquidMix1Amount').value, size, 'liquidMix1Price');
-    var liquidMix2 = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix2Value, document.getElementById('liquidMix2Amount').value, size, 'liquidMix2Price');
-    var sweetener1 = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener1Value, document.getElementById('sweetener1Amount').value, size, 'sweetener1Price');
-    var sweetener2 = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener2Value, document.getElementById('sweetener2Amount').value, size, 'sweetener2Price');
+    var liquidMix1 = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix1Value, document.getElementById('liquidMix1Amount').value, size, 'liquidMix1Price',null);
+    var liquidMix2 = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix2Value, document.getElementById('liquidMix2Amount').value, size, 'liquidMix2Price',null);
+    var sweetener1 = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener1Value, document.getElementById('sweetener1Amount').value, size, 'sweetener1Price',null);
+    var sweetener2 = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener2Value, document.getElementById('sweetener2Amount').value, size, 'sweetener2Price',null);
     var solidSimulated = calculateSolidPrice(solidMixInWorksheet, solidSpecs, sizeSpecsDict, solid1Value, document.getElementById('mixInAmount').value, size, 'mixIn1Price', solid2Value, 'mixIn2Price');
 
 
-    var totalGramsBeforeMilk = thickener.amount + (liquidMix1.thick === "Yes" ? liquidMix1.amount : 0) + (liquidMix2.thick === "Yes" ? liquidMix2.amount : 0) + (solidSimulated.gramsPerCup1 === 0 ? 0 : ((solidSimulated.amount1 / solidSimulated.gramsPerCup1) * 240) ) + (solidSimulated.gramsPerCup2 === 0 ? 0 : ((solidSimulated.amount2 / solidSimulated.gramsPerCup2) * 240) );
+    var totalGramsBeforeMilk = (liquidMix1.thick === "Yes" ? liquidMix1.amount : 0) + (liquidMix2.thick === "Yes" ? liquidMix2.amount : 0) + (solidSimulated.gramsPerCup1 === 0 ? 0 : ((solidSimulated.amount1 / solidSimulated.gramsPerCup1) * 240) ) + (solidSimulated.gramsPerCup2 === 0 ? 0 : ((solidSimulated.amount2 / solidSimulated.gramsPerCup2) * 240) );
 
     var [milkType1Price,milkType1Grams] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, milk1Value, size, 'milkType1Price', 2/3, totalGramsBeforeMilk);
     var [milkType2Price,milkType2Grams] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, milk2Value, size, 'milkType2Price', 1/3, totalGramsBeforeMilk);
+
+    var totalMilk = milkType1Grams + milkType2Grams;
+    var thickener = calculateSegmentPrice(thickenerWorksheet, thickenerSpecs, sizeSpecsDict, thickenerValue, document.getElementById('thickenerAmount').value, size, 'thickenerPrice',totalMilk);
 
     var gramAmountsDevMode = `
         milkType1Grams: ${milkType1Grams} <br>
@@ -757,6 +779,7 @@ function calculateCustomizePrice() {
         Solid 1 Amount: ${solidSimulated.amount1} <br>
         Solid 2 Amount: ${solidSimulated.amount2} <br>     
         `;        
+    console.log("Grams amount dev mode is ", gramAmountsDevMode);
 
     var totalCalories = 0;
 
@@ -911,17 +934,19 @@ function addOrUpdateNutritionItem(label, perServing, perContainer) {
 function calculateCustomizePriceFromFlavor(size,flavor) {
     var flavorValues = premadeWorksheet[flavor];
 
-    var thickener = calculateSegmentPrice(thickenerWorksheet, liquidSpecs, sizeSpecsDict, flavorValues["Thickener"], flavorValues["Thickener Amount (x tbsp)"], size, null);
-    var liquidMix1 = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, flavorValues["Liquid Mix 1"], flavorValues["Liquid Mix 1 Amount (x tbsp)"], size, null);
-    var liquidMix2 = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, flavorValues["Liquid Mix 2"], flavorValues["Liquid Mix 2 Amount (x tbsp)"], size, null);
-    var sweetener1 = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, flavorValues["Sweetner Type 1"], flavorValues["Sweetner Type 1 Amount (x 100g)"], size, null);
-    var sweetener2 = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, flavorValues["Sweetner Type 2"], flavorValues["Sweetner Type 2 Amount (x 100g)"], size, null);
+    var liquidMix1 = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, flavorValues["Liquid Mix 1"], flavorValues["Liquid Mix 1 Amount (x tbsp)"], size, null,null);
+    var liquidMix2 = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, flavorValues["Liquid Mix 2"], flavorValues["Liquid Mix 2 Amount (x tbsp)"], size, null,null);
+    var sweetener1 = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, flavorValues["Sweetner Type 1"], flavorValues["Sweetner Type 1 Amount (x 100g)"], size, null,null);
+    var sweetener2 = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, flavorValues["Sweetner Type 2"], flavorValues["Sweetner Type 2 Amount (x 100g)"], size, null,null);
     var solidSimulated = calculateSolidPrice(solidMixInWorksheet, solidSpecs, sizeSpecsDict, flavorValues["Solid Mix 1"], flavorValues["Solid Mix Amount (% of all ice cream)"], size, null, flavorValues["Solid Mix 2"], null);
 
-    var totalGramsBeforeMilk = thickener.amount + liquidMix1.amount + liquidMix2.amount + solidSimulated.cupAmount;
+    var totalGramsBeforeMilk = liquidMix1.amount + liquidMix2.amount + solidSimulated.cupAmount;
 
     var [milkType1Price,milkType1Grams] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, flavorValues["Milk Type 1 (2/3)"], size, null, 2/3, totalGramsBeforeMilk);
     var [milkType2Price,milkType2Grams] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, flavorValues["Milk Type 2 (1/3)"], size, null, 1/3, totalGramsBeforeMilk);
+
+    var totalMilk = milkType1Grams + milkType2Grams;
+    var thickener = calculateSegmentPrice(thickenerWorksheet, thickenerSpecs, sizeSpecsDict, flavorValues["Thickener"], flavorValues["Thickener Amount (x tbsp)"], size, null,totalMilk);
 
     var currentAdditionalCosts = (additionalCosts + sizeSpecsDict[size].ContainerCost) * upcharge;
 
@@ -1374,6 +1399,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         fillSpecsDictionary(specsWorksheet, 'D', 'E', liquidSpecs);
+        fillSpecsDictionary(specsWorksheet, 'W', 'X', thickenerSpecs);
         fillSpecsDictionary(specsWorksheet, 'H', 'I', solidSpecs);
         fillSpecsDictionary(specsWorksheet, 'F', 'G', sweetenerSpecs);
 
@@ -1389,7 +1415,8 @@ document.addEventListener('DOMContentLoaded', () => {
         populateOptionsFromList(sweetenerWorksheet,['sweetener1', 'sweetener2']);
 
         populateOptions('Specs', "A", ['size-customize']); 
-        populateOptions('Specs', "D", ['liquidMix1Amount','liquidMix2Amount','thickenerAmount']); 
+        populateOptions('Specs', "D", ['liquidMix1Amount','liquidMix2Amount']); 
+        populateOptions('Specs', "W", ['thickenerAmount']); 
         populateOptions('Specs', "F", ['sweetener1Amount','sweetener2Amount']); 
         populateOptions('Specs', "H", ['mixInAmount']);     
 
