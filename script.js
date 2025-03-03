@@ -1032,9 +1032,15 @@ function updateMilkTypes(iceCreamBase) {
     if (rowIndex !== -1) { 
         const milkType1 = milkTypeWorksheet[`P${rowIndex}`] ? milkTypeWorksheet[`P${rowIndex}`].v : ''; 
         const milkType2 = milkTypeWorksheet[`Q${rowIndex}`] ? milkTypeWorksheet[`Q${rowIndex}`].v : ''; 
-        
+        const thickener = milkTypeWorksheet[`R${rowIndex}`] ? milkTypeWorksheet[`R${rowIndex}`].v : null; 
+        const thickenerAmount = milkTypeWorksheet[`S${rowIndex}`] ? milkTypeWorksheet[`S${rowIndex}`].v : null; 
+        console.log("Thickener is ", thickener);
         document.getElementById('milkType1').value = milkType1; 
         document.getElementById('milkType2').value = milkType2; 
+        if(thickener !== null){
+            document.getElementById('thickener').value = thickener; 
+            document.getElementById('thickenerAmount').value = thickenerAmount; 
+        }
     } 
 } 
 
