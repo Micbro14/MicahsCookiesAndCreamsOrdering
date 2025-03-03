@@ -1542,7 +1542,7 @@ function submitCheckout(event) {
         console.log(`${key}: ${value}`);
     }
 
-    /*
+    
 
     fetch('https://formspree.io/f/xlddapjp', {
         method: 'POST',
@@ -1563,7 +1563,7 @@ function submitCheckout(event) {
         console.error('Error:', error);
         alert('Oops! There was a problem with your submission.');
     });
-    */
+    
 }
 
 
