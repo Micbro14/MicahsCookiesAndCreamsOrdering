@@ -1698,7 +1698,8 @@ function calculateDeliveryCost(destination) {
                 .then(data => {
                     if (data.features && data.features.length > 0) {
                         var distance = data.features[0].properties.segments[0].distance;
-                        var deliveryCost = ((distance / 1609.34) / carMpg) * gallonCost; // Convert meters to miles and calculate cost
+                        var deliveryCost = (((distance / 1609.34) / carMpg) * gallonCost) * 2; // Convert meters to miles and calculate cost
+                        console.log("Delivery cost is ", deliveryCost)
                         document.getElementById('deliveryCost').textContent = '$' + deliveryCost.toFixed(2);
                         let totalPrice = parseFloat($('#total-price').text());
                         totalPrice = totalPrice + deliveryCost;
