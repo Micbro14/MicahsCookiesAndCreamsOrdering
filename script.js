@@ -590,7 +590,18 @@ function addToCart(flavor, worksheet, quantity,price,size) {
 
     var thickenerData = calculateSegmentPrice(thickenerWorksheet, thickenerSpecs, sizeSpecsDict, thickener, thickenerAmount, size, 'thickenerPrice',totalMilk);
 
-
+    var gramAmountsDevMode = `
+    milkType1Grams: ${milkType1Grams} <br>
+    milkType2Grams: ${milkType2Grams} <br>
+    thickener.amount: ${thickenerData.amount} <br>
+    Sweetener 1 Amount: ${sweetener1Data.amount} <br>
+    Sweetener 2 Amount: ${sweetener2Data.amount} <br>
+    liquidMix1.amount: ${liquidMix1Data.amount} <br>
+    liquidMix2.amount: ${liquidMix2Data.amount} <br>    
+    Solid 1 Amount: ${solidSimulated.amount1} <br>
+    Solid 2 Amount: ${solidSimulated.amount2} <br>     
+    `;        
+//console.log("Grams amount dev mode is ", gramAmountsDevMode);
     // Set the values
     cartItem.querySelector('.cart-item').id = uniqueId;
     cartItem.querySelector('.cart-item-name').textContent = `${name} - ${size}`;
@@ -670,13 +681,7 @@ function calculateSegmentPrice(worksheet, specsDict, sizeSpecsDict, value, amoun
         amount = amount * sweetenerWorksheet[value]["gram equivalent (of 1/2 cup)"];
         // TODO: need to use custom gram value when calculating costs
     } else if (worksheet === thickenerWorksheet && amountValue === "Auto"){
-        console.log("Found Auto");
         amount = (thickenerWorksheet[value]["Amount per 100g of milk"] / 100) * milkAmount;
-        console.log("Amount divided by 15:", amount / 15);
-        console.log("Cost:", cost);
-        console.log("Upcharge:", upcharge);
-        console.log("Price:", (amount / 15) * cost * upcharge);
-
         price = (amount / 15) * cost * upcharge;
         price = price.toFixed(2);
     }
@@ -779,7 +784,7 @@ function calculateCustomizePrice() {
         Solid 1 Amount: ${solidSimulated.amount1} <br>
         Solid 2 Amount: ${solidSimulated.amount2} <br>     
         `;        
-    console.log("Grams amount dev mode is ", gramAmountsDevMode);
+    //console.log("Grams amount dev mode is ", gramAmountsDevMode);
 
     var totalCalories = 0;
 
@@ -940,7 +945,7 @@ function calculateCustomizePriceFromFlavor(size,flavor) {
     var sweetener2 = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, flavorValues["Sweetner Type 2"], flavorValues["Sweetner Type 2 Amount (x 100g)"], size, null,null);
     var solidSimulated = calculateSolidPrice(solidMixInWorksheet, solidSpecs, sizeSpecsDict, flavorValues["Solid Mix 1"], flavorValues["Solid Mix Amount (% of all ice cream)"], size, null, flavorValues["Solid Mix 2"], null);
 
-    var totalGramsBeforeMilk = liquidMix1.amount + liquidMix2.amount + solidSimulated.cupAmount;
+    var totalGramsBeforeMilk = (liquidMix1.thick === "Yes" ? liquidMix1.amount : 0) + (liquidMix2.thick === "Yes" ? liquidMix2.amount : 0) + (solidSimulated.gramsPerCup1 === 0 ? 0 : ((solidSimulated.amount1 / solidSimulated.gramsPerCup1) * 240) ) + (solidSimulated.gramsPerCup2 === 0 ? 0 : ((solidSimulated.amount2 / solidSimulated.gramsPerCup2) * 240) );
 
     var [milkType1Price,milkType1Grams] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, flavorValues["Milk Type 1 (2/3)"], size, null, 2/3, totalGramsBeforeMilk);
     var [milkType2Price,milkType2Grams] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, flavorValues["Milk Type 2 (1/3)"], size, null, 1/3, totalGramsBeforeMilk);
@@ -1034,7 +1039,6 @@ function updateMilkTypes(iceCreamBase) {
         const milkType2 = milkTypeWorksheet[`Q${rowIndex}`] ? milkTypeWorksheet[`Q${rowIndex}`].v : ''; 
         const thickener = milkTypeWorksheet[`R${rowIndex}`] ? milkTypeWorksheet[`R${rowIndex}`].v : null; 
         const thickenerAmount = milkTypeWorksheet[`S${rowIndex}`] ? milkTypeWorksheet[`S${rowIndex}`].v : null; 
-        console.log("Thickener is ", thickener);
         document.getElementById('milkType1').value = milkType1; 
         document.getElementById('milkType2').value = milkType2; 
         if(thickener !== null){
@@ -1279,27 +1283,35 @@ function saveCart() {
     const cartData = [];
 
     cartItems.forEach(item => {
-        console.log("Current quantity value is ", item.querySelector('.quantity').value);
         const itemData = {
             id: item.id,
             name: item.querySelector('.cart-item-name').textContent,
             price: item.querySelector('.cart-item-price').textContent,
             iceCreamBase: item.querySelector('.ice-cream-base').textContent,
             milkType1: item.querySelector('.milk-type1').textContent,
+            milkType1Grams: item.querySelector('.milk-type1-grams').textContent,
             milkType2: item.querySelector('.milk-type2').textContent,
+            milkType2Grams: item.querySelector('.milk-type2-grams').textContent,
             thickener: item.querySelector('.thickener').textContent,
             thickenerAmount: item.querySelector('.thickener-amount').textContent,
+            thickenerGrams: item.querySelector('.thickener-grams').textContent,
             liquidMix1: item.querySelector('.liquid-mix1').textContent,
             liquidMix1Amount: item.querySelector('.liquid-mix1-amount').textContent,
+            liquidMix1Grams: item.querySelector('.liquid-mix1-grams').textContent,
             liquidMix2: item.querySelector('.liquid-mix2').textContent,
             liquidMix2Amount: item.querySelector('.liquid-mix2-amount').textContent,
+            liquidMix2Grams: item.querySelector('.liquid-mix2-grams').textContent,
             mixIn1: item.querySelector('.mix-in1').textContent,
+            mixIn1Grams: item.querySelector('.mix-in1-grams').textContent,
             mixIn2: item.querySelector('.mix-in2').textContent,
+            mixIn2Grams: item.querySelector('.mix-in2-grams').textContent,
             mixInAmount: item.querySelector('.mix-in-amount').textContent,
             sweetener1: item.querySelector('.sweetener1').textContent,
             sweetener1Amount: item.querySelector('.sweetener1-amount').textContent,
+            sweetener1Grams: item.querySelector('.sweetener1-grams').textContent,
             sweetener2: item.querySelector('.sweetener2').textContent,
             sweetener2Amount: item.querySelector('.sweetener2-amount').textContent,
+            sweetener2Grams: item.querySelector('.sweetener2-grams').textContent,
             quantity: item.querySelector('.quantity').value
         };
         cartData.push(itemData);
@@ -1310,8 +1322,6 @@ function saveCart() {
 
 function loadCart() {
     const cartData = JSON.parse(localStorage.getItem('cartItems'));
-
-    console.log("Cart data is ", cartData);
 
     if (cartData && cartData.length > 0) {
         const cartItemsContainer = document.getElementById('cart-items');
@@ -1326,20 +1336,29 @@ function loadCart() {
             cartItem.querySelector('.cart-item-price').textContent = itemData.price;
             cartItem.querySelector('.ice-cream-base').textContent = itemData.iceCreamBase;
             cartItem.querySelector('.milk-type1').textContent = itemData.milkType1;
+            cartItem.querySelector('.milk-type1-grams').textContent = itemData.milkType1Grams;
             cartItem.querySelector('.milk-type2').textContent = itemData.milkType2;
+            cartItem.querySelector('.milk-type2-grams').textContent = itemData.milkType2Grams;
             cartItem.querySelector('.thickener').textContent = itemData.thickener;
             cartItem.querySelector('.thickener-amount').textContent = itemData.thickenerAmount;
+            cartItem.querySelector('.thickener-grams').textContent = itemData.thickenerGrams;
             cartItem.querySelector('.liquid-mix1').textContent = itemData.liquidMix1;
             cartItem.querySelector('.liquid-mix1-amount').textContent = itemData.liquidMix1Amount;
+            cartItem.querySelector('.liquid-mix1-grams').textContent = itemData.liquidMix1Grams;
             cartItem.querySelector('.liquid-mix2').textContent = itemData.liquidMix2;
             cartItem.querySelector('.liquid-mix2-amount').textContent = itemData.liquidMix2Amount;
+            cartItem.querySelector('.liquid-mix2-grams').textContent = itemData.liquidMix2Grams;
             cartItem.querySelector('.mix-in1').textContent = itemData.mixIn1;
+            cartItem.querySelector('.mix-in1-grams').textContent = itemData.mixIn1Grams;
             cartItem.querySelector('.mix-in2').textContent = itemData.mixIn2;
+            cartItem.querySelector('.mix-in2-grams').textContent = itemData.mixIn2Grams;
             cartItem.querySelector('.mix-in-amount').textContent = itemData.mixInAmount;
             cartItem.querySelector('.sweetener1').textContent = itemData.sweetener1;
             cartItem.querySelector('.sweetener1-amount').textContent = itemData.sweetener1Amount;
+            cartItem.querySelector('.sweetener1-grams').textContent = itemData.sweetener1Grams;
             cartItem.querySelector('.sweetener2').textContent = itemData.sweetener2;
             cartItem.querySelector('.sweetener2-amount').textContent = itemData.sweetener2Amount;
+            cartItem.querySelector('.sweetener2-grams').textContent = itemData.sweetener2Grams;
             cartItem.querySelector('.quantity').value = itemData.quantity;
 
             cartItemsContainer.appendChild(cartItem);
@@ -1479,6 +1498,7 @@ function checkout() {
 
     // Clear the existing order summary
     $('#orderSummary ul').empty();
+    $('#hiddenOrderSummary ul').empty();
 
     // Loop through the cart items and add them to the order summary
     $('#cart-items .cart-item').each(function () {
@@ -1489,19 +1509,41 @@ function checkout() {
 
         // Append the item to the order summary
         $('#orderSummary ul').append(`<li>${itemQuantity} x ${itemName} - $${(itemPrice * itemQuantity).toFixed(2)}</li>`);
+        $('#hiddenOrderSummary ul').append(`<li>${itemQuantity} x ${itemName} - $${(itemPrice * itemQuantity).toFixed(2)}</li>`);
 
         // Extract text content from the ingredients table
+
+        let hiddenOrderSummary = '';
+
         let condensedTableText = '';
-        ingredientsTable.find('tbody tr').each(function () {
+        let excludeColumnIndex = -1;
+
+        // Process the header and body rows together
+        ingredientsTable.find('tr').each(function () {
             let rowText = '';
-            $(this).find('td').each(function () {
-                rowText += `${$(this).text()} | `;
+            let hiddenRowText = '';
+            $(this).find('th, td').each(function (index) {
+                if ($(this).prop('tagName') === 'TH' && $(this).text().includes('Grams')) {
+                    excludeColumnIndex = index;
+                } else if (index !== excludeColumnIndex) {
+                    rowText += `${$(this).text()} | `;
+                }
+                hiddenRowText += `${$(this).text()} | `;
             });
+            hiddenOrderSummary += hiddenRowText.slice(0, -3) + '\n'; // Remove the last separator and add a new line
             condensedTableText += rowText.slice(0, -3) + '\n'; // Remove the last separator and add a new line
         });
 
+
+        // Append the hidden Grams value at the end of the condensed table text
+
+
+
         // Append the condensed table text to the order summary
         $('#orderSummary ul').append(`<li style="margin-left: 20px; white-space: pre-wrap;">${condensedTableText}</li>`);
+        
+        $('#hiddenOrderSummary ul').append(`<li style="margin-left: 20px; white-space: pre-wrap;">${hiddenOrderSummary}</li>`);
+
     });
 
     // Show the checkout modal
@@ -1527,20 +1569,21 @@ function submitCheckout(event) {
 
     // Manually add the order summary to the FormData object
     let orderSummary = '';
-    $('#orderSummary ul li').each(function() {
+    $('#hiddenOrderSummary ul li').each(function() {
         orderSummary += $(this).text() + '\n';
     });
-
-    
 
     formData.append('orderSummary', orderSummary);
     formData.append('deliveryCost',deliveryCost);
     formData.append('finalCost',totalCost);
 
    // Log the form data
+   
+   /*
    for (let [key, value] of formData.entries()) {
         console.log(`${key}: ${value}`);
     }
+        */
 
     
 
