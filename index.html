@@ -21,17 +21,17 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-12">
+            <div class="row">
                 <button class="btn-craft-flavor btn-block mb-3 bsb-btn-5xl" data-toggle="modal" data-target="#customizeModal"> Craft A Flavor </button>
-                <h1 class="text-center">Pick A Flavor</h1>
                 <div class="navigation-menu">
                     <h2 class="text-center">Categories</h1>
-                    <ul id="navigation-links">
+                    <ul id="navigation-links" class="justify-content-center">
                       <!-- Links will be dynamically added here -->
                     </ul>
-                  </div>                      
-                <div class="row" id="flavor-cards">
-                </div>
+                </div>                      
+                
+            </div>
+            <div class="row" id="flavor-cards">
             </div>
             <div class="fixed-top text-right p-3">
                 <button class="btn btn-dark" id="darkModeToggle">Toggle Dark Mode</button>
@@ -42,20 +42,20 @@
         </div>
     </div>
     <div id="shoppingCart" class="shopping-cart">
-        <div class="card card-body">
-            <button type="button" class="close" aria-label="Close" onclick="toggleCart()">
-                <span aria-hidden="true">&times;</span>
-            </button>
+        <div class="card card-body">           
             <ul id="cart-items" class="list-group">
             </ul>
             <p class="mt-2">Total: $<span id="total-price">0.00</span></p>
             <button type="button" class="btn btn-primary mt-2" onclick="checkout()">Checkout</button>
+            <button type="button" class="btn-danger" aria-label="Close" onclick="toggleCart()">
+                Continue Shopping
+            </button>
         </div>
     </div>    
 
     <!-- Flavor Card Template -->
     <template id="flavor-card-template">
-        <div class="col-md-6"> <!-- Changed to col-md-6 for wider cards -->
+        <div class="col-md-3"> <!-- Changed to col-md-6 for wider cards -->
             <div class="card">
                 <img src="" class="card-img-top" alt="">
                 <div class="card-body">
@@ -64,6 +64,16 @@
                     <h5 class="card-price text-center"></h5>
                     <div class="form-group mb-3"> 
                         <div class="d-flex align-items-center">
+                            <div class="form-check d-flex align-items-center mt-2">
+                                <label for="lactoseCheckbox" class="form-check-label me-2" style="font-size: 1rem;">
+                                    Make it Lactose Free?
+                                </label>
+                                <input type="checkbox" class="form-check-input" id="lactoseCheckbox" style="width: 1.2rem; height: 1.2rem;">
+                            </div>
+                        </div>
+                    </div>                                             
+                    <div class="form-group mb-3"> 
+                        <div class="d-flex align-items-center">                     
                             <div class="btn-group btn-group-toggle" data-toggle="buttons" id="size-flavor"> </div>
                         </div>
                     </div>
@@ -231,6 +241,17 @@
                                     </div>
                                     <button type="button" class="btn btn-link" onclick="clearField('sweetener2Amount')">Clear</button>
                                 </div>
+                                <h5>Lactose Removal</h5>
+                                <div class="form-group mb-3"> 
+                                    <div class="d-flex align-items-center">
+                                        <div class="form-check d-flex align-items-center mt-2">
+                                            <label for="lactoseCheckboxCustomize" class="form-check-label me-2" style="font-size: 1rem;">
+                                                Make it Lactose Free?
+                                            </label>
+                                            <input type="checkbox" class="form-check-input" id="lactoseCheckboxCustomize" style="width: 1.2rem; height: 1.2rem;">
+                                        </div>
+                                    </div>
+                                </div>
                                 <h5>Size</h5>
                                 <div class="form-group mb-3"> 
                                     <div class="d-flex align-items-center">
@@ -267,7 +288,7 @@
                                 <label id="developerMode-Amounts"></label>
                             </div>
                         </div>
-                        <div class="modal-footer">
+                        <div class="modal-footer justify-content-start">
                             <h5 class="text-left">Pricing</h5>
                             <div class="input-group mb-3">
                                 <label for="additionalCosts" class="w-100 text-left">Additional Costs</label>
@@ -285,10 +306,8 @@
                             <div class="d-flex w-100">
                                 <span class="ml-2" id="totalPrice"></span>
                             </div>
-                        </div>                                                                     
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" id="customizeAddToCart" onclick="validateForm(this)">Add To Cart</button>                
+                            <button type="button" class="btn btn-secondary d-flex" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary d-flex" id="customizeAddToCart" onclick="validateForm(this)">Add To Cart</button>                
                         </div>
                     </div>
                 </div>                                  
@@ -373,6 +392,12 @@
                             <td class="sweetener2"></td>
                             <td class="sweetener2-amount"></td>
                             <td class="sweetener2-grams hidden-amount"></td>
+                        </tr>
+                        <tr class="lactase-drops-row">
+                            <td>Make it Lactose Free?</td>
+                            <td></td>
+                            <td class="lactase-drops-checked"></td>
+                            <td class="lactase-drops-grams hidden-amount"></td>
                         </tr>
                     </tbody>
                 </table>

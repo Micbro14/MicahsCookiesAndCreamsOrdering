@@ -17,9 +17,10 @@
 .navigation-menu {
     text-align: center;
     background-color: #f8f9fa;
-    border-radius: 0.25rem;
+    /*border-radius: 0.25rem;*/
     padding: 0.5rem;
     background: linear-gradient(135deg, #6a0dad, #b57edc);
+    margin-bottom: 20px; /* Adjust the value as needed */
 }
 
 .navigation-menu ul {
@@ -266,12 +267,12 @@ body.dark-mode .featured-group h3 {
 }
 
 .close { 
-    position: absolute; 
+    /*position: absolute; 
     top: 10px; 
     right: 10px; 
     font-size: 1.5rem; 
-    cursor: pointer;
-    }
+    cursor: pointer;*/
+}
 
     body {
     background: linear-gradient(135deg, #00c6ff, #0072ff, #00c6ff);
