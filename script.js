@@ -494,7 +494,10 @@ function populateFlavorCards(sheetName) {
 
                         
                     });
-                    console.log("Size element 0 is ", sizeElement.querySelector('label').getAttribute('for').split('-').pop());
+                    
+                    console.log("Current flavor is ",flavor);
+
+
                     var firstSize = sizeElement.querySelector('label').getAttribute('for').split('-').pop();
                     var price = calculateCustomizePriceFromFlavor(firstSize,flavor,false);
 
@@ -957,23 +960,24 @@ function calculateCustomizePrice() {
         totalCalories += milk2Calories;
     }
     // Function to update nutrition facts function 
-    document.getElementById('serving-per-container').textContent = `Servings Per Container: ${(sizeSpecsDict[size].Amount/66).toFixed(0)}`; 
-    document.getElementById('serving-size').textContent = 'Serving Size: 1/2 cup (66g)';
-    document.getElementById('calories').textContent = `Calories: ${(totalCalories * (66/sizeSpecsDict[size].Amount)).toFixed(0)} | ${totalCalories.toFixed(0)}`;
-    calculateTotalCalories("Fat (g)", size, thickener, thickenerValue, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
-    calculateTotalCalories("Protein (g)", size, thickener, thickenerValue, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
-    calculateTotalCalories("Sugar (g)", size, thickener, thickenerValue, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
-    
+    document.getElementById('serving-per-container').textContent = `Servings Per Container: ${(sizeSpecsDict[size].Amount/130).toFixed(0)}`; 
+    document.getElementById('serving-size').textContent = 'Serving Size: 2/3 cup (130g)';
+    document.getElementById('calories').textContent = `Calories: ${(totalCalories * (130/sizeSpecsDict[size].Amount)).toFixed(0)} | ${totalCalories.toFixed(0)}`;
+    calculateTotalCalories("Fat (g)","Fat (g)", size, thickener, thickenerValue, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
+    calculateTotalCalories("Protein (g)","Protein (g)", size, thickener, thickenerValue, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
+    calculateTotalCalories("Total Sugar (g)","Sugar (g)", size, thickener, thickenerValue, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
+    calculateTotalCalories("Sugar in Liquid (g)","Sugar (g)", size, thickener, thickenerValue, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, 0, 0, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
+
     
     if(lactaseDrops == 0){
-        calculateTotalCalories("Lactose (g)", size, thickener, thickenerValue, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
+        calculateTotalCalories("Lactose (g)", "Lactose (g)", size, thickener, thickenerValue, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
     }else{
         addOrUpdateNutritionItem("Lactose (g)",0,0);
     }
     
     //document.getElementById('developerMode-Amounts').innerHTML = gramAmountsDevMode;
 
-    var currentAdditionalCosts = (additionalCosts + sizeSpecsDict[size].ContainerCost) * upcharge;
+    var currentAdditionalCosts = (sizeSpecsDict[size].AdditionalCost + sizeSpecsDict[size].ContainerCost) * upcharge;
     document.getElementById("additionalCosts").innerText = `$${currentAdditionalCosts.toFixed(2)}`;
 
     var thickenerPrice = thickener.price || 0;
@@ -995,7 +999,7 @@ function calculateCustomizePrice() {
     //TODO add nutrition updating here
 }
 
-function calculateTotalCalories(fieldName, size, thickener, thickenerValue,liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet) {
+function calculateTotalCalories(customFieldName,fieldName, size, thickener, thickenerValue,liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet) {
     var totalCalories = 0;
 
     if (thickener.amount && thickenerWorksheet[thickenerValue] && thickenerWorksheet[thickenerValue][fieldName]) {
@@ -1044,7 +1048,7 @@ function calculateTotalCalories(fieldName, size, thickener, thickenerValue,liqui
     }
 
     
-    addOrUpdateNutritionItem(fieldName,((totalCalories * (66/sizeSpecsDict[size].Amount)).toFixed(0)),totalCalories.toFixed(0));
+    addOrUpdateNutritionItem(customFieldName,((totalCalories * (130/sizeSpecsDict[size].Amount)).toFixed(0)),totalCalories.toFixed(0));
 }
 
 // Function to add or update a nutrition item
@@ -1090,7 +1094,8 @@ function calculateCustomizePriceFromFlavor(size,flavor,lactoseCheckbox) {
         var lactaseDrops = Math.ceil(milkType1LactoseDrops + milkType2LactoseDrops + thickener.lactaseDrops);
     }
     
-    var currentAdditionalCosts = (additionalCosts + sizeSpecsDict[size].ContainerCost) * upcharge;
+    console.log("Additional Costs is ", sizeSpecsDict[size]);
+    var currentAdditionalCosts = (sizeSpecsDict[size].AdditionalCost + sizeSpecsDict[size].ContainerCost) * upcharge;
 
     var thickenerPrice = thickener.price || 0;
     var liquidMix1Price = liquidMix1.price || 0;
@@ -1553,10 +1558,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 var amountCellAddress = `B${i}`; 
                 var multiplierCellAddress = `C${i}`;
                 var containerCostCellAddress = `V${i}`; 
+                var additionalCostCellAddress = `Q${i}`; 
+
                 var amount = specsWorksheet[amountCellAddress] ? specsWorksheet[amountCellAddress].v : 0;
                 var multiplier = specsWorksheet[multiplierCellAddress] ? specsWorksheet[multiplierCellAddress].v : 0; 
                 var containerCost = specsWorksheet[containerCostCellAddress] ? specsWorksheet[containerCostCellAddress].v : 0; 
-                sizeSpecsDict[size] = { "Amount": amount, "Multiplier": multiplier, "ContainerCost": containerCost }; 
+                var additionalCost = specsWorksheet[additionalCostCellAddress] ? specsWorksheet[additionalCostCellAddress].v : 0; 
+
+                sizeSpecsDict[size] = { "Amount": amount, "Multiplier": multiplier, "ContainerCost": containerCost, "AdditionalCost": additionalCost }; 
             } 
         }
 
@@ -1701,8 +1710,8 @@ function checkout() {
         
         $('#hiddenOrderSummary ul').append(`<li style="margin-left: 20px; white-space: pre-wrap;">${hiddenOrderSummary}</li>`);
         //TODO only for testing
-        $('#orderSummary ul').append(`<li style="margin-left: 20px; white-space: pre-wrap;">${condensedTableText}</li>`);
-        //$('#orderSummary ul').append(`<li style="margin-left: 20px; white-space: pre-wrap;">${hiddenOrderSummary}</li>`);
+        //$('#orderSummary ul').append(`<li style="margin-left: 20px; white-space: pre-wrap;">${condensedTableText}</li>`);
+        $('#orderSummary ul').append(`<li style="margin-left: 20px; white-space: pre-wrap;">${hiddenOrderSummary}</li>`);
 
 
     });
