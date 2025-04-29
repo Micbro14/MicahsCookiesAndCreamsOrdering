@@ -1710,8 +1710,8 @@ function checkout() {
         
         $('#hiddenOrderSummary ul').append(`<li style="margin-left: 20px; white-space: pre-wrap;">${hiddenOrderSummary}</li>`);
         //TODO only for testing
-        //$('#orderSummary ul').append(`<li style="margin-left: 20px; white-space: pre-wrap;">${condensedTableText}</li>`);
-        $('#orderSummary ul').append(`<li style="margin-left: 20px; white-space: pre-wrap;">${hiddenOrderSummary}</li>`);
+        $('#orderSummary ul').append(`<li style="margin-left: 20px; white-space: pre-wrap;">${condensedTableText}</li>`);
+        //$('#orderSummary ul').append(`<li style="margin-left: 20px; white-space: pre-wrap;">${hiddenOrderSummary}</li>`);
 
 
     });
