@@ -333,6 +333,170 @@ function adjustColor(hex, factor) {
     return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 }
 
+// Function to open the modal and populate the flavor card inside
+function openFlavorModal(flavor) {
+    var flavorData = premadeWorksheet[flavor]; 
+
+    // Clone the flavor card template
+    let flavorCard = document.getElementById('flavor-card-template').content.cloneNode(true);
+    let flavorCardContainer = flavorCard.querySelector('.col-md-3'); // Select the div with the column class
+
+    // Change column size only inside the modal
+    if (flavorCardContainer) {
+        flavorCardContainer.classList.remove('col-md-3');
+        flavorCardContainer.classList.add('col-md-6');
+    }
+
+    // Populate the flavor card inside the modal
+    flavorCard.querySelector('.card-img-top').src = `./images/${flavor}.png`;
+    flavorCard.querySelector('.card-img-top').alt = flavor;
+    flavorCard.querySelector('.card-title').textContent = flavor;
+    flavorCard.querySelector('.card-description').innerHTML = flavorData.Description.split(/(?<=[.?!])\s+/).join('<br>');
+
+    // Ensure size options only affect the modal
+    var sizeElement = flavorCard.querySelector('#size-flavor');
+    sizeElement.innerHTML = ''; // Clear previous size options (if any)
+
+    sizeOptions.forEach((optionValue, index) => {
+        var input = document.createElement('input'); 
+        
+        input.type = 'radio'; 
+        input.name = `flavorModal-size-flavor-${flavor}`; // Use unique name for each flavor
+        input.value = optionValue; 
+        input.id = `flavorModal-size-flavor-${flavor}-${optionValue}`; 
+
+        var label = document.createElement('label'); 
+        label.className = 'btn btn-outline-primary'; 
+        label.setAttribute('for', input.id); 
+        label.innerHTML = optionValue; 
+
+        if (premadeWorksheet[flavor]["Has Samples?"] == "No" && index === 0 || optionValue.startsWith('Sample') && premadeWorksheet[flavor]["Has Samples?"] == "Yes") { 
+            input.checked = true; // Set the first button as active by default 
+            label.classList.add('active', 'focus','checked'); // Add the "active" and "focus" classes to the first label
+        }
+        // Append the input element to the label 
+        if (!optionValue.startsWith('Sample')) {
+            label.appendChild(input);
+            sizeElement.appendChild(label);
+        }else if(optionValue.startsWith('Sample') && premadeWorksheet[flavor]["Has Samples?"] == "Yes"){
+            label.appendChild(input);
+            // Insert the label at the beginning of sizeElement
+            sizeElement.insertBefore(label, sizeElement.firstChild);
+
+            // Remove the "Customize It!" button
+            if (customizeButton) {
+                customizeButton.remove();
+            }
+            // Remove the "Make it Lactose Free" checkbox
+            var lactoseCheckbox = clone.querySelector('#lactoseCheckbox');
+            if (lactoseCheckbox) {
+                lactoseCheckbox.remove();
+            }
+
+            // Remove the label for the "Make it Lactose Free" checkbox
+            var lactoseLabel = clone.querySelector('label[for="lactoseCheckbox"]');
+            if (lactoseLabel) {
+                lactoseLabel.remove();
+            }
+        }
+
+        
+    });
+
+    // Get the price based on the default size selection (first one)
+    var firstSize = sizeElement.querySelector('input:checked').value;
+    var price = calculateCustomizePriceFromFlavor(firstSize, flavor, false);
+    flavorCard.querySelector('.card-price').textContent = `$${price}`;
+
+    // Get the quantity and other form elements
+    var quantityInput = flavorCard.querySelector('.form-control');
+    var quantity = quantityInput ? parseInt(quantityInput.value) : 1;
+
+    // Change the ID of the quantity input to be unique for the modal
+    quantityInput.id = `modal-quantity-${flavor}`;
+    quantityInput.addEventListener('input', function () {
+        quantity = parseInt(quantityInput.value);
+    });
+
+    // Handle Lactose Free checkbox for the modal
+    var lactoseCheckbox = flavorCard.querySelector('#lactoseCheckbox');
+    if (lactoseCheckbox) {
+        lactoseCheckbox.id = `modal-lactoseCheckbox-${flavor}`; // Change the ID to be unique
+        var lactoseLabel = flavorCard.querySelector('label[for="lactoseCheckbox"]');
+        if (lactoseLabel) {
+            lactoseLabel.setAttribute('for', `modal-lactoseCheckbox-${flavor}`); // Link label to the new ID
+        }
+    }
+
+    // Add "Add to Cart" button functionality inside the modal
+    var addToCartButton = flavorCard.querySelector('.add-to-cart');
+    addToCartButton.addEventListener('click', function() {
+        var selectedSize = sizeElement.querySelector('input:checked').value;
+        var price = calculateCustomizePriceFromFlavor(selectedSize, flavor, false);
+
+        // Get the quantity and lactose-free status
+        var quantity = parseInt(quantityInput.value);
+        var lactoseFree = lactoseCheckbox ? lactoseCheckbox.checked : false;
+    
+        // Close the modal after adding to the cart     
+        document.getElementById('flavorModal').classList.remove('show');
+        //document.getElementById('flavorModal').style.display = 'none';
+
+
+        // Wait for modal to fully close before proceeding
+        addToCart(flavor, premadeWorksheet, quantity, price, selectedSize, lactoseFree);
+    });
+
+    // Add "Customize It!" event listener inside modal
+    var customizeButton = flavorCard.querySelector('.customize-btn');
+    customizeButton.addEventListener('click', function() {
+        var selectedSize = sizeElement.querySelector('input:checked').value;
+        var quantity = parseInt(quantityInput.value);
+        var lactoseFree = lactoseCheckbox ? lactoseCheckbox.checked : false;
+
+        autoSelectValues(flavor, worksheet, selectedSize, quantity, lactoseFree);
+    });
+
+     // **Event Listener for Size Selection**
+     flavorCard.querySelectorAll('label[for^="flavorModal-size-flavor-"]').forEach(label => {
+        label.addEventListener('click', function() {
+            setTimeout(() => {
+                flavorCard = document.getElementById('flavorModal');
+                if (this.classList.contains('active')) {
+                    var parts = this.getAttribute('for').split('-'); 
+                    var newSize = parts[parts.length - 1];
+                    var lactoseActive = lactoseCheckbox ? lactoseCheckbox.checked : false;
+                    var newPrice = calculateCustomizePriceFromFlavor(newSize, flavor, lactoseActive);
+                    console.log("new price is " + newPrice);
+                    flavorCard.querySelector('.card-price').textContent = `$${newPrice}`;
+                }
+            }, 0);
+        });
+    });
+
+    // **Event Listener for Lactose-Free Checkbox**
+    if (lactoseCheckbox) {
+        lactoseCheckbox.addEventListener('change', function() {
+            flavorCard = document.getElementById('flavorModal');
+            var activeLabel = flavorCard.querySelector('label.active');   
+            console.log("active label is " + activeLabel);  
+            var newSize = activeLabel ? activeLabel.getAttribute('for').split('-').pop() : sizeOptions[0];
+            var newPrice = calculateCustomizePriceFromFlavor(newSize, flavor, this.checked);
+
+            flavorCard.querySelector('.card-price').textContent = `$${newPrice}`;
+        });
+    }
+
+   // Append the populated card to the modal
+   document.getElementById('flavor-card-container').innerHTML = ''; // Clear previous modal content
+   document.getElementById('flavor-card-container').appendChild(flavorCard);
+
+   // Show the modal
+   let flavorModal = new bootstrap.Modal(document.getElementById('flavorModal'));
+   flavorModal.show();
+}
+
+
 function populateFlavorCards(sheetName) {
     var worksheet = workbook.Sheets[sheetName]; 
     var specsWorksheet = workbook.Sheets["Specs"]; 
@@ -728,7 +892,6 @@ function addToCart(flavor, worksheet, quantity,price,size,lactoseCheckbox) {
     cartItem.querySelector('.sweetener2-amount').textContent = sweetener2Amount;
     cartItem.querySelector('.sweetener2-grams').textContent = sweetener2Data.amount;
     cartItem.querySelector('.lactase-drops-checked').textContent = lactoseActive;
-    console.log("Lactase drops is ", lactaseDrops);
     cartItem.querySelector('.lactase-drops-grams').textContent = lactaseDrops;
     cartItem.querySelector('.quantity').value = quantity;
     cartItem.querySelector('.cart-item-price').innerText = price;
@@ -756,11 +919,19 @@ function setCustomizeValue(value, elementId) {
 }
 
 function calculateSegmentPrice(worksheet, specsDict, sizeSpecsDict, value, amountValue, size, priceId,milkAmount) {
+    console.log("Value is " + value);
+    if (value == "Caramel"){
+        console.log("Caramel was picked");
+        console.log("Worksheet is " + JSON.stringify(worksheet, null, 2));
+    }
+
+   
     if (value === '' || amountValue === '' || !worksheet.hasOwnProperty(value)) {
         if (priceId) document.getElementById(priceId).innerText = ``;
         return { amount: 0, price: 0 };
     }
 
+    
 
     var amount = (specsDict[amountValue] * sizeSpecsDict[size].Multiplier); 
       
@@ -875,6 +1046,9 @@ function calculateCustomizePrice() {
     var solid2Value = document.getElementById('mixIn2').value;
     const lactoseCheckbox = document.getElementById("lactoseCheckboxCustomize");
 
+    if(liquidMix2Value == "Caramel"){
+        console.log("Caramel was found");
+    }
 
     var liquidMix1 = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix1Value, document.getElementById('liquidMix1Amount').value, size, 'liquidMix1Price',null);
     var liquidMix2 = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix2Value, document.getElementById('liquidMix2Amount').value, size, 'liquidMix2Price',null);
@@ -1520,10 +1694,16 @@ function loadCart() {
     }
 }
 
-
+function returnToMain() {
+    // Restore the main content and hide the Thank You message
+    document.getElementById("thank-you-container").style.display = "none";
+    document.getElementById("main-content").style.display = "block";
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     loadCart();
+    document.getElementById("thank-you-container").style.display = "none";
+
     var flavorUrl = getFlavorFromURL();
 
     // retrieve the workbook data
@@ -1543,8 +1723,6 @@ document.addEventListener('DOMContentLoaded', () => {
         solidMixInWorksheet = worksheetToDict("Solid Mix In Nutrition");
         sweetenerWorksheet = worksheetToDict("Sweetener Mix In Nutrition");
         premadeWorksheet = worksheetToDict("Premade Flavors");
-
-       
 
         // setup sizeSpecsDict
 
@@ -1582,8 +1760,6 @@ document.addEventListener('DOMContentLoaded', () => {
         fillSpecsDictionary(specsWorksheet, 'H', 'I', solidSpecs);
         fillSpecsDictionary(specsWorksheet, 'F', 'G', sweetenerSpecs);
 
-        
-
         // populate drop downs for all the different areas (Used in Customize menus)
         populateOptions('Milk Types Nutrition Per Cup', "O", ['iceCreamBase']); 
 
@@ -1603,7 +1779,11 @@ document.addEventListener('DOMContentLoaded', () => {
         populateFlavorCards('Premade Flavors');  
 
         if (flavorUrl) {
-            addToCart(flavorUrl,premadeWorksheet, 1, calculateCustomizePriceFromFlavor(sizeOptions[0],flavorUrl), sizeOptions[0],false); 
+            openFlavorModal(flavorUrl);
+
+            //addToCart(flavorUrl,premadeWorksheet, 1, calculateCustomizePriceFromFlavor(sizeOptions[0],flavorUrl), sizeOptions[0],false); 
+            let baseUrl = window.location.origin + window.location.pathname;
+            window.history.replaceState(null, '', baseUrl);
         }
     });      
 });
@@ -1754,6 +1934,9 @@ function submitCheckout(event) {
     formData.append('deliveryCost',deliveryCost);
     formData.append('finalCost',totalCost);
 
+    
+
+    
     fetch('https://formspree.io/f/xlddapjp', {
         method: 'POST',
         body: formData,
@@ -1763,8 +1946,11 @@ function submitCheckout(event) {
     })
     .then(response => {
         if (response.ok) {
-            alert('Thank you for your order! You will hear from Micah shortly.');
             form.reset(); // Reset the form after successful submission
+            $('#checkoutModal').modal('hide');
+            // Hide main content and show the Thank You message
+            document.getElementById("main-content").style.display = "none";
+            document.getElementById("thank-you-container").style.display = "block";
         } else {
             alert('Oops! There was a problem with your submission.');
         }
@@ -1775,8 +1961,6 @@ function submitCheckout(event) {
     });
     
 }
-
-
 
 document.getElementById('deliveryOption').addEventListener('change', function() {
     var addressFields = document.getElementById('addressFields');

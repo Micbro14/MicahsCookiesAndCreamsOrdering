@@ -1,3 +1,38 @@
+#thank-you-container {
+    display: none; /* Hidden initially */
+    text-align: center;
+    padding-top: 50px;
+}
+
+.thank-you-box {
+    max-width: 600px;
+    margin: auto;
+    padding: 30px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center; /* Ensures everything inside is centered */
+    font-family: Arial, sans-serif; /* Matches existing styles */
+}
+
+.thank-you-box h1 {
+    font-size: 2.5rem;
+    color: #28a745;
+    font-family: Arial, sans-serif; /* Ensure consistency */
+}
+
+.thank-you-box p {
+    font-size: 1.2rem;
+    color: #555;
+    font-family: Arial, sans-serif; /* Matches navigation links */
+}
+
+.thank-you-box .btn {
+    font-family: Arial, sans-serif; /* Ensures buttons match the rest of the page */
+    font-size: 18px;
+}
+
+
 #cart-items {
     font-size: 0.9em; /* Adjust the font size as needed */
     max-height: 500px;  /* Adjust this value as needed */
@@ -23,6 +58,15 @@
     margin-bottom: 20px; /* Adjust the value as needed */
 }
 
+#flavorModalLabel {
+    text-align: center;
+}
+  
+#flavor-card-container {
+    display: flex;
+    justify-content: center;
+}
+  
 .navigation-menu ul {
     text-align: center;
     list-style: none;
