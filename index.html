@@ -142,7 +142,15 @@
                                             <select class="form-control" id="iceCreamBase" onchange="updateMilkTypes(this.value)"></select>
                                         </div>
                                     </div>
-                                    <label for="milkType1">Pick Your Primary Milk Type</label> 
+                                    <label for="milkType1">Pick Your Primary Milk Type
+                                        <span 
+                                            data-toggle="tooltip" 
+                                            data-placement="right" 
+                                            title="This milk type will cover two-thirds of the ice cream and will be the primary source of milkfat." 
+                                            style="cursor: pointer; color: #007bff;">
+                                            &#9432;
+                                        </span>
+                                    </label> 
                                     <div class="form-group mb-3"> 
                                         <div class="d-flex align-items-left">
                                             <select class="form-control" id="milkType1" required></select> 
@@ -156,7 +164,8 @@
                                             <span class="ml-2" id="milkType2Price"></span>
                                         </div>
                                     </div>
-                                    <h5>Thickener</h5>
+                                    <h5>Thickeners</h5>
+                                    <label for="thickener">Pick Your Thickener</label> 
                                     <div class="form-group mb-3"> 
                                         <div class="d-flex align-items-center">
                                             <select class="form-control" id="thickener"></select> 
@@ -170,7 +179,37 @@
                                             <span class="ml-2" id="thickenerPrice"></span>
                                         </div>
                                         <button type="button" class="btn btn-link" onclick="clearField('thickenerAmount');">Clear</button>
-                                    </div>                               
+                                    </div>       
+                                    <label for="thickener2">Pick A Second Thickener (OPTIONAL)</label> 
+                                    <div class="form-group mb-3"> 
+                                        <div class="d-flex align-items-center">
+                                            <select class="form-control" id="thickener2"></select> 
+                                        </div>
+                                        <button type="button" class="btn btn-link" onclick="clearField('thickener2');">Clear</button>
+                                    </div>
+                                    <label for="thickener2Amount">Amount</label> 
+                                    <div class="form-group mb-3"> 
+                                        <div class="d-flex align-items-center">
+                                            <select class="form-control" id="thickener2Amount"></select> 
+                                            <span class="ml-2" id="thickener2Price"></span>
+                                        </div>
+                                        <button type="button" class="btn btn-link" onclick="clearField('thickener2Amount');">Clear</button>
+                                    </div>  
+                                    <label for="thickener3">Pick A Third Thickener (OPTIONAL)</label> 
+                                    <div class="form-group mb-3"> 
+                                        <div class="d-flex align-items-center">
+                                            <select class="form-control" id="thickener3"></select> 
+                                        </div>
+                                        <button type="button" class="btn btn-link" onclick="clearField('thickener3');">Clear</button>
+                                    </div>
+                                    <label for="thickener3Amount">Amount</label> 
+                                    <div class="form-group mb-3"> 
+                                        <div class="d-flex align-items-center">
+                                            <select class="form-control" id="thickener3Amount"></select> 
+                                            <span class="ml-2" id="thickener3Price"></span>
+                                        </div>
+                                        <button type="button" class="btn btn-link" onclick="clearField('thickener3Amount');">Clear</button>
+                                    </div>                         
                                     <h5>Flavors</h5>
                                     <label for="liquidMix1">Pick A Flavor</label> 
                                     <div class="form-group mb-3"> 
@@ -374,6 +413,18 @@
                                 <td class="thickener"></td>
                                 <td class="thickener-amount"></td>
                                 <td class="thickener-grams hidden-amount"></td>
+                            </tr>
+                            <tr>
+                                <td>Thickener 2</td>
+                                <td class="thickener2"></td>
+                                <td class="thickener2-amount"></td>
+                                <td class="thickener2-grams hidden-amount"></td>
+                            </tr>
+                             <tr>
+                                <td>Thickener 3</td>
+                                <td class="thickener3"></td>
+                                <td class="thickener3-amount"></td>
+                                <td class="thickener3-grams hidden-amount"></td>
                             </tr>
                             <tr>
                                 <td>Flavor 1</td>
