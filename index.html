@@ -47,23 +47,54 @@
                 <ul id="cart-items" class="list-group">
                 </ul>
                 <p class="mt-2">Total: $<span id="total-price">0.00</span></p>
-                <button type="button" class="btn btn-primary mt-2" onclick="checkout()">Checkout</button>
-                <button type="button" class="btn-danger" aria-label="Close" onclick="toggleCart()">
+                <button type="button" class="btn btn-primary mt-2" onclick="checkoutModal.checkout()">Checkout</button>
+                <button type="button" class="btn btn-danger" aria-label="Close" onclick="toggleCart()">
                     Continue Shopping
                 </button>
+                 <!-- Trigger Button -->
+                <button type="button" class="btn btn-primary" id="logRecipeButton"  onclick="recipesModal.openRecipeModal()">
+                Log a New Recipe
+                </button>
             </div>
-        </div>    
+        </div>   
+        
+        <!--Update Modal-->
+        <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="updateModalLabel">What's New!</h5>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Welcome back to Micah's Cookies and Creams! I've made a lot of adjustments over the last couple of months and here are the most major ones:</p>
+                        <ul>
+                            <li>"Choco-Chip Cookie Butter Blast" is now known as the "Cookie Triple Trouble" highlighting the 3 different cookies of Cookie Butter, Sandwich Creme Filled, and Cookie Dough!</li>
+                            <li>Added the ability for 3 thickeners to be picked for maximizing texture. Changing the Ice Cream Base will also preselect the best thickeners for that base.</li>
+                            <li>Added a "Sunflower Lecithin" ingredient for Thickeners. This works in the same way that egg yolks would work in a gelato due to them both having the "Lecithin" fat that helps to bind the fat and water together.</li>
+                            <li>Added a "Dextrose" ingredient for Sweetners. Dextrose is a corn-based sugar that helps to lower the freezing point of ice cream which in turn makes it easier to scoop out of the freezer.</li>
+                            <li>Added a Frozen Yogurt option as a base.</li>
+                            <li>All of the recipes have been adjusted to utilize Sunflower Lecithin and Dextrose to increase the scoopability and decrease the icyness overtime.</li>
+                        </ul>
+                        <p>Enjoy the new features!</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Got it!</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Flavor Card Template -->
         <template id="flavor-card-template">
-            <div class="col-md-3"> <!-- Changed to col-md-6 for wider cards -->
+            <div class="col-md-3">
                 <div class="card">
                     <img src="" class="card-img-top" alt="">
                     <div class="card-body">
                         <h4 class="card-title text-center"></h4>
-                        <pre class="card-description text-center"></pre> <!-- Added description here -->
+                        <pre class="card-description text-center"></pre>
                         <h5 class="card-price text-center"></h5>
-                        <div class="form-group mb-3"> 
+                        <div class="form-group mb-3">
                             <div class="d-flex align-items-center">
                                 <div class="form-check d-flex align-items-center mt-2">
                                     <label for="lactoseCheckbox" class="form-check-label me-2" style="font-size: 1rem;">
@@ -72,19 +103,19 @@
                                     <input type="checkbox" class="form-check-input" id="lactoseCheckbox" style="width: 1.2rem; height: 1.2rem;">
                                 </div>
                             </div>
-                        </div>                                             
-                        <div class="form-group mb-3"> 
-                            <div class="d-flex align-items-center">                     
+                        </div>
+                        <div class="form-group mb-3">
+                            <div class="d-flex align-items-center">
                                 <div class="btn-group btn-group-toggle" data-toggle="buttons" id="size-flavor"> </div>
                             </div>
                         </div>
                         <div class="input-group mb-3">
                             <div class="input-group-prepend">
-                                <button class="btn btn-outline-secondary quantity-btn" type="button" onclick="decreaseQuantity(this)">-</button>
+                                <button class="btn btn-outline-secondary quantity-btn" type="button" onclick="flavorLinkModal.decreaseQuantity(this)">-</button>
                             </div>
                             <input type="number" value="1" class="form-control text-center quantity" min="1">
                             <div class="input-group-append">
-                                <button class="btn btn-outline-secondary quantity-btn" type="button" onclick="increaseQuantity(this)">+</button>
+                                <button class="btn btn-outline-secondary quantity-btn" type="button" onclick="flavorLinkModal.increaseQuantity(this)">+</button>
                             </div>
                         </div>
                         <div class="d-flex justify-content-center">
@@ -139,7 +170,7 @@
                                     <label for="iceCreamBase">Pick An Ice Cream Base</label>
                                     <div class="form-group mb-3">
                                         <div class="d-flex align-items-center">
-                                            <select class="form-control" id="iceCreamBase" onchange="updateMilkTypes(this.value)"></select>
+                                            <select class="form-control" id="iceCreamBase"></select>
                                         </div>
                                     </div>
                                     <label for="milkType1">Pick Your Primary Milk Type
@@ -319,11 +350,11 @@
                                     <h5>Quantity</h5>
                                     <div class="input-group mb-3">
                                         <div class="input-group-prepend">
-                                            <button class="btn btn-outline-secondary quantity-btn" type="button" onclick="decreaseQuantity(this)">-</button>
+                                            <button class="btn btn-outline-secondary quantity-btn" type="button" onclick="flavorLinkModal.decreaseQuantity(this)">-</button>
                                         </div>
                                         <input type="number" value="1" class="form-control text-center quantity" id="quantity-customize" min="1">
                                         <div class="input-group-append">
-                                            <button class="btn btn-outline-secondary quantity-btn" type="button" onclick="increaseQuantity(this)">+</button>
+                                            <button class="btn btn-outline-secondary quantity-btn" type="button" onclick="flavorLinkModal.increaseQuantity(this)">+</button>
                                         </div>
                                     </div>
                     
@@ -377,9 +408,9 @@
             <div class="cart-item">
                 <h5 class="cart-item-name"></h5>
                 <span class="cart-item-price" style="display: block; font-size: 1.25rem;"></span>
-                <button class="btn btn-link" type="button" onclick="toggleTable(this)">
+                <button class="btn btn-link" type="button" onclick="cartArea.toggleTable(this)">
                     Show/Hide Ingredients
-                </button>            
+                </button>
                 <div class="collapse collapse-table">
                     <table class="table table-striped">
                         <thead>
@@ -474,20 +505,210 @@
                 <div class="form-group">
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
-                            <button class="btn btn-outline-secondary quantity-btn" type="button" onclick="decreaseQuantity(this); updateTotalPrice();">-</button>
+                            <button class="btn btn-outline-secondary quantity-btn" type="button" onclick="flavorLinkModal.decreaseQuantity(this); cartArea.updateTotalPrice();">-</button>
                         </div>
-                        <input type="number" class="form-control text-center quantity" value="1" min="1" onchange="updateTotalPrice()">
+                        <input type="number" class="form-control text-center quantity" value="1" min="1" onchange="cartArea.updateTotalPrice()">
                         <div class="input-group-append">
-                            <button class="btn btn-outline-secondary quantity-btn" type="button" onclick="increaseQuantity(this); updateTotalPrice();">+</button>
+                            <button class="btn btn-outline-secondary quantity-btn" type="button" onclick="flavorLinkModal.increaseQuantity(this); cartArea.updateTotalPrice();">+</button>
                         </div>
                     </div>
-                </div>            
+                </div>
                 <div class="d-flex justify-content-center">
-                    <button type="button" class="btn btn-secondary btn-sm w-100" onclick="editCartItem(this)">Edit</button>
-                    <button type="button" class="btn btn-danger btn-sm w-100" onclick="removeCartItem(this)">Remove</button>
+                    <button type="button" class="btn btn-secondary btn-sm w-100" onclick="cartArea.editCartItem(this)">Edit</button>
+                    <button type="button" class="btn btn-danger btn-sm w-100" onclick="cartArea.removeCartItem(this)">Remove</button>
                 </div>
             </div>
         </template>
+
+        <!-- Recipe Logger-->
+
+        <div class="modal fade" id="recipeModal" tabindex="-1" aria-labelledby="recipeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="recipeModalLabel">Recipe Logger</h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <!-- Saved Recipe Selector -->
+                <div class="mb-3">
+                <label class="form-label">Load Saved Recipe</label>
+                <div class="input-group">
+                    <select class="form-select" id="savedRecipeSelector">
+                        <option value="">-- Select a Recipe --</option>
+                    </select>
+                    <button class="btn btn-outline-info" onclick="recipesModal.savingAndLoading.loadSelectedRecipe()">Load</button>
+                    <button type="button" class="btn btn-warning" onclick="recipesModal.savingAndLoading.startNewRecipe()">New Recipe</button>
+                    
+                    <button type="button" class="btn btn-danger" onclick="recipesModal.deleteSelectedRecipe()">Delete Recipe</button>
+                </div>
+                </div>
+                <div class="mb-3">
+                    <label for="recipeImport" class="form-label">Paste Recipe Text</label>
+                    <textarea class="form-control" id="recipeImport" rows="8" placeholder="Paste recipe block here..."></textarea>
+                    <button class="btn btn-outline-success mt-2" onclick="recipesModal.importRecipeFromText()">Import</button>
+                </div>
+
+                <!-- Recipe Name -->
+                <div class="mb-3">
+                <label class="form-label">Recipe Name</label>
+                <input type="text" class="form-control" id="recipeName">
+                </div>
+
+                <!-- Category and Type -->
+                <div class="mb-3 d-flex gap-3">
+                <div class="flex-grow-1">
+                    <label class="form-label">List Category</label>
+                    <input type="text" class="form-control" id="listCategory">
+                </div>
+                <div>
+                    <label class="form-label">Type Category</label>
+                    <select class="form-select" id="typeCategory">
+                    <option value="solid">Solid</option>
+                    <option value="liquid">Liquid</option>
+                    </select>
+                </div>
+                </div>
+
+                <!-- Ingredients -->
+                <div id="ingredientsWrapper" class="mb-3">
+                    <label class="form-label">Ingredients (grams)</label>
+
+                    <!-- Column Titles -->
+                    <div class="row mb-1">
+                        <div class="col-md-4">
+                        <small class="form-text fw-semibold">Ingredient Name</small>
+                        </div>
+                        <div class="col-md-4">
+                        <small class="form-text fw-semibold">Original Amount</small>
+                        </div>
+                        <div class="col-md-4">
+                        <small class="form-text fw-semibold">Adjusted Amount</small>
+                        </div>
+                    </div>
+
+                    <!-- First Ingredient Row -->
+                    <div class="row mb-2 ingredientRow">
+                        <!-- Main Ingredient Inputs -->
+                        <div class="col-md-4">
+                            <input type="text" class="form-control ingredientName" placeholder="Name">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="number" class="form-control ingredientAmount" placeholder="Amount (g)">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="number" class="form-control scaledAmount" placeholder="Scaled (g)" disabled>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-center">
+                            <button class="btn btn-outline-danger btn-sm w-100" onclick="recipesModal.removeIngredient(this)">Remove</button>
+                        </div>
+
+                        <!-- Nested Row for Data Linkage -->
+                        <div class="col-12 mt-2">
+                            <div class="row">
+                            <div class="col-md-6">
+                                <select class="form-select linkIngredientType" onclick="recipesModal.handleSourceTypeClick(this, 'ingredientOption_0')">
+                                <option value="">Data Type...</option>
+                                <option value="milk">Milk</option>
+                                <option value="thickener">Thickener</option>
+                                <option value="flavor">Flavor</option>
+                                <option value="mixIn">Mix-In</option>
+                                <option value="sweetener">Sweetener</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <select class="form-select linkIngredientOption" id="ingredientOption_0">
+                                <option value="">Ingredient...</option>
+                                </select>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                
+                <!-- Add Button -->
+                <button class="btn btn-sm btn-outline-secondary mb-3" onclick="addIngredient()">Add Ingredient</button>
+                
+                <div class="mb-3">
+                    <div class="mb-3">
+                        <label class="form-label">Original Total Grams</label>
+                        <input type="text" class="form-control" id="originalTotalGrams" readonly>
+                    </div>
+                    <div class="mb-2">
+                        <label for="servingAmount" class="form-label">Serving Amount</label>
+                        <input type="number" class="form-control" id="servingAmount" min="1" placeholder="e.g. 8">
+                    </div>
+                </div>
+
+                <!--Nutrition Facts-->
+                <div class="col-md-6"> 
+                    <div class="nutrition-label-centered">
+                        <h3>Nutrition Facts</h3>
+                        <div class="serving-info">
+                            <div id="serving-per-container"></div>
+                            <div id="serving-size"></div>
+                        </div>
+                        <div class="per-serving-container">
+                            <span>Per Serving | <span>Per Container</span></span>
+                        </div>
+                        <div class="calories" id="calories">
+                            <div></div>
+                        </div>
+                        <label id="developerMode-Amounts"></label>
+                    </div>
+                </div>
+
+                <!-- Scaling Tools -->
+                <div class="mb-3">
+                    <label class="form-label">Adjust Recipe Amount</label>
+                    <div class="input-group mb-2">
+                        <span class="input-group-text">Scale by %</span>
+                        <input type="number" class="form-control" id="scalePercentage" value="100">
+                        <button class="btn btn-outline-primary" onclick="recipesModal.scalingUtilities.scaleByPercentage()">Apply</button>
+                    </div>
+                    <div class="input-group mb-2">
+                        <span class="input-group-text">Total Grams</span>
+                        <input type="number" class="form-control" id="totalGrams">
+                        <button class="btn btn-outline-primary" onclick="recipesModal.scalingUtilities.scaleByTotalGrams()">Apply</button>
+                    </div>
+                    <div class="input-group mb-2">
+                        <span class="input-group-text">Match Ingredient</span>
+                        <select class="form-select" id="ingredientDropdown"></select>
+                        <input type="number" class="form-control" id="matchAmount" placeholder="Target Amount (g)">
+                        <button class="btn btn-outline-primary" onclick="recipesModal.scalingUtilities.scaleByIngredient()">Apply</button>
+                    </div>
+                    <div class="input-group mb-2">
+                        <span class="input-group-text">Adjust by Serving</span>
+                        <select class="form-select" id="scaleByServing">
+                            <option value="">Pick serving...</option>
+                        </select>
+                        <button class="btn btn-outline-primary" onclick="recipesModal.scalingUtilities.applyScaleByServing()">Apply</button>
+                    </div>
+                </div>
+
+                <!-- Steps -->
+                <div class="mb-3">
+                <label class="form-label">Recipe Steps</label>
+                <textarea class="form-control" id="recipeSteps" rows="3"></textarea>
+                </div>
+
+                <!-- Source -->
+                <div class="mb-3">
+                <label class="form-label">Recipe Source</label>
+                <input type="text" class="form-control" id="recipeSource">
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-outline-primary" onclick="recipesModal.saveRecipeLocally()">Save</button>
+                <button type="button" class="btn btn-success" onclick="recipesModal.saveRecipeToFile()">Save on Computer</button>
+            </div>
+            </div>
+        </div>
+        </div>
 
         <!-- Checkout Modal -->
         <div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">

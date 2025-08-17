@@ -520,6 +520,88 @@ body.dark-mode {
     margin-bottom: 5px;
 }
 
+.nutrition-label-centered {
+  width: 220px;
+  margin: 20px auto;
+  background-color: #fff;
+  border: 1px solid #000;
+  padding: 10px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  line-height: 1.2;
+  color: #000;
+  text-align: left;
+  border-radius: 5px;
+}
+
+.nutrition-label-centered h3 {
+    font-size: 18px; /* Adjust the font size to make it smaller */
+    margin-bottom: 5px;
+    color: #000; /* Text color */
+    border-bottom: 2px solid #000;
+    padding-bottom: 5px;
+}
+.nutrition-label-centered .nutrition-item {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #000;
+    padding: 2px 0;
+}
+.nutrition-label-centered .nutrition-item:last-child {
+    border-bottom: none;
+}
+.nutrition-label-centered .nutrition-item .label {
+    font-weight: bold;
+}
+.nutrition-label-centered .nutrition-item .value {
+    text-align: right;
+}
+.nutrition-label-centered .serving-info {
+    font-size: 12px; /* Adjust the font size to make it smaller */
+    margin-bottom: 5px;
+}
+.nutrition-label-centered .calories {
+    font-size: 14px; /* Adjust the font size to make it smaller */
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.nutrition-label-centered .container-info {
+    font-size: 12px; /* Adjust the font size to make it smaller */
+    margin-top: 10px;
+    border-top: 2px solid #000;
+    padding-top: 5px;
+}
+.nutrition-label-centered .container-info .nutrition-item {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #000;
+    padding: 2px 0;
+}
+.nutrition-label-centered .container-info .nutrition-item:last-child {
+    border-bottom: none;
+}
+.nutrition-label-centered .container-info .label {
+    font-weight: bold;
+}
+.nutrition-label-centered .container-info .value {
+    text-align: right;
+}
+.nutrition-label-centered .container-info .container-label {
+    font-weight: bold;
+    text-align: right;
+    margin-left: 10px;
+}
+.nutrition-label-centered .per-serving-container {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+
+
+
 @media (max-width: 767.98px) { .nutrition-label { position: static; transform: none; top: auto; } }
 
 .modal-dialog { max-width: 1000px; /* Adjust the width as needed */ }
