@@ -51,12 +51,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const lastSeenKey = 'lastSeenUpdate';
     const updateDate = new Date('2025-08-16'); // Specify the update date here
     const lastSeen = localStorage.getItem(lastSeenKey);
-    console.log("Last seen date is ", lastSeen);
 
     if (!lastSeen || new Date(lastSeen) <= updateDate) {
         // Show the modal if the user hasn't seen it since the update date
         const updateModal = new bootstrap.Modal(document.getElementById('updateModal'));
-        console.log("Update Modal is ", updateModal);
         updateModal.show();
 
         // Update the last seen date in localStorage
@@ -237,10 +235,8 @@ function populateOptions(sheetName, columnLetter, selectIds) {
 
 function populateOptionsFromList(dictionary,selectIds){
 
-    console.log("Select IDs are ", selectIds);
     selectIds.forEach(selectId => { 
         var selectElement = document.getElementById(selectId); 
-        console.log("Selected element is ",selectElement);
         selectElement.innerHTML = ''; // Clear existing options 
 
         // Handle other options as <select> elements
@@ -800,7 +796,6 @@ class FlavorLinkModal {
 
         var totalGramsBeforeMilk = (liquidMix1.thick === "Yes" ? liquidMix1.amount : 0) + (liquidMix2.thick === "Yes" ? liquidMix2.amount : 0) + (solidSimulated.gramsPerCup1 === 0 ? 0 : ((solidSimulated.amount1 / solidSimulated.gramsPerCup1) * 240) ) + (solidSimulated.gramsPerCup2 === 0 ? 0 : ((solidSimulated.amount2 / solidSimulated.gramsPerCup2) * 240) );
 
-        console.log("Grams before milk for '" + flavor + "' is: " + totalGramsBeforeMilk)
         var [milkType1Price,milkType1Grams,milkType1LactoseDrops] = calculationUtilities.calculateMilkPrice(milkWorksheet, sizeSpecsDict, flavorValues["Milk Type 1 (2/3)"], size, null, 2/3, totalGramsBeforeMilk);
         var [milkType2Price,milkType2Grams,milkType2LactoseDrops] = calculationUtilities.calculateMilkPrice(milkWorksheet, sizeSpecsDict, flavorValues["Milk Type 2 (1/3)"], size, null, 1/3, totalGramsBeforeMilk);
 
@@ -926,12 +921,12 @@ class CustomizeModal {
 
     // Customize Modal
     validateForm(button) {
-        var form = document.getElementById('customizeForm');
-        var isValid = true;
+        const form = document.getElementById('customizeForm');
+        let isValid = true;
 
-        // Check all required select elements
-        var requiredSelects = form.querySelectorAll('select[required]');
-        requiredSelects.forEach(function(select) {
+        // Step 1: Validate required select elements
+        const requiredSelects = form.querySelectorAll('select[required]');
+        requiredSelects.forEach(select => {
             if (select.value === '') {
                 isValid = false;
                 select.classList.add('is-invalid'); // Add Bootstrap invalid class
@@ -941,131 +936,30 @@ class CustomizeModal {
         });
 
         if (isValid) {
+            // Step 2: Retrieve selected options
+            const options = calculationUtilities.getSelectedOptions();
+
+            // Step 3: Calculate prices and other data
+            const prices = calculationUtilities.calculatePrices(options);
+
+            // Step 4: Update the cart item
             const cartItemId = document.getElementById('cartItemId').value;
-
-            // Get the selected values
-            const name = document.getElementById('name').value;
-            const iceCreamBase = document.getElementById('iceCreamBase').value;
-            const milkType1 = document.getElementById('milkType1').value;
-            const milkType2 = document.getElementById('milkType2').value;
-            const thickener = document.getElementById('thickener').value;
-            const thickenerAmount = document.getElementById('thickenerAmount').value;
-            const thickener2 = document.getElementById('thickener2').value;
-            const thickener2Amount = document.getElementById('thickener2Amount').value;
-            const thickener3 = document.getElementById('thickener3').value;
-            const thickener3Amount = document.getElementById('thickener3Amount').value;
-            const liquidMix1 = document.getElementById('liquidMix1').value;
-            const liquidMix1Amount = document.getElementById('liquidMix1Amount').value;
-            const liquidMix2 = document.getElementById('liquidMix2').value;
-            const liquidMix2Amount = document.getElementById('liquidMix2Amount').value;
-            const mixIn1 = document.getElementById('mixIn1').value;
-            const mixIn2 = document.getElementById('mixIn2').value;
-            const mixInAmount = document.getElementById('mixInAmount').value;
-            const sweetener1 = document.getElementById('sweetener1').value;
-            const sweetener1Amount = document.getElementById('sweetener1Amount').value;
-            const sweetener2 = document.getElementById('sweetener2').value;
-            const sweetener2Amount = document.getElementById('sweetener2Amount').value;
-            const size = document.querySelector('input[name="size"]:checked').value; // Get the selected size value
-            const quantity = document.getElementById('quantity-customize').value;
-            const pricePerQuantity = document.getElementById('pricePerQuantity').textContent;
-            const totalPrice = document.getElementById('totalPrice').textContent;
-            const lactoseCheckbox = document.getElementById("lactoseCheckboxCustomize");
-
-            // Create a cart item using the template
             const template = document.getElementById('cart-item-template');
             const cartItem = template.content.cloneNode(true).querySelector('.cart-item');
             cartItem.id = cartItemId || `cart-item-${Date.now()}`;
 
-            //get grams
-            var liquidMix1Data = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix1, liquidMix1Amount, size, 'liquidMix1Price',null);
-            var liquidMix2Data = calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix2, liquidMix2Amount, size, 'liquidMix2Price',null);
-            var sweetener1Data = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener1, sweetener1Amount, size, 'sweetener1Price',null);
-            var sweetener2Data = calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener2, sweetener2Amount, size, 'sweetener2Price',null);
-            var solidSimulated = calculateSolidPrice(solidMixInWorksheet, solidSpecs, sizeSpecsDict, mixIn1, mixInAmount, size, 'mixIn1Price', mixIn2, 'mixIn2Price');
+        // Populate cart item with data
+            calculationUtilities.populateCartItem(
+                cartItem,
+                options,
+                prices,
+                document.getElementById('name').value,
+                options.size,
+                document.getElementById('quantity-customize').value,
+                document.getElementById('pricePerQuantity').textContent
+            );
 
-
-            var totalGramsBeforeMilk = (!liquidMix1Data.thick ? liquidMix1Data.amount : 0) + (!liquidMix2Data.thick ? liquidMix2Data.amount : 0) + (solidSimulated.gramsPerCup1 === 0 ? 0 : ((solidSimulated.amount1 / solidSimulated.gramsPerCup1) * 240) ) + (solidSimulated.gramsPerCup2 === 0 ? 0 : ((solidSimulated.amount2 / solidSimulated.gramsPerCup2) * 240) );
-
-            var [milkType1Price,milkType1Grams,milkType1LactoseDrops] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, milkType1, size, 'milkType1Price', 2/3, totalGramsBeforeMilk);
-            var [milkType2Price,milkType2Grams,milkType2LactoseDrops] = calculateMilkPrice(milkWorksheet, sizeSpecsDict, milkType2, size, 'milkType2Price', 1/3, totalGramsBeforeMilk);
-
-            var totalMilk = milkType1Grams + milkType2Grams;
-
-            var thickenerData = calculateSegmentPrice(thickenerWorksheet, thickenerSpecs, sizeSpecsDict, thickener, thickenerAmount, size, 'thickenerPrice',totalMilk);
-            var thickener2Data = calculateSegmentPrice(thickenerWorksheet, thickenerSpecs, sizeSpecsDict, thickener2, thickener2Amount, size, 'thickener2Price',totalMilk);
-            var thickener3Data = calculateSegmentPrice(thickenerWorksheet, thickenerSpecs, sizeSpecsDict, thickener3, thickener3Amount, size, 'thickener3Price',totalMilk);
-
-            var lactaseDrops = 0;
-            if(lactoseCheckbox.checked){
-                var lactaseDrops = Math.ceil(milkType1LactoseDrops + milkType2LactoseDrops + thickenerData.lactaseDrops);
-            }
-        
-            // Set the values
-            cartItem.querySelector('.cart-item-name').textContent = `${name} - ${size}`;
-            cartItem.querySelector('.ice-cream-base').textContent = iceCreamBase;
-            cartItem.querySelector('.milk-type1').textContent = milkType1;
-            cartItem.querySelector('.milk-type1-grams').textContent = milkType1Grams;
-            cartItem.querySelector('.milk-type2').textContent = milkType2;
-            cartItem.querySelector('.milk-type2-grams').textContent = milkType2Grams;
-            cartItem.querySelector('.thickener').textContent = thickener;
-            cartItem.querySelector('.thickener-amount').textContent = thickenerAmount;
-            cartItem.querySelector('.thickener-grams').textContent = thickenerData.amount;
-            cartItem.querySelector('.thickener2').textContent = thickener2;
-            cartItem.querySelector('.thickener2-amount').textContent = thickener2Amount;
-            cartItem.querySelector('.thickener2-grams').textContent = thickener2Data.amount;
-            cartItem.querySelector('.thickener3').textContent = thickener3;
-            cartItem.querySelector('.thickener3-amount').textContent = thickener3Amount;
-            cartItem.querySelector('.thickener3-grams').textContent = thickener3Data.amount;
-            cartItem.querySelector('.liquid-mix1').textContent = liquidMix1;
-            cartItem.querySelector('.liquid-mix1-amount').textContent = liquidMix1Amount;
-            cartItem.querySelector('.liquid-mix1-grams').textContent = liquidMix1Data.amount;
-            cartItem.querySelector('.liquid-mix2').textContent = liquidMix2;
-            cartItem.querySelector('.liquid-mix2-amount').textContent = liquidMix2Amount;
-            cartItem.querySelector('.liquid-mix2-grams').textContent = liquidMix2Data.amount;
-            cartItem.querySelector('.mix-in1').textContent = mixIn1;
-            cartItem.querySelector('.mix-in1-grams').textContent = solidSimulated.amount1;
-            cartItem.querySelector('.mix-in2').textContent = mixIn2;
-            cartItem.querySelector('.mix-in2-grams').textContent = solidSimulated.amount2;
-            cartItem.querySelector('.mix-in-amount').textContent = mixInAmount;
-            cartItem.querySelector('.sweetener1').textContent = sweetener1;
-            cartItem.querySelector('.sweetener1-amount').textContent = sweetener1Amount;
-            cartItem.querySelector('.sweetener1-grams').textContent = sweetener1Data.amount;
-            cartItem.querySelector('.sweetener2').textContent = sweetener2;
-            cartItem.querySelector('.sweetener2-amount').textContent = sweetener2Amount;
-            cartItem.querySelector('.sweetener2-grams').textContent = sweetener2Data.amount;
-            cartItem.querySelector('.lactase-drops-checked').textContent = lactoseCheckbox.checked;
-            if (DEBUG) {
-                    console.log("lactase drops is ", lactaseDrops);
-                    console.log("Grams before milk for '" + name + "' is: " + totalGramsBeforeMilk)
-
-                    var part1 = (!liquidMix1Data.thick ? liquidMix1Data.amount : 0);
-                    console.log("Liquid Mix 1:", part1);
-
-                    var part2 = (!liquidMix2Data.thick ? liquidMix2Data.amount : 0);
-                    console.log("Liquid Mix 2:", part2);
-
-                    var part3 = (solidSimulated.gramsPerCup1 === 0 ? 0 : ((solidSimulated.amount1 / solidSimulated.gramsPerCup1) * 240));
-                    console.log("Solid Simulated 1:", part3);
-
-                    var part4 = (solidSimulated.gramsPerCup2 === 0 ? 0 : ((solidSimulated.amount2 / solidSimulated.gramsPerCup2) * 240));
-                    console.log("Solid Simulated 2:", part4);
-
-                    var totalGramsBeforeMilk = part1 + part2 + part3 + part4;
-                    console.log("Total Grams Before Milk:", totalGramsBeforeMilk);
-
-            }
-            cartItem.querySelector('.lactase-drops-grams').textContent = lactaseDrops;
-
-            const quantityInput = cartItem.querySelector('.quantity');
-            if (quantityInput) {
-                quantityInput.value = quantity;
-                quantityInput.setAttribute("value", quantity);  // Update the value attribute
-                quantityInput.dispatchEvent(new Event('change'));  // Ensure any change events are triggered
-            } else {
-            }
-
-            cartItem.querySelector('.cart-item-price').textContent = `${pricePerQuantity}`;
-
+            // Step 5: Add or update the cart item
             if (cartItemId) {
                 // Update the existing cart item
                 document.getElementById(cartItemId).outerHTML = cartItem.outerHTML;
@@ -1074,14 +968,14 @@ class CustomizeModal {
                 document.querySelector('#cart-items').appendChild(cartItem);
             }
 
-            // Close the modal
+            // Step 6: Close the modal and update the cart
             $('#customizeModal').modal('hide');
             const cart = document.getElementById('shoppingCart');
             if (!cart.classList.contains('show')) {
                 cart.classList.add('show');
             }
 
-            // Update the total price (assuming you have a function to calculate the total price)
+            // Update the total price
             cartArea.updateTotalPrice();
         }
     }
@@ -1266,129 +1160,61 @@ class CustomizeModal {
 
 class CartArea {
     // invoked from flavor modal’s Add-to-Cart
-    addToCart(flavor, worksheet, quantity, price, size, lactoseCheckbox) 
-    {
-        var name = flavor;
-        var iceCreamBase = "";
+    addToCart(flavor, worksheet, quantity, price, size, lactoseCheckbox) {
+        // Step 1: Retrieve options from the worksheet
+        const options = {
+            size,
+            milkType1: worksheet[flavor]["Milk Type 1 (2/3)"],
+            milkType2: worksheet[flavor]["Milk Type 2 (1/3)"],
+            thickener: worksheet[flavor]["Thickener"],
+            thickenerAmount: worksheet[flavor]["Thickener Amount (x tbsp)"],
+            liquidMix1: worksheet[flavor]["Liquid Mix 1"],
+            liquidMix1Amount: worksheet[flavor]["Liquid Mix 1 Amount (x tbsp)"],
+            liquidMix2: worksheet[flavor]["Liquid Mix 2"],
+            liquidMix2Amount: worksheet[flavor]["Liquid Mix 2 Amount (x tbsp)"],
+            mixIn1: worksheet[flavor]["Solid Mix 1"],
+            mixIn2: worksheet[flavor]["Solid Mix 2"],
+            mixInAmount: worksheet[flavor]["Solid Mix Amount (% of all ice cream)"],
+            sweetener1: worksheet[flavor]["Sweetner Type 1"],
+            sweetener1Amount: worksheet[flavor]["Sweetner Type 1 Amount (x 100g)"],
+            sweetener2: worksheet[flavor]["Sweetner Type 2"],
+            sweetener2Amount: worksheet[flavor]["Sweetner Type 2 Amount (x 100g)"],
+            lactoseFree: lactoseCheckbox?.checked || false,
+        };
 
-        var milkType1 = worksheet[flavor]["Milk Type 1 (2/3)"];
-        var milkType2 = worksheet[flavor]["Milk Type 2 (1/3)"];
-        var thickener = worksheet[flavor]["Thickener"];
-        var thickenerAmount = worksheet[flavor]["Thickener Amount (x tbsp)"];
-        //TODO add to here once Thickener2 and Thickener 3 are added to excel sheet
-        var liquidMix1 = worksheet[flavor]["Liquid Mix 1"];
-        var liquidMix1Amount = worksheet[flavor]["Liquid Mix 1 Amount (x tbsp)"];
-        var liquidMix2 = worksheet[flavor]["Liquid Mix 2"];
-        var liquidMix2Amount = worksheet[flavor]["Liquid Mix 2 Amount (x tbsp)"];
-        var mixIn1 = worksheet[flavor]["Solid Mix 1"];
-        var mixIn2 = worksheet[flavor]["Solid Mix 2"];
-        var mixInAmount = worksheet[flavor]["Solid Mix Amount (% of all ice cream)"];
-        var sweetener1 = worksheet[flavor]["Sweetner Type 1"];
-        var sweetener1Amount = worksheet[flavor]["Sweetner Type 1 Amount (x 100g)"];
-        var sweetener2 = worksheet[flavor]["Sweetner Type 2"];
-        var sweetener2Amount = worksheet[flavor]["Sweetner Type 2 Amount (x 100g)"];
+        // Step 2: Calculate prices and other data
+        const prices = calculationUtilities.calculatePrices(options);
 
-        // Get the template and clone it
-        const template = document.getElementById('cart-item-template');
-        const cartItem = template.content.cloneNode(true);
-
-        // Generate a unique ID for the cart item and collapse div
+        // Step 3: Generate a unique ID for the cart item
         const uniqueId = `cart-item-${Date.now()}`;
 
-        //get grams
-        var liquidMix1Data = calculationUtilities.calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix1, liquidMix1Amount, size, 'liquidMix1Price',null);
-        var liquidMix2Data = calculationUtilities.calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix2, liquidMix2Amount, size, 'liquidMix2Price',null);
-        var sweetener1Data = calculationUtilities.calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener1, sweetener1Amount, size, 'sweetener1Price',null);
-        var sweetener2Data = calculationUtilities.calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener2, sweetener2Amount, size, 'sweetener2Price',null);
-        var solidSimulated = calculationUtilities.calculateSolidPrice(solidMixInWorksheet, solidSpecs, sizeSpecsDict, mixIn1, mixInAmount, size, 'mixIn1Price', mixIn2, 'mixIn2Price',null);
+        // Step 4: Get the template and clone it
+        const template = document.getElementById('cart-item-template');
+        const cartItem = template.content.cloneNode(true).querySelector('.cart-item');
+        const cartItemId = null; // No existing ID since this is a new item
+        cartItem.id = cartItemId || `cart-item-${Date.now()}`; // Use existing ID or generate a new one
 
+        // Step 5: Populate the cart item with data
+        calculationUtilities.populateCartItem(cartItem, options, prices, flavor, size, quantity, price);
 
-        var totalGramsBeforeMilk = (!liquidMix1Data.thick ? liquidMix1Data.amount : 0) + (!liquidMix2Data.thick ? liquidMix2Data.amount : 0) + (solidSimulated.gramsPerCup1 === 0 ? 0 : ((solidSimulated.amount1 / solidSimulated.gramsPerCup1) * 240) ) + (solidSimulated.gramsPerCup2 === 0 ? 0 : ((solidSimulated.amount2 / solidSimulated.gramsPerCup2) * 240) );
-
-        var [milkType1Price,milkType1Grams,milkType1LactoseDrops] = calculationUtilities.calculateMilkPrice(milkWorksheet, sizeSpecsDict, milkType1, size, 'milkType1Price', 2/3, totalGramsBeforeMilk);
-        var [milkType2Price,milkType2Grams,milkType2LactoseDrops] = calculationUtilities.calculateMilkPrice(milkWorksheet, sizeSpecsDict, milkType2, size, 'milkType2Price', 1/3, totalGramsBeforeMilk);
-
-
-        var totalMilk = milkType1Grams + milkType2Grams;
-
-        var thickenerData = calculationUtilities.calculateSegmentPrice(thickenerWorksheet, thickenerSpecs, sizeSpecsDict, thickener, thickenerAmount, size, 'thickenerPrice',totalMilk);
-        //TODO add to here once Thickener2 and Thickener 3 are added to excel sheet
-
-        var lactaseDrops = 0;
-        var lactoseActive = false;
-        if(lactoseCheckbox){
-            lactoseActive = lactoseCheckbox.checked;
+        // Step 5: Add or update the cart item
+        if (cartItemId) {
+            // Update the existing cart item
+            document.getElementById(cartItemId).outerHTML = cartItem.outerHTML;
+        } else {
+            // Add the new cart item to the table
+            document.querySelector('#cart-items').appendChild(cartItem);
         }
 
-        if(lactoseActive){
-            lactaseDrops = Math.ceil(milkType1LactoseDrops + milkType2LactoseDrops + thickenerData.lactaseDrops);
-        }
-
-        //TODO add to here once Thickener2 and Thickener 3 are added to excel sheet
-
-        var gramAmountsDevMode = `
-        milkType1Grams: ${milkType1Grams} <br>
-        milkType2Grams: ${milkType2Grams} <br>
-        thickener.amount: ${thickenerData.amount} <br>
-        Sweetener 1 Amount: ${sweetener1Data.amount} <br>
-        Sweetener 2 Amount: ${sweetener2Data.amount} <br>
-        liquidMix1.amount: ${liquidMix1Data.amount} <br>
-        liquidMix2.amount: ${liquidMix2Data.amount} <br>    
-        Solid 1 Amount: ${solidSimulated.amount1} <br>
-        Solid 2 Amount: ${solidSimulated.amount2} <br>     
-        `;        
-        // Set the values
-        cartItem.querySelector('.cart-item').id = uniqueId;
-        cartItem.querySelector('.cart-item-name').textContent = `${name} - ${size}`;
-        cartItem.querySelector('.ice-cream-base').textContent = iceCreamBase;
-        cartItem.querySelector('.milk-type1').textContent = milkType1;
-        cartItem.querySelector('.milk-type1-grams').textContent = milkType1Grams;
-        cartItem.querySelector('.milk-type2').textContent = milkType2;
-        cartItem.querySelector('.milk-type2-grams').textContent = milkType2Grams;
-        //TODO add to here once Thickener2 and Thickener 3 are added to excel sheet
-        cartItem.querySelector('.thickener').textContent = thickener;
-        cartItem.querySelector('.thickener-amount').textContent = thickenerAmount;
-        cartItem.querySelector('.thickener-grams').textContent = thickenerData.amount;
-        cartItem.querySelector('.liquid-mix1').textContent = liquidMix1;
-        cartItem.querySelector('.liquid-mix1-amount').textContent = liquidMix1Amount;
-        cartItem.querySelector('.liquid-mix1-grams').textContent = liquidMix1Data.amount;
-        cartItem.querySelector('.liquid-mix2').textContent = liquidMix2;
-        cartItem.querySelector('.liquid-mix2-amount').textContent = liquidMix2Amount;
-        cartItem.querySelector('.liquid-mix2-grams').textContent = liquidMix2Data.amount;
-        cartItem.querySelector('.mix-in1').textContent = mixIn1;
-        cartItem.querySelector('.mix-in1-grams').textContent = solidSimulated.amount1;
-        cartItem.querySelector('.mix-in2').textContent = mixIn2;
-        cartItem.querySelector('.mix-in2-grams').textContent = solidSimulated.amount2;
-        cartItem.querySelector('.mix-in-amount').textContent = mixInAmount;
-        cartItem.querySelector('.sweetener1').textContent = sweetener1;
-        cartItem.querySelector('.sweetener1-amount').textContent = sweetener1Amount;
-        cartItem.querySelector('.sweetener1-grams').textContent = sweetener1Data.amount;
-        cartItem.querySelector('.sweetener2').textContent = sweetener2;
-        cartItem.querySelector('.sweetener2-amount').textContent = sweetener2Amount;
-        cartItem.querySelector('.sweetener2-grams').textContent = sweetener2Data.amount;
-        cartItem.querySelector('.lactase-drops-checked').textContent = lactoseActive;
-        cartItem.querySelector('.lactase-drops-grams').textContent = lactaseDrops;
-        cartItem.querySelector('.quantity').value = quantity;
-        cartItem.querySelector('.cart-item-price').innerText = price;
-
-        // Set the collapse div ID and button data-target
-        const collapseDiv = cartItem.querySelector('.collapse');
-        collapseDiv.id = uniqueId;
-        cartItem.querySelector('.btn-link').setAttribute('data-target', `#${uniqueId}`);
-
-        // Append the cart item to the cart
-        document.querySelector('#cart-items').appendChild(cartItem);
-
-        // Update the total price (assuming you have a function to calculate the total price)
+        // Step 7: Update the total price
         cartArea.updateTotalPrice();
 
+        // Step 8: Ensure the cart is visible
         const cart = document.getElementById('shoppingCart');
         if (!cart.classList.contains('show')) {
             cart.classList.add('show');
         }
-
     }
-
 
     updateTotalPrice() {
         // Calculate the total price based on the cart items
@@ -1901,6 +1727,119 @@ class CheckoutModal {
 
 class CalculationUtilities {
 
+    getSelectedOptions() {
+        const size = document.querySelector('input[name="size"]:checked')?.value || '';
+        const milkType1 = document.getElementById('milkType1').value;
+        const milkType2 = document.getElementById('milkType2').value;
+        const thickener = document.getElementById('thickener').value;
+        const thickenerAmount = document.getElementById('thickenerAmount').value;
+        const thickener2 = document.getElementById('thickener2').value;
+        const thickener2Amount = document.getElementById('thickener2Amount').value;
+        const thickener3 = document.getElementById('thickener3').value;
+        const thickener3Amount = document.getElementById('thickener3Amount').value;
+        const liquidMix1 = document.getElementById('liquidMix1').value;
+        const liquidMix1Amount = document.getElementById('liquidMix1Amount').value;
+        const liquidMix2 = document.getElementById('liquidMix2').value;
+        const liquidMix2Amount = document.getElementById('liquidMix2Amount').value;
+        const mixIn1 = document.getElementById('mixIn1').value;
+        const mixIn2 = document.getElementById('mixIn2').value;
+        const mixInAmount = document.getElementById('mixInAmount').value;
+        const sweetener1 = document.getElementById('sweetener1').value;
+        const sweetener1Amount = document.getElementById('sweetener1Amount').value;
+        const sweetener2 = document.getElementById('sweetener2').value;
+        const sweetener2Amount = document.getElementById('sweetener2Amount').value;
+        const lactoseFree = document.getElementById('lactoseCheckboxCustomize')?.checked || false;
+
+        return {
+            size,
+            milkType1,
+            milkType2,
+            thickener,
+            thickenerAmount,
+            thickener2,
+            thickener2Amount,
+            thickener3,
+            thickener3Amount,
+            liquidMix1,
+            liquidMix1Amount,
+            liquidMix2,
+            liquidMix2Amount,
+            mixIn1,
+            mixIn2,
+            mixInAmount,
+            sweetener1,
+            sweetener1Amount,
+            sweetener2,
+            sweetener2Amount,
+            lactoseFree,
+        };
+    }
+
+    calculatePrices(options) {
+    const { size, milkType1, milkType2, thickener, thickenerAmount, thickener2, thickener2Amount, thickener3, thickener3Amount, liquidMix1, liquidMix1Amount, liquidMix2, liquidMix2Amount, mixIn1, mixIn2, mixInAmount, sweetener1, sweetener1Amount, sweetener2, sweetener2Amount, lactoseFree } = options;
+
+    const liquidMix1Data = calculationUtilities.calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix1, liquidMix1Amount, size, 'liquidMix1Price', null);
+    const liquidMix2Data = calculationUtilities.calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix2, liquidMix2Amount, size, 'liquidMix2Price', null);
+    const sweetener1Data = calculationUtilities.calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener1, sweetener1Amount, size, 'sweetener1Price', null);
+    const sweetener2Data = calculationUtilities.calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener2, sweetener2Amount, size, 'sweetener2Price', null);
+    const solidSimulated = calculationUtilities.calculateSolidPrice(solidMixInWorksheet, solidSpecs, sizeSpecsDict, mixIn1, mixInAmount, size, 'mixIn1Price', mixIn2, 'mixIn2Price');
+
+    const totalGramsBeforeMilk = (liquidMix1Data.thick ? liquidMix1Data.amount : 0) +
+        (liquidMix2Data.thick ? liquidMix2Data.amount : 0) +
+        (solidSimulated.gramsPerCup1 === 0 ? 0 : ((solidSimulated.amount1 / solidSimulated.gramsPerCup1) * 240)) +
+        (solidSimulated.gramsPerCup2 === 0 ? 0 : ((solidSimulated.amount2 / solidSimulated.gramsPerCup2) * 240));
+
+    const [milkType1Price, milkType1Grams, milkType1LactoseDrops] = calculationUtilities.calculateMilkPrice(milkWorksheet, sizeSpecsDict, milkType1, size, 'milkType1Price', 2 / 3, totalGramsBeforeMilk);
+    const [milkType2Price, milkType2Grams, milkType2LactoseDrops] = calculationUtilities.calculateMilkPrice(milkWorksheet, sizeSpecsDict, milkType2, size, 'milkType2Price', 1 / 3, totalGramsBeforeMilk);
+
+    const totalMilk = milkType1Grams + milkType2Grams;
+
+    const thickenerData = calculationUtilities.calculateSegmentPrice(thickenerWorksheet, thickenerSpecs, sizeSpecsDict, thickener, thickenerAmount, size, 'thickenerPrice', totalMilk);
+    const thickener2Data = calculationUtilities.calculateSegmentPrice(thickenerWorksheet, thickenerSpecs, sizeSpecsDict, thickener2, thickener2Amount, size, 'thickener2Price', totalMilk);
+    const thickener3Data = calculationUtilities.calculateSegmentPrice(thickenerWorksheet, thickenerSpecs, sizeSpecsDict, thickener3, thickener3Amount, size, 'thickener3Price', totalMilk);
+
+    const lactaseDrops = lactoseFree ? Math.ceil(milkType1LactoseDrops + milkType2LactoseDrops + thickenerData.lactaseDrops) : 0;
+
+    return {
+        liquidMix1Data,
+        liquidMix2Data,
+        sweetener1Data,
+        sweetener2Data,
+        solidSimulated,
+        milkType1Price,
+        milkType1Grams,
+        milkType1LactoseDrops,
+        milkType2Price,
+        milkType2Grams,
+        milkType2LactoseDrops,
+        thickenerData,
+        thickener2Data,
+        thickener3Data,
+        lactaseDrops,
+    };
+    }
+
+    updateUI(prices, options) {
+        const { size } = options;
+        const { liquidMix1Data, liquidMix2Data, sweetener1Data, sweetener2Data, solidSimulated, milkType1Price, milkType2Price, thickenerData, thickener2Data, thickener3Data, lactaseDrops } = prices;
+
+        const currentAdditionalCosts = (sizeSpecsDict[size].AdditionalCost + sizeSpecsDict[size].ContainerCost) * upcharge;
+        const lactaseDropsCost = lactaseDrops * (lactaseDropsPerGramCost / lactaseDropsPerGram);
+
+        const pricePerQuantity = milkType1Price + milkType2Price +
+            (thickenerData.price || 0) + (thickener2Data.price || 0) + (thickener3Data.price || 0) +
+            (liquidMix1Data.price || 0) + (liquidMix2Data.price || 0) +
+            (sweetener1Data.price || 0) + (sweetener2Data.price || 0) +
+            (solidSimulated.price1 || 0) + (solidSimulated.price2 || 0) +
+            currentAdditionalCosts + lactaseDropsCost;
+
+        document.getElementById("pricePerQuantity").innerText = `$${pricePerQuantity.toFixed(2)}`;
+
+        const quantity = document.getElementById('quantity-customize').value;
+        const totalPrice = pricePerQuantity * quantity;
+        document.getElementById("totalPrice").innerText = `$${totalPrice.toFixed(2)}`;
+    }
+
     calculateSegmentPrice(worksheet, specsDict, sizeSpecsDict, value, amountValue, size, priceId,milkAmount) {
    
         if (value === '' || amountValue === '' || !worksheet.hasOwnProperty(value)) {
@@ -2005,162 +1944,90 @@ class CalculationUtilities {
 
         return [parseFloat(price),grams,lactaseDrops];
     }
+
+    calculateCalories(amount, worksheet, value, fieldName, conversionFactor = 1) {
+        if (amount && worksheet[value] && worksheet[value][fieldName]) {
+            return (amount / conversionFactor) * worksheet[value][fieldName];
+        }
+        return 0;
+    }
  
     calculateCustomizePrice() {
-        var size = document.querySelector(`#size-customize input[name="size"]:checked`).value;
-        
-        var milk1Value = document.getElementById('milkType1').value;
-        var milk2Value = document.getElementById('milkType2').value;
-        var thickenerValue = document.getElementById('thickener').value;
-        var thickener2Value = document.getElementById('thickener2').value;
-        var thickener3Value = document.getElementById('thickener3').value;
-        var liquidMix1Value = document.getElementById('liquidMix1').value;
-        var liquidMix2Value = document.getElementById('liquidMix2').value;
-        var sweetener1Value = document.getElementById('sweetener1').value;
-        var sweetener2Value = document.getElementById('sweetener2').value;
-        var solid1Value = document.getElementById('mixIn1').value;
-        var solid2Value = document.getElementById('mixIn2').value;
-        var solid2Value = document.getElementById('mixIn2').value;
-        const lactoseCheckbox = document.getElementById("lactoseCheckboxCustomize");
+        // Step 1: Get selected options
+        const options = calculationUtilities.getSelectedOptions();
 
-        var liquidMix1 = calculationUtilities.calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix1Value, document.getElementById('liquidMix1Amount').value, size, 'liquidMix1Price',null);
-        var liquidMix2 = calculationUtilities.calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix2Value, document.getElementById('liquidMix2Amount').value, size, 'liquidMix2Price',null);
-        var sweetener1 = calculationUtilities.calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener1Value, document.getElementById('sweetener1Amount').value, size, 'sweetener1Price',null);
-        var sweetener2 = calculationUtilities.calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener2Value, document.getElementById('sweetener2Amount').value, size, 'sweetener2Price',null);
-        var solidSimulated = calculationUtilities.calculateSolidPrice(solidMixInWorksheet, solidSpecs, sizeSpecsDict, solid1Value, document.getElementById('mixInAmount').value, size, 'mixIn1Price', solid2Value, 'mixIn2Price');
+        // Step 2: Calculate prices for all components
+        const prices = calculationUtilities.calculatePrices(options);
 
+        // Step 3: Calculate total calories
+        let totalCalories = 0;
 
-        var totalGramsBeforeMilk = (liquidMix1.thick === "Yes" ? liquidMix1.amount : 0) + (liquidMix2.thick === "Yes" ? liquidMix2.amount : 0) + (solidSimulated.gramsPerCup1 === 0 ? 0 : ((solidSimulated.amount1 / solidSimulated.gramsPerCup1) * 240) ) + (solidSimulated.gramsPerCup2 === 0 ? 0 : ((solidSimulated.amount2 / solidSimulated.gramsPerCup2) * 240) );
+        // Calculate calories for thickeners
+        totalCalories += calculationUtilities.calculateCalories(prices.thickenerData.amount, thickenerWorksheet, options.thickener, "Calories", 15);
+        totalCalories += calculationUtilities.calculateCalories(prices.thickener2Data.amount, thickenerWorksheet, options.thickener2, "Calories", 15);
+        totalCalories += calculationUtilities.calculateCalories(prices.thickener3Data.amount, thickenerWorksheet, options.thickener3, "Calories", 15);
 
-        //TODO custom ratio for frozen yogurt testing
-        var [milkType1Price,milkType1Grams,milkType1LactoseDrops] = calculationUtilities.calculateMilkPrice(milkWorksheet, sizeSpecsDict, milk1Value, size, 'milkType1Price', 2/3, totalGramsBeforeMilk);
-        var [milkType2Price,milkType2Grams,milkType2LactoseDrops] = calculationUtilities.calculateMilkPrice(milkWorksheet, sizeSpecsDict, milk2Value, size, 'milkType2Price', 1/3, totalGramsBeforeMilk);
+        // Calculate calories for liquid mixes
+        totalCalories += calculationUtilities.calculateCalories(prices.liquidMix1Data.amount, flavorWorksheet, options.liquidMix1, "Calories", 15);
+        totalCalories += calculationUtilities.calculateCalories(prices.liquidMix2Data.amount, flavorWorksheet, options.liquidMix2, "Calories", 15);
 
-        var totalMilk = milkType1Grams + milkType2Grams;
-        var thickener = calculationUtilities.calculateSegmentPrice(thickenerWorksheet, thickenerSpecs, sizeSpecsDict, thickenerValue, document.getElementById('thickenerAmount').value, size, 'thickenerPrice',totalMilk);
-        var thickener2 = calculationUtilities.calculateSegmentPrice(thickenerWorksheet, thickenerSpecs, sizeSpecsDict, thickener2Value, document.getElementById('thickener2Amount').value, size, 'thickener2Price',totalMilk);
-        var thickener3 = calculationUtilities.calculateSegmentPrice(thickenerWorksheet, thickenerSpecs, sizeSpecsDict, thickener3Value, document.getElementById('thickener3Amount').value, size, 'thickener3Price',totalMilk);
+        // Calculate calories for sweeteners
+        totalCalories += calculationUtilities.calculateCalories(
+            prices.sweetener1Data.amount,
+            sweetenerWorksheet,
+            options.sweetener1,
+            "Calories",
+            sweetenerWorksheet[options.sweetener1]?.["gram equivalent (of 1/2 cup)"] || 1
+        );
+        totalCalories += calculationUtilities.calculateCalories(
+            prices.sweetener2Data.amount,
+            sweetenerWorksheet,
+            options.sweetener2,
+            "Calories",
+            sweetenerWorksheet[options.sweetener2]?.["gram equivalent (of 1/2 cup)"] || 1
+        );
 
-        var lactaseDrops = 0;
-        if(lactoseCheckbox.checked){
-            var lactaseDrops = Math.ceil(milkType1LactoseDrops + milkType2LactoseDrops + thickener.lactaseDrops);
-        }
+        // Calculate calories for solid mix-ins
+        totalCalories += calculationUtilities.calculateCalories(
+            prices.solidSimulated.amount1,
+            solidMixInWorksheet,
+            options.mixIn1,
+            "Calories",
+            solidMixInWorksheet[options.mixIn1]?.["grams (from cups)"] || 1
+        );
+        totalCalories += calculationUtilities.calculateCalories(
+            prices.solidSimulated.amount2,
+            solidMixInWorksheet,
+            options.mixIn2,
+            "Calories",
+            solidMixInWorksheet[options.mixIn2]?.["grams (from cups)"] || 1
+        );
 
-        /*
-        var gramAmountsDevMode = `
-            milkType1Grams: ${milkType1Grams} <br>
-            milkType2Grams: ${milkType2Grams} <br>
-            thickener.amount: ${thickener.amount} <br>
-            thickener2.amount: ${thickener2.amount} <br>
-            thickener3.amount: ${thickener3.amount} <br>
-            Sweetener 1 Amount: ${sweetener1Data.amount} <br>
-            Sweetener 2 Amount: ${sweetener2Data.amount} <br>
-            liquidMix1.amount: ${liquidMix1.amount} <br>
-            liquidMix2.amount: ${liquidMix2.amount} <br>    
-            Solid 1 Amount: ${solidSimulated.amount1} <br>
-            Solid 2 Amount: ${solidSimulated.amount2} <br>   
-            Lactase drops:  ${lactaseDrops} <br>   
-            `;        
-        */
+        // Calculate calories for milk types
+        totalCalories += calculationUtilities.calculateCalories(prices.milkType1Grams, milkWorksheet, options.milkType1, "Calories", 240);
+        totalCalories += calculationUtilities.calculateCalories(prices.milkType2Grams, milkWorksheet, options.milkType2, "Calories", 240);
 
-        var totalCalories = 0;
-
-        if (thickener.amount && thickenerWorksheet[thickenerValue] && thickenerWorksheet[thickenerValue]["Calories"]) {
-            var thickenerCalories = (thickener.amount / 15) * thickenerWorksheet[thickenerValue]["Calories"];
-            totalCalories += thickenerCalories;
-        }
-
-        if (thickener2.amount && thickenerWorksheet[thickener2Value] && thickenerWorksheet[thickener2Value]["Calories"]) {
-            var thickener2Calories = (thickener2.amount / 15) * thickenerWorksheet[thickener2Value]["Calories"];
-            totalCalories += thickener2Calories;
-        }
-
-        if (thickener3.amount && thickenerWorksheet[thickener3Value] && thickenerWorksheet[thickener3Value]["Calories"]) {
-            var thickener3Calories = (thickener3.amount / 15) * thickenerWorksheet[thickener3Value]["Calories"];
-            totalCalories += thickener3Calories;
-        }
-
-        if (liquidMix1.amount && flavorWorksheet[liquidMix1Value] && flavorWorksheet[liquidMix1Value]["Calories"]) {
-            var liquidMix1Calories = (liquidMix1.amount / 15) * flavorWorksheet[liquidMix1Value]["Calories"];
-            totalCalories += liquidMix1Calories;
-        }
-
-        if (liquidMix2.amount && flavorWorksheet[liquidMix2Value] && flavorWorksheet[liquidMix2Value]["Calories"]) {
-            var liquidMix2Calories = (liquidMix2.amount / 15) * flavorWorksheet[liquidMix2Value]["Calories"];
-            totalCalories += liquidMix2Calories;
-        }
-
-        if (sweetener1.amount && sweetenerWorksheet[sweetener1Value] && sweetenerWorksheet[sweetener1Value]["gram equivalent (of 1/2 cup)"] && sweetenerWorksheet[sweetener1Value]["Calories"]) {
-            var sweetener1Calories = (sweetener1.amount / sweetenerWorksheet[sweetener1Value]["gram equivalent (of 1/2 cup)"]) * sweetenerWorksheet[sweetener1Value]["Calories"];
-            totalCalories += sweetener1Calories;
-        }
-
-        if (sweetener2.amount && sweetenerWorksheet[sweetener2Value] && sweetenerWorksheet[sweetener2Value]["gram equivalent (of 1/2 cup)"] && sweetenerWorksheet[sweetener2Value]["Calories"]) {
-            var sweetener2Calories = (sweetener2.amount / sweetenerWorksheet[sweetener2Value]["gram equivalent (of 1/2 cup)"]) * sweetenerWorksheet[sweetener2Value]["Calories"];
-            totalCalories += sweetener2Calories;
-        }
-
-        if (solidSimulated.amount1 && solidMixInWorksheet[solid1Value] && solidMixInWorksheet[solid1Value]["grams (from cups)"] && solidMixInWorksheet[solid1Value]["Calories"]) {
-            var solid1Calories = (solidSimulated.amount1 / solidMixInWorksheet[solid1Value]["grams (from cups)"]) * solidMixInWorksheet[solid1Value]["Calories"];
-            totalCalories += solid1Calories;
-        }
-
-        if (solidSimulated.amount2 && solidMixInWorksheet[solid2Value] && solidMixInWorksheet[solid2Value]["grams (from cups)"] && solidMixInWorksheet[solid2Value]["Calories"]) {
-            var solid2Calories = (solidSimulated.amount2 / solidMixInWorksheet[solid2Value]["grams (from cups)"]) * solidMixInWorksheet[solid2Value]["Calories"];
-            totalCalories += solid2Calories;
-        }
-
-        if (milkType1Grams && milkWorksheet[milk1Value] && milkWorksheet[milk1Value]["Calories"]) {
-            var milk1Calories = (milkType1Grams / 240) * milkWorksheet[milk1Value]["Calories"];
-            totalCalories += milk1Calories;
-        }
-
-        if (milkType2Grams && milkWorksheet[milk2Value] && milkWorksheet[milk2Value]["Calories"]) {
-            var milk2Calories = (milkType2Grams / 240) * milkWorksheet[milk2Value]["Calories"];
-            totalCalories += milk2Calories;
-        }
-        // Function to update nutrition facts function 
-        document.getElementById('serving-per-container').textContent = `Servings Per Container: ${(sizeSpecsDict[size].Amount/130).toFixed(0)}`; 
+        // Step 4: Update nutrition facts
+        document.getElementById('serving-per-container').textContent = `Servings Per Container: ${(sizeSpecsDict[options.size].Amount / 130).toFixed(0)}`;
         document.getElementById('serving-size').textContent = 'Serving Size: 2/3 cup (130g)';
-        document.getElementById('calories').textContent = `Calories: ${(totalCalories * (130/sizeSpecsDict[size].Amount)).toFixed(0)} | ${totalCalories.toFixed(0)}`;
-        calculationUtilities.calculateTotalCalories("Fat (g)","Fat (g)", size, thickener, thickenerValue, thickener2,thickener2Value,thickener3,thickener3Value, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
-        calculationUtilities.calculateTotalCalories("Protein (g)","Protein (g)", size, thickener, thickenerValue,thickener2,thickener2Value,thickener3,thickener3Value, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
-        calculationUtilities.calculateTotalCalories("Total Sugar (g)","Sugar (g)", size, thickener, thickenerValue,thickener2,thickener2Value,thickener3,thickener3Value, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
-        
-        calculationUtilities.calculateTotalCalories("Sugar in Liquid (g)","Sugar (g)", size, thickener, thickenerValue,thickener2,thickener2Value,thickener3,thickener3Value, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, 0, 0, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
+        document.getElementById('calories').textContent = `Calories: ${(totalCalories * (130 / sizeSpecsDict[options.size].Amount)).toFixed(0)} | ${totalCalories.toFixed(0)}`;
 
+        // Update other nutrition facts
+        calculationUtilities.calculateTotalCalories("Fat (g)", "Fat (g)", options.size, options.thickener, options.thickenerAmount, options.thickener2, options.thickener2Amount, options.thickener3, options.thickener3Amount, options.liquidMix1, options.liquidMix1Amount, options.liquidMix2, options.liquidMix2Amount, options.sweetener1, options.sweetener1Amount, options.sweetener2, options.sweetener2Amount, prices.solidSimulated, options.mixIn1, options.mixIn2, prices.milkType1Grams, options.milkType1, prices.milkType2Grams, options.milkType2, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
 
-        
-        if(lactaseDrops == 0){
-            calculationUtilities.calculateTotalCalories("Lactose (g)", "Lactose (g)", size, thickener, thickenerValue,thickener2,thickener2Value,thickener3,thickener3Value, liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
-        }else{
-            customizeModal.addOrUpdateNutritionItem("Lactose (g)",0,0);
+        calculationUtilities.calculateTotalCalories("Protein (g)", "Protein (g)", options.size, options.thickener, options.thickenerAmount, options.thickener2, options.thickener2Amount, options.thickener3, options.thickener3Amount, options.liquidMix1, options.liquidMix1Amount, options.liquidMix2, options.liquidMix2Amount, options.sweetener1, options.sweetener1Amount, options.sweetener2, options.sweetener2Amount, prices.solidSimulated, options.mixIn1, options.mixIn2, prices.milkType1Grams, options.milkType1, prices.milkType2Grams, options.milkType2, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
+
+        calculationUtilities.calculateTotalCalories("Total Sugar (g)", "Sugar (g)", options.size, options.thickener, options.thickenerAmount, options.thickener2, options.thickener2Amount, options.thickener3, options.thickener3Amount, options.liquidMix1, options.liquidMix1Amount, options.liquidMix2, options.liquidMix2Amount, options.sweetener1, options.sweetener1Amount, options.sweetener2, options.sweetener2Amount, prices.solidSimulated, options.mixIn1, options.mixIn2, prices.milkType1Grams, options.milkType1, prices.milkType2Grams, options.milkType2, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
+
+        // Step 5: Handle lactose-free logic
+        if (prices.lactaseDrops === 0) {
+            calculationUtilities.calculateTotalCalories("Lactose (g)", "Lactose (g)", options.size, options.thickener, options.thickenerAmount, options.thickener2, options.thickener2Amount, options.thickener3, options.thickener3Amount, options.liquidMix1, options.liquidMix1Amount, options.liquidMix2, options.liquidMix2Amount, options.sweetener1, options.sweetener1Amount, options.sweetener2, options.sweetener2Amount, prices.solidSimulated, options.mixIn1, options.mixIn2, prices.milkType1Grams, options.milkType1, prices.milkType2Grams, options.milkType2, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
+        } else {
+            customizeModal.addOrUpdateNutritionItem("Lactose (g)", 0, 0);
         }
-        
-        //document.getElementById('developerMode-Amounts').innerHTML = gramAmountsDevMode;
 
-        var currentAdditionalCosts = (sizeSpecsDict[size].AdditionalCost + sizeSpecsDict[size].ContainerCost) * upcharge;
-        document.getElementById("additionalCosts").innerText = `$${currentAdditionalCosts.toFixed(2)}`;
-
-        var thickenerPrice = thickener.price || 0;
-        var thickener2Price = thickener2.price || 0;
-        var thickener3Price = thickener3.price || 0;
-        var liquidMix1Price = liquidMix1.price || 0;
-        var liquidMix2Price = liquidMix2.price || 0;
-        var sweetener1Price = sweetener1.price || 0;
-        var sweetener2Price = sweetener2.price || 0;
-        var mixIn1Price = solidSimulated.price1 || 0;
-        var mixIn2Price = solidSimulated.price2 || 0;
-        var lactaseDropsCost = lactaseDrops * (lactaseDropsPerGramCost / lactaseDropsPerGram); 
-
-        var pricePerQuantity = milkType1Price + milkType2Price + thickenerPrice + thickener2Price + thickener3Price + liquidMix1Price + liquidMix2Price + sweetener1Price + sweetener2Price + mixIn1Price + mixIn2Price + currentAdditionalCosts + lactaseDropsCost;
-        document.getElementById("pricePerQuantity").innerText = `$${pricePerQuantity.toFixed(2)}`;
-
-        var quantity = document.getElementById('quantity-customize').value;
-        var totalPrice = pricePerQuantity * quantity;
-        document.getElementById("totalPrice").innerText = `$${totalPrice.toFixed(2)}`;
-
-        //TODO add nutrition updating here
+        // Step 6: Update pricing
+        calculationUtilities.updateUI(prices, options);
     }
 
     calculateTotalCalories(customFieldName,fieldName, size, thickener, thickenerValue,thickener2,thickener2Value,thickener3,thickener3Value,liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet) {
@@ -2223,6 +2090,52 @@ class CalculationUtilities {
 
         
         customizeModal.addOrUpdateNutritionItem(customFieldName,((totalCalories * (130/sizeSpecsDict[size].Amount)).toFixed(0)),totalCalories.toFixed(0));
+    }
+
+    populateCartItem(cartItem, options, prices, name, size, quantity, pricePerQuantity) {
+        cartItem.querySelector('.cart-item-name').textContent = `${name} - ${size}`;
+        cartItem.querySelector('.ice-cream-base').textContent = options.iceCreamBase || '';
+        cartItem.querySelector('.milk-type1').textContent = options.milkType1;
+        cartItem.querySelector('.milk-type1-grams').textContent = prices.milkType1Grams;
+        cartItem.querySelector('.milk-type2').textContent = options.milkType2;
+        cartItem.querySelector('.milk-type2-grams').textContent = prices.milkType2Grams;
+        cartItem.querySelector('.thickener').textContent = options.thickener;
+        cartItem.querySelector('.thickener-amount').textContent = options.thickenerAmount;
+        cartItem.querySelector('.thickener-grams').textContent = prices.thickenerData.amount;
+        cartItem.querySelector('.thickener2').textContent = options.thickener2;
+        cartItem.querySelector('.thickener2-amount').textContent = options.thickener2Amount;
+        cartItem.querySelector('.thickener2-grams').textContent = prices.thickener2Data.amount;
+        cartItem.querySelector('.thickener3').textContent = options.thickener3;
+        cartItem.querySelector('.thickener3-amount').textContent = options.thickener3Amount;
+        cartItem.querySelector('.thickener3-grams').textContent = prices.thickener3Data.amount;
+        cartItem.querySelector('.liquid-mix1').textContent = options.liquidMix1;
+        cartItem.querySelector('.liquid-mix1-amount').textContent = options.liquidMix1Amount;
+        cartItem.querySelector('.liquid-mix1-grams').textContent = prices.liquidMix1Data.amount;
+        cartItem.querySelector('.liquid-mix2').textContent = options.liquidMix2;
+        cartItem.querySelector('.liquid-mix2-amount').textContent = options.liquidMix2Amount;
+        cartItem.querySelector('.liquid-mix2-grams').textContent = prices.liquidMix2Data.amount;
+        cartItem.querySelector('.mix-in1').textContent = options.mixIn1;
+        cartItem.querySelector('.mix-in1-grams').textContent = prices.solidSimulated.amount1;
+        cartItem.querySelector('.mix-in2').textContent = options.mixIn2;
+        cartItem.querySelector('.mix-in2-grams').textContent = prices.solidSimulated.amount2;
+        cartItem.querySelector('.mix-in-amount').textContent = options.mixInAmount;
+        cartItem.querySelector('.sweetener1').textContent = options.sweetener1;
+        cartItem.querySelector('.sweetener1-amount').textContent = options.sweetener1Amount;
+        cartItem.querySelector('.sweetener1-grams').textContent = prices.sweetener1Data.amount;
+        cartItem.querySelector('.sweetener2').textContent = options.sweetener2;
+        cartItem.querySelector('.sweetener2-amount').textContent = options.sweetener2Amount;
+        cartItem.querySelector('.sweetener2-grams').textContent = prices.sweetener2Data.amount;
+        cartItem.querySelector('.lactase-drops-checked').textContent = options.lactoseFree;
+        cartItem.querySelector('.lactase-drops-grams').textContent = prices.lactaseDrops;
+
+        const quantityInput = cartItem.querySelector('.quantity');
+        if (quantityInput) {
+            quantityInput.value = quantity;
+            quantityInput.setAttribute("value", quantity); // Update the value attribute
+            quantityInput.dispatchEvent(new Event('change')); // Ensure any change events are triggered
+        }
+
+        cartItem.querySelector('.cart-item-price').textContent = pricePerQuantity;
     }
 }
 
@@ -2967,166 +2880,6 @@ function clearField(fieldId) {
     calculationUtilities.calculateCustomizePrice();
 }
 
-function validateForm(button) {
-    var form = document.getElementById('customizeForm');
-    var isValid = true;
-
-    // Check all required select elements
-    var requiredSelects = form.querySelectorAll('select[required]');
-    requiredSelects.forEach(function(select) {
-        if (select.value === '') {
-            isValid = false;
-            select.classList.add('is-invalid'); // Add Bootstrap invalid class
-        } else {
-            select.classList.remove('is-invalid'); // Remove Bootstrap invalid class
-        }
-    });
-
-    if (isValid) {
-        const cartItemId = document.getElementById('cartItemId').value;
-
-        // Get the selected values
-        const name = document.getElementById('name').value;
-        const iceCreamBase = document.getElementById('iceCreamBase').value;
-        const milkType1 = document.getElementById('milkType1').value;
-        const milkType2 = document.getElementById('milkType2').value;
-        const thickener = document.getElementById('thickener').value;
-        const thickenerAmount = document.getElementById('thickenerAmount').value;
-        const thickener2 = document.getElementById('thickener2').value;
-        const thickener2Amount = document.getElementById('thickener2Amount').value;
-        const thickener3 = document.getElementById('thickener3').value;
-        const thickener3Amount = document.getElementById('thickener3Amount').value;
-        const liquidMix1 = document.getElementById('liquidMix1').value;
-        const liquidMix1Amount = document.getElementById('liquidMix1Amount').value;
-        const liquidMix2 = document.getElementById('liquidMix2').value;
-        const liquidMix2Amount = document.getElementById('liquidMix2Amount').value;
-        const mixIn1 = document.getElementById('mixIn1').value;
-        const mixIn2 = document.getElementById('mixIn2').value;
-        const mixInAmount = document.getElementById('mixInAmount').value;
-        const sweetener1 = document.getElementById('sweetener1').value;
-        const sweetener1Amount = document.getElementById('sweetener1Amount').value;
-        const sweetener2 = document.getElementById('sweetener2').value;
-        const sweetener2Amount = document.getElementById('sweetener2Amount').value;
-        const size = document.querySelector('input[name="size"]:checked').value; // Get the selected size value
-        const quantity = document.getElementById('quantity-customize').value;
-        const pricePerQuantity = document.getElementById('pricePerQuantity').textContent;
-        const totalPrice = document.getElementById('totalPrice').textContent;
-        const lactoseCheckbox = document.getElementById("lactoseCheckboxCustomize");
-
-        // Create a cart item using the template
-        const template = document.getElementById('cart-item-template');
-        const cartItem = template.content.cloneNode(true).querySelector('.cart-item');
-        cartItem.id = cartItemId || `cart-item-${Date.now()}`;
-
-        //get grams
-        var liquidMix1Data = calculationUtilities.calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix1, liquidMix1Amount, size, 'liquidMix1Price',null);
-        var liquidMix2Data = calculationUtilities.calculateSegmentPrice(flavorWorksheet, liquidSpecs, sizeSpecsDict, liquidMix2, liquidMix2Amount, size, 'liquidMix2Price',null);
-        var sweetener1Data = calculationUtilities.calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener1, sweetener1Amount, size, 'sweetener1Price',null);
-        var sweetener2Data = calculationUtilities.calculateSegmentPrice(sweetenerWorksheet, sweetenerSpecs, sizeSpecsDict, sweetener2, sweetener2Amount, size, 'sweetener2Price',null);
-        var solidSimulated = calculationUtilities.calculateSolidPrice(solidMixInWorksheet, solidSpecs, sizeSpecsDict, mixIn1, mixInAmount, size, 'mixIn1Price', mixIn2, 'mixIn2Price');
-
-
-        var totalGramsBeforeMilk = (!liquidMix1Data.thick ? liquidMix1Data.amount : 0) + (!liquidMix2Data.thick ? liquidMix2Data.amount : 0) + (solidSimulated.gramsPerCup1 === 0 ? 0 : ((solidSimulated.amount1 / solidSimulated.gramsPerCup1) * 240) ) + (solidSimulated.gramsPerCup2 === 0 ? 0 : ((solidSimulated.amount2 / solidSimulated.gramsPerCup2) * 240) );
-
-        var [milkType1Price,milkType1Grams,milkType1LactoseDrops] = calculationUtilities.calculateMilkPrice(milkWorksheet, sizeSpecsDict, milkType1, size, 'milkType1Price', 2/3, totalGramsBeforeMilk);
-        var [milkType2Price,milkType2Grams,milkType2LactoseDrops] = calculationUtilities.calculateMilkPrice(milkWorksheet, sizeSpecsDict, milkType2, size, 'milkType2Price', 1/3, totalGramsBeforeMilk);
-
-        var totalMilk = milkType1Grams + milkType2Grams;
-
-        var thickenerData = calculationUtilities.calculateSegmentPrice(thickenerWorksheet, thickenerSpecs, sizeSpecsDict, thickener, thickenerAmount, size, 'thickenerPrice',totalMilk);
-        var thickener2Data = calculationUtilities.calculateSegmentPrice(thickenerWorksheet, thickenerSpecs, sizeSpecsDict, thickener2, thickener2Amount, size, 'thickener2Price',totalMilk);
-        var thickener3Data = calculationUtilities.calculateSegmentPrice(thickenerWorksheet, thickenerSpecs, sizeSpecsDict, thickener3, thickener3Amount, size, 'thickener3Price',totalMilk);
-
-        var lactaseDrops = 0;
-        if(lactoseCheckbox.checked){
-            var lactaseDrops = Math.ceil(milkType1LactoseDrops + milkType2LactoseDrops + thickenerData.lactaseDrops);
-        }
-    
-        // Set the values
-        cartItem.querySelector('.cart-item-name').textContent = `${name} - ${size}`;
-        cartItem.querySelector('.ice-cream-base').textContent = iceCreamBase;
-        cartItem.querySelector('.milk-type1').textContent = milkType1;
-        cartItem.querySelector('.milk-type1-grams').textContent = milkType1Grams;
-        cartItem.querySelector('.milk-type2').textContent = milkType2;
-        cartItem.querySelector('.milk-type2-grams').textContent = milkType2Grams;
-        cartItem.querySelector('.thickener').textContent = thickener;
-        cartItem.querySelector('.thickener-amount').textContent = thickenerAmount;
-        cartItem.querySelector('.thickener-grams').textContent = thickenerData.amount;
-        cartItem.querySelector('.thickener2').textContent = thickener2;
-        cartItem.querySelector('.thickener2-amount').textContent = thickener2Amount;
-        cartItem.querySelector('.thickener2-grams').textContent = thickener2Data.amount;
-        cartItem.querySelector('.thickener3').textContent = thickener3;
-        cartItem.querySelector('.thickener3-amount').textContent = thickener3Amount;
-        cartItem.querySelector('.thickener3-grams').textContent = thickener3Data.amount;
-        cartItem.querySelector('.liquid-mix1').textContent = liquidMix1;
-        cartItem.querySelector('.liquid-mix1-amount').textContent = liquidMix1Amount;
-        cartItem.querySelector('.liquid-mix1-grams').textContent = liquidMix1Data.amount;
-        cartItem.querySelector('.liquid-mix2').textContent = liquidMix2;
-        cartItem.querySelector('.liquid-mix2-amount').textContent = liquidMix2Amount;
-        cartItem.querySelector('.liquid-mix2-grams').textContent = liquidMix2Data.amount;
-        cartItem.querySelector('.mix-in1').textContent = mixIn1;
-        cartItem.querySelector('.mix-in1-grams').textContent = solidSimulated.amount1;
-        cartItem.querySelector('.mix-in2').textContent = mixIn2;
-        cartItem.querySelector('.mix-in2-grams').textContent = solidSimulated.amount2;
-        cartItem.querySelector('.mix-in-amount').textContent = mixInAmount;
-        cartItem.querySelector('.sweetener1').textContent = sweetener1;
-        cartItem.querySelector('.sweetener1-amount').textContent = sweetener1Amount;
-        cartItem.querySelector('.sweetener1-grams').textContent = sweetener1Data.amount;
-        cartItem.querySelector('.sweetener2').textContent = sweetener2;
-        cartItem.querySelector('.sweetener2-amount').textContent = sweetener2Amount;
-        cartItem.querySelector('.sweetener2-grams').textContent = sweetener2Data.amount;
-        cartItem.querySelector('.lactase-drops-checked').textContent = lactoseCheckbox.checked;
-        if (DEBUG) {
-                console.log("lactase drops is ", lactaseDrops);
-                console.log("Grams before milk for '" + name + "' is: " + totalGramsBeforeMilk)
-
-                var part1 = (!liquidMix1Data.thick ? liquidMix1Data.amount : 0);
-                console.log("Liquid Mix 1:", part1);
-
-                var part2 = (!liquidMix2Data.thick ? liquidMix2Data.amount : 0);
-                console.log("Liquid Mix 2:", part2);
-
-                var part3 = (solidSimulated.gramsPerCup1 === 0 ? 0 : ((solidSimulated.amount1 / solidSimulated.gramsPerCup1) * 240));
-                console.log("Solid Simulated 1:", part3);
-
-                var part4 = (solidSimulated.gramsPerCup2 === 0 ? 0 : ((solidSimulated.amount2 / solidSimulated.gramsPerCup2) * 240));
-                console.log("Solid Simulated 2:", part4);
-
-                var totalGramsBeforeMilk = part1 + part2 + part3 + part4;
-                console.log("Total Grams Before Milk:", totalGramsBeforeMilk);
-
-        }
-        cartItem.querySelector('.lactase-drops-grams').textContent = lactaseDrops;
-
-        const quantityInput = cartItem.querySelector('.quantity');
-        if (quantityInput) {
-            quantityInput.value = quantity;
-            quantityInput.setAttribute("value", quantity);  // Update the value attribute
-            quantityInput.dispatchEvent(new Event('change'));  // Ensure any change events are triggered
-        } else {
-        }
-
-        cartItem.querySelector('.cart-item-price').textContent = `${pricePerQuantity}`;
-
-        if (cartItemId) {
-            // Update the existing cart item
-            document.getElementById(cartItemId).outerHTML = cartItem.outerHTML;
-        } else {
-            // Add the new cart item to the table
-            document.querySelector('#cart-items').appendChild(cartItem);
-        }
-
-        // Close the modal
-        $('#customizeModal').modal('hide');
-        const cart = document.getElementById('shoppingCart');
-        if (!cart.classList.contains('show')) {
-            cart.classList.add('show');
-        }
-
-        // Update the total price (assuming you have a function to calculate the total price)
-        cartArea.updateTotalPrice();
-    }
-}
 
 document.getElementById('darkModeToggle').addEventListener('click', function() {
     // Check the user's preference and apply dark mode if enabled
