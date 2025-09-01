@@ -1,4 +1,4 @@
-const DEBUG = true;
+const DEBUG = false;
 
 let workbook;
 let additionalCosts;
