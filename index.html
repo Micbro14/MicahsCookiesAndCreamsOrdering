@@ -6,8 +6,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customize Ice Cream</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- jQuery (must be first) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Popper.js v1 (required by Bootstrap 4) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <!-- Bootstrap JS (must come after Popper) -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Bootstrap Select CSS & JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.18/dist/css/bootstrap-select.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.18/dist/js/bootstrap-select.min.js"></script>
+
+    <!-- Other libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
@@ -69,6 +84,11 @@
                     <div class="modal-body">
                         <p>Welcome back to Micah's Cookies and Creams! I've made a lot of adjustments over the last couple of months and here are the most major ones:</p>
                         <ul>
+                            <li>September 1st, 2025 Update:</li>
+                            <li>Brought Back the "Maple Cinnamon" and "Jamaican Toto" Fall Flavors!</li>
+                            <li>Reworked the Nutrition Facts drop down on the "Customize page" It's now clearer and features Carbs, Fiber, and Sodium.</li>
+                            <li>Fixed the Quick Order links</li>
+                            <li>August 16th, 2025 Updat:</li>
                             <li>"Choco-Chip Cookie Butter Blast" is now known as the "Cookie Triple Trouble" highlighting the 3 different cookies of Cookie Butter, Sandwich Creme Filled, and Cookie Dough!</li>
                             <li>Added the ability for 3 thickeners to be picked for maximizing texture. Changing the Ice Cream Base will also preselect the best thickeners for that base.</li>
                             <li>Added a "Sunflower Lecithin" ingredient for Thickeners. This works in the same way that egg yolks would work in a gelato due to them both having the "Lecithin" fat that helps to bind the fat and water together.</li>
@@ -145,8 +165,7 @@
     </div>
     
 
-        <!-- Customize Modal -->
-        
+        <!-- Customize Modal -->      
         <div class="modal fade" id="customizeModal" tabindex="-1" role="dialog" aria-labelledby="customizeModalLabel"
         aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -170,43 +189,51 @@
                                     <label for="iceCreamBase">Pick An Ice Cream Base</label>
                                     <div class="form-group mb-3">
                                         <div class="d-flex align-items-center">
-                                            <select class="form-control" id="iceCreamBase"></select>
+                                            <select class="form-control selectpicker" data-live-search="true" id="iceCreamBase"></select>
                                         </div>
                                     </div>
                                     <label for="milkType1">Pick Your Primary Milk Type
-                                        <span 
-                                            data-toggle="tooltip" 
-                                            data-placement="right" 
-                                            title="This milk type will cover two-thirds of the ice cream and will be the primary source of milkfat." 
-                                            style="cursor: pointer; color: #007bff;">
-                                            &#9432;
-                                        </span>
                                     </label> 
                                     <div class="form-group mb-3"> 
                                         <div class="d-flex align-items-left">
-                                            <select class="form-control" id="milkType1" required></select> 
+                                            <select class="form-control selectpicker" data-live-search="true" id="milkType1" required></select> 
                                             <span class="ml-2" id="milkType1Price"></span>
                                         </div>
                                     </div>
                                     <label for="milkType2">Pick Your Secondary Milk Type</label> 
                                     <div class="form-group mb-3"> 
                                         <div class="d-flex align-items-center">
-                                            <select class="form-control" id="milkType2" required></select>
+                                            <select class="form-control selectpicker" data-live-search="true" id="milkType2" required></select>
                                             <span class="ml-2" id="milkType2Price"></span>
                                         </div>
                                     </div>
-                                    <h5>Thickeners</h5>
+                                    <h5 class="mb-0">Thickeners 
+                                        <span
+                                            data-toggle="tooltip"
+                                            data-placement="right"
+                                            title="Click for more info"
+                                            onclick="customizeModal.toggleExplanation('thickenerInfo')"
+                                            style="cursor: pointer; color: #007bff; margin-left: 8px;"
+                                        >
+                                        &#9432;
+                                        </span>
+                                    </h5>
+                                    <div id="thickenerInfo" class="collapse mt-2">
+                                        <div class="p-2 bg-light border rounded small text-muted">
+                                            Thickeners are ingredients used to adjust texture and viscosity. Common examples include egg yolks, xanthan gum, and sunflower lecithin. They help stabilize emulsions and improve mouthfeel.
+                                        </div>
+                                    </div>
                                     <label for="thickener">Pick Your Thickener</label> 
                                     <div class="form-group mb-3"> 
                                         <div class="d-flex align-items-center">
-                                            <select class="form-control" id="thickener"></select> 
+                                            <select class="form-control selectpicker" data-live-search="true" id="thickener"></select> 
                                         </div>
                                         <button type="button" class="btn btn-link" onclick="clearField('thickener');">Clear</button>
                                     </div>
                                     <label for="thickenerAmount">Amount</label> 
                                     <div class="form-group mb-3"> 
                                         <div class="d-flex align-items-center">
-                                            <select class="form-control" id="thickenerAmount"></select> 
+                                            <select class="form-control selectpicker" data-live-search="true" id="thickenerAmount"></select> 
                                             <span class="ml-2" id="thickenerPrice"></span>
                                         </div>
                                         <button type="button" class="btn btn-link" onclick="clearField('thickenerAmount');">Clear</button>
@@ -214,14 +241,14 @@
                                     <label for="thickener2">Pick A Second Thickener (OPTIONAL)</label> 
                                     <div class="form-group mb-3"> 
                                         <div class="d-flex align-items-center">
-                                            <select class="form-control" id="thickener2"></select> 
+                                            <select class="form-control selectpicker" data-live-search="true" id="thickener2"></select> 
                                         </div>
                                         <button type="button" class="btn btn-link" onclick="clearField('thickener2');">Clear</button>
                                     </div>
                                     <label for="thickener2Amount">Amount</label> 
                                     <div class="form-group mb-3"> 
                                         <div class="d-flex align-items-center">
-                                            <select class="form-control" id="thickener2Amount"></select> 
+                                            <select class="form-control selectpicker" data-live-search="true" id="thickener2Amount"></select> 
                                             <span class="ml-2" id="thickener2Price"></span>
                                         </div>
                                         <button type="button" class="btn btn-link" onclick="clearField('thickener2Amount');">Clear</button>
@@ -229,14 +256,14 @@
                                     <label for="thickener3">Pick A Third Thickener (OPTIONAL)</label> 
                                     <div class="form-group mb-3"> 
                                         <div class="d-flex align-items-center">
-                                            <select class="form-control" id="thickener3"></select> 
+                                            <select class="form-control selectpicker" data-live-search="true" id="thickener3"></select> 
                                         </div>
                                         <button type="button" class="btn btn-link" onclick="clearField('thickener3');">Clear</button>
                                     </div>
                                     <label for="thickener3Amount">Amount</label> 
                                     <div class="form-group mb-3"> 
                                         <div class="d-flex align-items-center">
-                                            <select class="form-control" id="thickener3Amount"></select> 
+                                            <select class="form-control selectpicker" data-live-search="true" id="thickener3Amount"></select> 
                                             <span class="ml-2" id="thickener3Price"></span>
                                         </div>
                                         <button type="button" class="btn btn-link" onclick="clearField('thickener3Amount');">Clear</button>
@@ -245,27 +272,27 @@
                                     <label for="liquidMix1">Pick A Flavor</label> 
                                     <div class="form-group mb-3"> 
                                         <div class="d-flex align-items-center">
-                                            <select class="form-control" id="liquidMix1" required></select> 
+                                            <select class="form-control selectpicker" data-live-search="true" id="liquidMix1" required></select> 
                                         </div>
                                     </div>
                                     <label for="liquidMix1Amount">Amount</label> 
                                     <div class="form-group mb-3"> 
                                         <div class="d-flex align-items-center">
-                                            <select class="form-control" id="liquidMix1Amount" required></select> 
+                                            <select class="form-control selectpicker" data-live-search="true" id="liquidMix1Amount" required></select> 
                                             <span class="ml-2" id="liquidMix1Price"></span>
                                         </div>
                                     </div>
                                     <label for="liquidMix2">Pick A Second Flavor (Optional)</label> 
                                     <div class="form-group mb-3"> 
                                         <div class="d-flex align-items-center">
-                                            <select class="form-control" id="liquidMix2"></select>
+                                            <select class="form-control selectpicker" data-live-search="true" id="liquidMix2"></select>
                                         </div>
                                         <button type="button" class="btn btn-link" onclick="clearField('liquidMix2');">Clear</button>
                                     </div>
                                     <label for="liquidMix2Amount">Amount</label>
                                     <div class="form-group mb-3"> 
                                         <div class="d-flex align-items-center">
-                                            <select class="form-control" id="liquidMix2Amount"></select> 
+                                            <select class="form-control selectpicker" data-live-search="true" id="liquidMix2Amount"></select> 
                                             <span class="ml-2" id="liquidMix2Price"></span>
                                         </div>
                                         <button type="button" class="btn btn-link" onclick="clearField('liquidMix2Amount');">Clear</button>
@@ -274,7 +301,7 @@
                                     <label for="mixIn1">Pick A First Mix In</label>
                                     <div class="form-group mb-3"> 
                                         <div class="d-flex align-items-center">
-                                            <select class="form-control" id="mixIn1"></select> 
+                                            <select class="form-control selectpicker" data-live-search="true" id="mixIn1"></select> 
                                             <span class="ml-2" id="mixIn1Price"></span>
                                         </div>
                                         <button type="button" class="btn btn-link" onclick="clearField('mixIn1');">Clear</button>
@@ -282,7 +309,7 @@
                                     <label for="mixIn2">Pick A Second Mix In</label> 
                                     <div class="form-group mb-3"> 
                                         <div class="d-flex align-items-center">
-                                            <select class="form-control" id="mixIn2"></select> 
+                                            <select class="form-control selectpicker" data-live-search="true" id="mixIn2"></select> 
                                             <span class="ml-2" id="mixIn2Price"></span>
                                         </div>
                                         <button type="button" class="btn btn-link" onclick="clearField('mixIn2');">Clear</button>
@@ -290,7 +317,7 @@
                                     <label for="mixIn1Amount">Amount (%)</label> 
                                     <div class="form-group mb-3"> 
                                         <div class="d-flex align-items-center">
-                                            <select class="form-control" id="mixInAmount"></select>  
+                                            <select class="form-control selectpicker" data-live-search="true" id="mixInAmount"></select>  
                                         </div>
                                         <button type="button" class="btn btn-link" onclick="clearField('mixInAmount');">Clear</button>
                                     </div>
@@ -298,14 +325,14 @@
                                     <label for="sweetener1">Pick A First Sweetner</label> 
                                     <div class="form-group mb-3"> 
                                         <div class="d-flex align-items-center">
-                                            <select class="form-control" id="sweetener1"></select>
+                                            <select class="form-control selectpicker" data-live-search="true" id="sweetener1"></select>
                                         </div>
                                         <button type="button" class="btn btn-link" onclick="clearField('sweetener1');">Clear</button>
                                     </div>
                                     <label for="sweetener1Amount">Amount</label>
                                     <div class="form-group mb-3"> 
                                         <div class="d-flex align-items-center">
-                                            <select class="form-control" id="sweetener1Amount"></select> 
+                                            <select class="form-control selectpicker" data-live-search="true" id="sweetener1Amount"></select> 
                                             <span class="ml-2" id="sweetener1Price"></span>
                                         </div>
                                         <button type="button" class="btn btn-link" onclick="clearField('sweetener1Amount');">Clear</button>
@@ -313,7 +340,7 @@
                                     <label for="sweetener2">Pick A Second Sweetner (Optional)</label> 
                                     <div class="form-group mb-3"> 
                                         <div class="d-flex align-items-center">
-                                            <select class="form-control" id="sweetener2">
+                                            <select class="form-control selectpicker" data-live-search="true" id="sweetener2">
                                                 <option value="" disabled selected>Select an option</option>
                                             </select>
                                         </div>
@@ -322,7 +349,7 @@
                                     <label for="sweetener2Amount">Amount</label>
                                     <div class="form-group mb-3"> 
                                         <div class="d-flex align-items-center">
-                                            <select class="form-control" id="sweetener2Amount">
+                                            <select class="form-control selectpicker text-left" data-live-search="true" id="sweetener2Amount">
                                                 <option value="" disabled selected>Select an option</option>
                                             </select> 
                                             <span class="ml-2" id="sweetener2Price"></span>
@@ -357,24 +384,73 @@
                                             <button class="btn btn-outline-secondary quantity-btn" type="button" onclick="flavorLinkModal.increaseQuantity(this)">+</button>
                                         </div>
                                     </div>
-                    
+                                    <h5>Special Instructions</h5>
+                                    <div class="form-group mb-3">
+                                        <textarea class="form-control" id="specialInstructions" rows="3" placeholder="Add any special instructions here (Allergens to consider, bake the cookies or use cookie dough, etc.)..." style="font-size: 1rem;"></textarea>
+                                    </div>
                                 </form>
                             </div> 
-                            <div class="col-md-6"> 
-                                <div class="nutrition-label">
-                                    <h3>Nutrition Facts</h3>
-                                    <div class="serving-info">
-                                        <div id="serving-per-container"></div>
-                                        <div id="serving-size"></div>
+                            
+                            <div class="col-md-6">
+                                <div class="nutrition-label-container">
+                                    <div class="card border-secondary rounded-3">
+                                    <!-- Toggle Button -->
+                                    <div class="card-header bg-light d-flex justify-content-between align-items-center cursor-pointer" onclick="customizeModal.toggleNutritionCollapse()">
+                                        <div>
+                                            <h5 class="mb-0">Nutrition Information</h5>
+                                            <small id="nutritionToggleText" class="text-muted">Tap to toggle</small>
+                                        </div>
+                                        <i id="nutritionToggleIcon" class="bi bi-chevron-down"></i>
                                     </div>
-                                    <div class="per-serving-container">
-                                        <span>Per Serving | <span>Per Container</span></span>
+
+                                    <!-- Collapsible Content -->
+                                    <div class="collapse" id="nutritionCollapse">
+                                    <div class="card-body">
+                                        <!-- Serving Info -->
+                                        <div class="mb-2">
+                                        <strong id="serving-per-container"></strong><br>
+                                        <span id="serving-size"></span>
+                                        </div>
+
+                                        <!-- Per Serving / Container -->
+                                        <div class="row text-uppercase text-muted small border-bottom pb-1 mb-2">
+                                            <div class="col-4">Nutrient</div>
+                                            <div class="col-4 text-end">Per Serving</div>
+                                            <div class="col-4 text-end">Per Container</div>
+                                        </div>
+
+                                        <!-- Calories -->
+                                        <div class="row border-bottom pb-1 mb-2" id="calories">
+                                            <div class="col-4 text-dark">Calories</div>
+                                            <div class="col-4 text-end value-serving">—</div>
+                                            <div class="col-4 text-end value-container text-secondary">—</div>
+                                        </div>
+
+                                        <!-- Nutrients -->
+                                        <ul class="list-unstyled">
+                                        <div class="nutrition-label">
+                                            <!--
+                                            <li class="d-flex justify-content-between border-bottom py-1">
+                                                <span class="label badge bg-light text-dark border">Carbohydrate</span>
+                                                <span class="value">27g | <span class="container-label">54g</span></span>
+                                            </li>
+                                            <li class="d-flex justify-content-between border-bottom py-1">
+                                                <span class="label badge bg-light text-dark border">Fat</span>
+                                                <span class="value">13g | <span class="container-label">26g</span></span>
+                                            </li>
+                                            <li class="d-flex justify-content-between border-bottom py-1">
+                                                <span class="label badge bg-light text-dark border">Protein</span>
+                                                <span class="value">43g | <span class="container-label">86g</span></span>
+                                            </li>
+                                            -->
+                                        </div>                                    
+                                        </div>
+                                        </ul>
                                     </div>
-                                    <div class="calories" id="calories">
-                                        <div></div>
                                     </div>
-                                    <label id="developerMode-Amounts"></label>
                                 </div>
+                            </div>
+
                             </div>
                             <div class="modal-footer justify-content-start">
                                 <h5 class="text-left">Pricing</h5>
@@ -402,6 +478,8 @@
                 </div>
             </div>
         </div>
+
+        
 
         <!--Cart item-->
         <template id="cart-item-template">
@@ -499,6 +577,10 @@
                                 <td class="lactase-drops-checked"></td>
                                 <td class="lactase-drops-grams hidden-amount"></td>
                             </tr>
+                            <tr>
+                                <td>Special Instructions</td>
+                                <td class="specialInstructions"></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -521,7 +603,6 @@
         </template>
 
         <!-- Recipe Logger-->
-
         <div class="modal fade" id="recipeModal" tabindex="-1" aria-labelledby="recipeModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -629,7 +710,7 @@
                 </div>
                 
                 <!-- Add Button -->
-                <button class="btn btn-sm btn-outline-secondary mb-3" onclick="addIngredient()">Add Ingredient</button>
+                <button class="btn btn-sm btn-outline-secondary mb-3" onclick="recipesModal.addIngredient()">Add Ingredient</button>
                 
                 <div class="mb-3">
                     <div class="mb-3">
@@ -640,6 +721,8 @@
                         <label for="servingAmount" class="form-label">Serving Amount</label>
                         <input type="number" class="form-control" id="servingAmount" min="1" placeholder="e.g. 8">
                     </div>
+                    <!-- Copy to Clipboard Button -->
+                    <button class="btn btn-sm btn-outline-primary mb-3" onclick="recipesModal.copyIngredientsToClipboard()">Copy Ingredients to Clipboard</button>
                 </div>
 
                 <!--Nutrition Facts-->
@@ -859,9 +942,7 @@
     </div>
      
     <script src="script.js" defer></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
 </body>
 
 </html>

@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Showing New Update Modal
     const lastSeenKey = 'lastSeenUpdate';
-    const updateDate = new Date('2025-08-16'); // Specify the update date here
+    const updateDate = new Date('2025-08-31'); // Specify the update date here
     const lastSeen = localStorage.getItem(lastSeenKey);
 
     if (!lastSeen || new Date(lastSeen) <= updateDate) {
@@ -145,6 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
         flavorLinkModal.populateFlavorCards('Premade Flavors');  
 
         if (flavorUrl) {
+
             flavorLinkModal.openFlavorModal(flavorUrl);
 
             //addToCart(flavorUrl,premadeWorksheet, 1, calculateCustomizePriceFromFlavor(sizeOptions[0],flavorUrl), sizeOptions[0],false); 
@@ -207,12 +208,13 @@ function populateOptions(sheetName, columnLetter, selectIds) {
                     var cellValue = cell.v; 
                     var option = document.createElement('option'); 
                     option.text = cellValue;
+                    option.title = cellValue;
 
                     // Find the corresponding price 
                     var priceCellAddress = `F${i}`; // Assuming the price is in column B 
                     var priceCell = worksheet[priceCellAddress]; 
                     if (priceCell && priceCell.v) { 
-                        option.title = `Cost Per Amount: $${priceCell.v}`; // Set the tooltip with the price 
+                        //option.title = `Cost Per Amount: $${priceCell.v}`; // Set the tooltip with the price 
                     }
 
                     if (option.text.startsWith("_")) {
@@ -231,43 +233,59 @@ function populateOptions(sheetName, columnLetter, selectIds) {
             } 
         }
     }); 
+    $('#customizeModal .selectpicker').selectpicker('refresh');
 }
 
-function populateOptionsFromList(dictionary,selectIds){
+function populateOptionsFromList(dictionary, selectIds) {
+  selectIds.forEach(selectId => {
+    const selectElement = document.getElementById(selectId);
+    selectElement.innerHTML = ''; // Clear existing options
 
-    selectIds.forEach(selectId => { 
-        var selectElement = document.getElementById(selectId); 
-        selectElement.innerHTML = ''; // Clear existing options 
+    // Add default empty option
+    const defaultOption = document.createElement('option');
+    defaultOption.text = 'Select an option';
+    defaultOption.value = '';
+    defaultOption.disabled = true;
+    defaultOption.selected = true;
+    selectElement.add(defaultOption);
 
-        // Handle other options as <select> elements
-        // Add a default empty option 
-        var defaultOption = document.createElement('option'); 
-        defaultOption.text = 'Select an option'; 
-        defaultOption.value = ''; 
-        defaultOption.disabled = true; 
-        defaultOption.selected = true; 
-        selectElement.add(defaultOption);
+    let currentGroup = null;
 
-        for (let key in dictionary) { // Skip header row  
-            var option = document.createElement('option'); 
-            option.text = key;
+    for (let key in dictionary) {
+      if (key.startsWith("_")) {
+        // Start a new optgroup
+        const groupLabel = key.substring(1);
+        currentGroup = document.createElement('optgroup');
+        currentGroup.label = groupLabel;
+        currentGroup.setAttribute('data-tokens', groupLabel.toLowerCase());
+        selectElement.appendChild(currentGroup);
+        continue;
+      }
 
-            option.title = `Cost Per Amount: $${dictionary[key]["Cost ($)"]}`; // Set the tooltip with the price 
+      const option = document.createElement('option');
+      option.text = key;
+      option.value = key;
+      option.title = key;
 
-            if (key.startsWith("_")) {
-                // Add a spacer option
-                var spacerOption = document.createElement('option'); 
-                spacerOption.text = '---'; // You can customize the spacer text 
-                spacerOption.disabled = true; // Make it non-selectable 
-                selectElement.add(spacerOption);
+      // Add searchable tokens: label + group name if available
+      const tokens = [key];
+      if (currentGroup) tokens.push(currentGroup.label);
+      option.setAttribute('data-tokens', tokens.join(' ').toLowerCase());
 
-                option.text = key.substring(1);
-                option.style.fontWeight = 'bold'
-                option.disabled = true; // Make it non-selectable 
-            } 
-            selectElement.add(option); 
-        } 
-    }); 
+      // Add to current group or directly to select
+      if (currentGroup) {
+        currentGroup.appendChild(option);
+      } else {
+        selectElement.appendChild(option);
+      }
+    }
+
+    // Refresh Bootstrap Select UI
+    $(`#${selectId}`).selectpicker('refresh');
+  });
+
+  // Refresh all selectpickers in customizeModal
+  $('#customizeModal .selectpicker').selectpicker('refresh');
 }
 
 function fillSpecsDictionary(worksheet, keyColumn, valueColumn, dictionary) {
@@ -338,7 +356,7 @@ class FlavorLinkModal {
 
     // builds the flavor card for the modal and shows #flavorModal
     openFlavorModal(flavor) {
-        var flavorData = this.premadeWorksheet[flavor]; 
+        var flavorData = premadeWorksheet[flavor]; 
 
         // Clone the flavor card template
         let flavorCard = document.getElementById('flavor-card-template').content.cloneNode(true);
@@ -360,7 +378,7 @@ class FlavorLinkModal {
         var sizeElement = flavorCard.querySelector('#size-flavor');
         sizeElement.innerHTML = ''; // Clear previous size options (if any)
 
-        this.sizeOptions.forEach((optionValue, index) => {
+        sizeOptions.forEach((optionValue, index) => {
             var input = document.createElement('input'); 
             
             input.type = 'radio'; 
@@ -408,7 +426,7 @@ class FlavorLinkModal {
 
         // Get the price based on the default size selection (first one)
         var firstSize = sizeElement.querySelector('input:checked').value;
-        var price = this.calculateCustomizePriceFromFlavor(firstSize, flavor, false);
+        var price = flavorLinkModal.calculateCustomizePriceFromFlavor(firstSize, flavor, false);
         flavorCard.querySelector('.card-price').textContent = `$${price}`;
 
         // Get the quantity and other form elements
@@ -431,11 +449,13 @@ class FlavorLinkModal {
             }
         }
 
+        let flavorModal = new bootstrap.Modal(document.getElementById('flavorModal'));
+
         // Add "Add to Cart" button functionality inside the modal
         var addToCartButton = flavorCard.querySelector('.add-to-cart');
         addToCartButton.addEventListener('click', () => {
             var selectedSize = sizeElement.querySelector('input:checked').value;
-            var price = this.calculateCustomizePriceFromFlavor(selectedSize, flavor, false);
+            var price = flavorLinkModal.calculateCustomizePriceFromFlavor(selectedSize, flavor, false);
 
             // Get the quantity and lactose-free status
             var quantity = parseInt(quantityInput.value);
@@ -447,7 +467,8 @@ class FlavorLinkModal {
 
 
             // Wait for modal to fully close before proceeding
-            this.addToCart(flavor, premadeWorksheet, quantity, price, selectedSize, lactoseFree);
+            flavorModal.hide();
+            cartArea.addToCart(flavor, premadeWorksheet, quantity, price, selectedSize, lactoseFree);
         });
 
         // Add "Customize It!" event listener inside modal
@@ -456,8 +477,8 @@ class FlavorLinkModal {
             var selectedSize = sizeElement.querySelector('input:checked').value;
             var quantity = parseInt(quantityInput.value);
             var lactoseFree = lactoseCheckbox ? lactoseCheckbox.checked : false;
-
-            this.autoSelectValues(flavor, worksheet, selectedSize, quantity, lactoseFree);
+            flavorLinkModal.autoSelectValues(flavor, worksheet, selectedSize, quantity, lactoseFree);
+            
         });
 
          // **Event Listener for Size Selection**
@@ -469,10 +490,7 @@ class FlavorLinkModal {
                         var parts = this.getAttribute('for').split('-'); 
                         var newSize = parts[parts.length - 1];
                         var lactoseActive = lactoseCheckbox ? lactoseCheckbox.checked : false;
-                        var newPrice = this.calculateCustomizePriceFromFlavor(newSize, flavor, lactoseActive);
-                        if (DEBUG) {
-                            console.log("new price is " + newPrice);
-                        }
+                        var newPrice = flavorLinkModal.calculateCustomizePriceFromFlavor(newSize, flavor, lactoseActive);
                         flavorCard.querySelector('.card-price').textContent = `$${newPrice}`;
                     }
                 }, 0);
@@ -485,11 +503,8 @@ class FlavorLinkModal {
                 flavorCard = document.getElementById('flavorModal');
                 var activeLabel = flavorCard.querySelector('label.active');   
 
-                if (DEBUG) {
-                    console.log("active label is " + activeLabel);  
-                }
                 var newSize = activeLabel ? activeLabel.getAttribute('for').split('-').pop() : sizeOptions[0];
-                var newPrice = this.calculateCustomizePriceFromFlavor(newSize, flavor, this.checked);
+                var newPrice = flavorLinkModal.calculateCustomizePriceFromFlavor(newSize, flavor, this.checked);
 
                 flavorCard.querySelector('.card-price').textContent = `$${newPrice}`;
             });
@@ -500,7 +515,6 @@ class FlavorLinkModal {
        document.getElementById('flavor-card-container').appendChild(flavorCard);
 
        // Show the modal
-       let flavorModal = new bootstrap.Modal(document.getElementById('flavorModal'));
        flavorModal.show();
     }
 
@@ -668,7 +682,7 @@ class FlavorLinkModal {
                         });
 
                         var firstSize = sizeElement.querySelector('label').getAttribute('for').split('-').pop();
-                        var price = this.calculateCustomizePriceFromFlavor(firstSize,flavor,false);
+                        var price = flavorLinkModal.calculateCustomizePriceFromFlavor(firstSize,flavor,false);
 
                         clone.querySelector('.card-price').textContent = `$${price}`;
 
@@ -734,9 +748,6 @@ class FlavorLinkModal {
                  // Recalculate the price based on current size and flavor
                  var newPrice = flavorLinkModal.calculateCustomizePriceFromFlavor(newSize, flavor,this.checked);
 
-                if (DEBUG) {
-                    console.log("new price is ",newPrice);
-                }
                  // Update the displayed price
                  cardBody.querySelector('.card-price').textContent = `$${newPrice}`;
             });
@@ -774,6 +785,7 @@ class FlavorLinkModal {
                 var priceElement = this.closest('.card-body').querySelector('.card-price'); 
                 var lactoseCheckbox = this.closest('.card-body').querySelector('#lactoseCheckbox');
 
+                console.log("Lactose checkbox is ",lactoseCheckbox);
 
                 if (DEBUG) {
                     console.log("Lactose checkbox is ",lactoseCheckbox);
@@ -802,15 +814,25 @@ class FlavorLinkModal {
         var totalMilk = milkType1Grams + milkType2Grams;
         //TODO add to this once additional thickeners are added to the excel
         var thickener = calculationUtilities.calculateSegmentPrice(thickenerWorksheet, thickenerSpecs, sizeSpecsDict, flavorValues["Thickener"], flavorValues["Thickener Amount (x tbsp)"], size, null,totalMilk);
-        
+        var thickener2 = calculationUtilities.calculateSegmentPrice(thickenerWorksheet, thickenerSpecs, sizeSpecsDict, flavorValues["Thickener 2"], flavorValues["Thickener 2 Amount (x tbsp)"], size, null,totalMilk);
+        var thickener3 = calculationUtilities.calculateSegmentPrice(thickenerWorksheet, thickenerSpecs, sizeSpecsDict, flavorValues["Thickener 3"], flavorValues["Thickener 3 Amount (x tbsp)"], size, null,totalMilk);
+
         var lactaseDrops = 0;
         if(lactoseCheckbox){
-            var lactaseDrops = Math.ceil(milkType1LactoseDrops + milkType2LactoseDrops + thickener.lactaseDrops);
+            var lactaseDrops = Math.ceil(
+            (milkType1LactoseDrops ?? 0) +
+            (milkType2LactoseDrops ?? 0) +
+            (thickener?.lactaseDrops ?? 0) +
+            (thickener2?.lactaseDrops ?? 0) +
+            (thickener3?.lactaseDrops ?? 0)
+            );
         }
         
         var currentAdditionalCosts = (sizeSpecsDict[size].AdditionalCost + sizeSpecsDict[size].ContainerCost) * upcharge;
 
         var thickenerPrice = thickener.price || 0;
+        var thickener2Price = thickener2.price || 0;
+        var thickener3Price = thickener3.price || 0;
         var liquidMix1Price = liquidMix1.price || 0;
         var liquidMix2Price = liquidMix2.price || 0;
         var sweetener1Price = sweetener1.price || 0;
@@ -819,7 +841,7 @@ class FlavorLinkModal {
         var mixIn2Price = solidSimulated.price2 || 0;
 
         var lactaseDropsCost = lactaseDrops * (lactaseDropsPerGramCost / lactaseDropsPerGram) * upcharge; 
-        var pricePerQuantity = milkType1Price + milkType2Price + thickenerPrice + liquidMix1Price + liquidMix2Price + sweetener1Price + sweetener2Price + mixIn1Price + mixIn2Price + currentAdditionalCosts + lactaseDropsCost;
+        var pricePerQuantity = milkType1Price + milkType2Price + thickenerPrice + thickener2Price + thickener3Price +liquidMix1Price + liquidMix2Price + sweetener1Price + sweetener2Price + mixIn1Price + mixIn2Price + currentAdditionalCosts + lactaseDropsCost;
 
         return pricePerQuantity.toFixed(2);
     }
@@ -910,6 +932,8 @@ class FlavorLinkModal {
                 break; 
             } 
         } 
+
+        $('#customizeModal .selectpicker').selectpicker('refresh');
     }
 }
 
@@ -1028,22 +1052,44 @@ class CustomizeModal {
     // Function to add or update a nutrition item
     addOrUpdateNutritionItem(label, perServing, perContainer) {
         const nutritionLabel = document.querySelector('.nutrition-label');
-        const existingItem = Array.from(nutritionLabel.querySelectorAll('.nutrition-item')).find(item => item.querySelector('.label').textContent === label);
+
+        // Find existing item by label text
+        const existingItem = Array.from(nutritionLabel.querySelectorAll('.nutrition-item')).find(item => {
+            const labelSpan = item.querySelector('.label');
+            return labelSpan && labelSpan.textContent.trim() === label;
+        });
 
         if (existingItem) {
-            // Update the existing item
-            existingItem.querySelector('.value').innerHTML = `${perServing} | <span class="container-label">${perContainer}</span>`;
+            // Update values
+            const servingSpan = existingItem.querySelector('.value-serving');
+            const containerSpan = existingItem.querySelector('.value-container');
+
+            if (servingSpan) servingSpan.textContent = perServing;
+            if (containerSpan) containerSpan.textContent = perContainer;
         } else {
-            // Add a new item
-            const newItem = document.createElement('div');
-            newItem.classList.add('nutrition-item');
-            newItem.innerHTML = `
-                <span class="label">${label}</span>
-                <span class="value">${perServing} | <span class="container-label">${perContainer}</span></span>
+            // Create new nutrition item
+            const nutritionItem = document.createElement('div');
+            nutritionItem.classList.add('nutrition-item');
+
+            nutritionItem.innerHTML = `
+            <li class="border-bottom py-2">
+                <div class="row">
+                <div class="col-4 d-flex align-items-center">
+                    <span class="label badge bg-light text-dark border">${label}</span>
+                </div>
+                <div class="col-4 text-end">
+                    <span class="value-serving">${perServing}</span>
+                </div>
+                <div class="col-4 text-end">
+                    <span class="value-container text-secondary">${perContainer}</span>
+                </div>
+                </div>
+            </li>
             `;
-            nutritionLabel.appendChild(newItem);
+
+            nutritionLabel.appendChild(nutritionItem);
         }
-    }
+        }
 
     setCustomizeValue(value, elementId) { 
         document.getElementById(elementId).value = value;
@@ -1085,6 +1131,7 @@ class CustomizeModal {
                 break; // Found the match, no need to keep looping
             }
         }
+        $('#customizeModal .selectpicker').selectpicker('refresh');
     }
 
     //Checks if the combination of milk types align with any of the ice cream bases
@@ -1097,6 +1144,7 @@ class CustomizeModal {
         if (matchingBase) {
             document.getElementById('iceCreamBase').value = matchingBase;
         }
+        $('#customizeModal .selectpicker').selectpicker('refresh');
     }
 
     findMatchingIceCreamBase(milkType1, milkType2) {
@@ -1113,6 +1161,31 @@ class CustomizeModal {
         }
 
         return null;
+    }
+
+    toggleNutritionCollapse() {
+        const collapseEl = document.getElementById('nutritionCollapse');
+        const icon = document.getElementById('nutritionToggleIcon');
+        const text = document.getElementById('nutritionToggleText');
+
+        if (collapseEl.classList.contains('show')) {
+            // Collapse
+            $(collapseEl).collapse('hide');
+            icon.classList.remove('bi-chevron-up');
+            icon.classList.add('bi-chevron-down');
+            text.textContent = 'Tap to open';
+        } else {
+            // Expand
+            $(collapseEl).collapse('show');
+            icon.classList.remove('bi-chevron-down');
+            icon.classList.add('bi-chevron-up');
+            text.textContent = 'Tap to close';
+        }
+    }
+
+    toggleExplanation(id) {
+        const el = document.getElementById(id);
+        $(el).collapse('toggle');
     }
 
     initEventListeners() {
@@ -1324,8 +1397,10 @@ class CartArea {
         document.getElementById('cartItemId').value = cartItemId; 
         // Change the button text to "Update" 
         document.getElementById('customizeAddToCart').textContent = 'Update'; 
+        $('#customizeModal .selectpicker').selectpicker('refresh');
         // Open the customize modal 
         $('#customizeModal').modal('show');
+
     }
 
 
@@ -1439,6 +1514,7 @@ class CartArea {
                 cartItem.querySelector('.lactase-drops-checked').textContent = itemData.lactoseDropsChecked;
                 cartItem.querySelector('.lactase-drops-grams').textContent = itemData.lactoseDropsAmount;
                 cartItem.querySelector('.quantity').value = itemData.quantity;
+                cartItem.querySelector('.specialInstructions').value = itemData.specialInstructions || '';
 
                 cartItemsContainer.appendChild(cartItem);
 
@@ -1634,7 +1710,6 @@ class CheckoutModal {
                     if (data.features && data.features.length > 0) {
                         var distance = data.features[0].properties.segments[0].distance;
                         var deliveryCost = (((distance / 1609.34) / carMpg) * gallonCost) * 2; // Convert meters to miles and calculate cost
-                        //console.log("Delivery cost is ", deliveryCost)
                         document.getElementById('deliveryCost').textContent = '$' + deliveryCost.toFixed(2);
                         let totalPrice = parseFloat($('#total-price').text());
                         totalPrice = totalPrice + deliveryCost;
@@ -1749,6 +1824,7 @@ class CalculationUtilities {
         const sweetener2 = document.getElementById('sweetener2').value;
         const sweetener2Amount = document.getElementById('sweetener2Amount').value;
         const lactoseFree = document.getElementById('lactoseCheckboxCustomize')?.checked || false;
+        const specialInstructions = document.getElementById('specialInstructions').value || '';
 
         return {
             size,
@@ -1772,6 +1848,7 @@ class CalculationUtilities {
             sweetener2,
             sweetener2Amount,
             lactoseFree,
+            specialInstructions
         };
     }
 
@@ -1798,7 +1875,13 @@ class CalculationUtilities {
     const thickener2Data = calculationUtilities.calculateSegmentPrice(thickenerWorksheet, thickenerSpecs, sizeSpecsDict, thickener2, thickener2Amount, size, 'thickener2Price', totalMilk);
     const thickener3Data = calculationUtilities.calculateSegmentPrice(thickenerWorksheet, thickenerSpecs, sizeSpecsDict, thickener3, thickener3Amount, size, 'thickener3Price', totalMilk);
 
-    const lactaseDrops = lactoseFree ? Math.ceil(milkType1LactoseDrops + milkType2LactoseDrops + thickenerData.lactaseDrops) : 0;
+    var lactaseDrops = Math.ceil(
+            (milkType1LactoseDrops ?? 0) +
+            (milkType2LactoseDrops ?? 0) +
+            (thickenerData?.lactaseDrops ?? 0) +
+            (thickener2Data?.lactaseDrops ?? 0) +
+            (thickener3Data?.lactaseDrops ?? 0)
+            );
 
     return {
         liquidMix1Data,
@@ -1824,14 +1907,14 @@ class CalculationUtilities {
         const { liquidMix1Data, liquidMix2Data, sweetener1Data, sweetener2Data, solidSimulated, milkType1Price, milkType2Price, thickenerData, thickener2Data, thickener3Data, lactaseDrops } = prices;
 
         const currentAdditionalCosts = (sizeSpecsDict[size].AdditionalCost + sizeSpecsDict[size].ContainerCost) * upcharge;
-        const lactaseDropsCost = lactaseDrops * (lactaseDropsPerGramCost / lactaseDropsPerGram);
+        const lactaseDropsCost = lactaseDrops * (lactaseDropsPerGramCost / lactaseDropsPerGram) * upcharge;
 
         const pricePerQuantity = milkType1Price + milkType2Price +
             (thickenerData.price || 0) + (thickener2Data.price || 0) + (thickener3Data.price || 0) +
             (liquidMix1Data.price || 0) + (liquidMix2Data.price || 0) +
             (sweetener1Data.price || 0) + (sweetener2Data.price || 0) +
             (solidSimulated.price1 || 0) + (solidSimulated.price2 || 0) +
-            currentAdditionalCosts + lactaseDropsCost;
+            currentAdditionalCosts + (options.lactoseFree ? lactaseDropsCost : 0);
 
         document.getElementById("pricePerQuantity").innerText = `$${pricePerQuantity.toFixed(2)}`;
 
@@ -1876,6 +1959,7 @@ class CalculationUtilities {
             amount = amount * sweetenerWorksheet[value]["gram equivalent (of 1/2 cup)"];
             // TODO: need to use custom gram value when calculating costs
         } else if (worksheet === thickenerWorksheet && amountValue === "Auto"){
+            
             amount = (thickenerWorksheet[value]["Amount per 100g of milk"] / 100) * milkAmount;
             price = (amount / 15) * cost * upcharge;
             price = price.toFixed(2);
@@ -2010,24 +2094,47 @@ class CalculationUtilities {
         // Step 4: Update nutrition facts
         document.getElementById('serving-per-container').textContent = `Servings Per Container: ${(sizeSpecsDict[options.size].Amount / 130).toFixed(0)}`;
         document.getElementById('serving-size').textContent = 'Serving Size: 2/3 cup (130g)';
-        document.getElementById('calories').textContent = `Calories: ${(totalCalories * (130 / sizeSpecsDict[options.size].Amount)).toFixed(0)} | ${totalCalories.toFixed(0)}`;
+        calculationUtilities.updateCalories(totalCalories, options, sizeSpecsDict);
 
         // Update other nutrition facts
-        calculationUtilities.calculateTotalCalories("Fat (g)", "Fat (g)", options.size, options.thickener, options.thickenerAmount, options.thickener2, options.thickener2Amount, options.thickener3, options.thickener3Amount, options.liquidMix1, options.liquidMix1Amount, options.liquidMix2, options.liquidMix2Amount, options.sweetener1, options.sweetener1Amount, options.sweetener2, options.sweetener2Amount, prices.solidSimulated, options.mixIn1, options.mixIn2, prices.milkType1Grams, options.milkType1, prices.milkType2Grams, options.milkType2, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
+        calculationUtilities.calculateTotalCalories("Fat (g)", "Fat (g)", options.size, prices.thickenerData, options.thickener, prices.thickener2Data, options.thickener2, prices.thickener3Data, options.thickener3, prices.liquidMix1Data, options.liquidMix1,  prices.liquidMix2Data, options.liquidMix2, prices.sweetener1Data, options.sweetener1, prices.sweetener2Data,options.sweetener2, prices.solidSimulated, options.mixIn1, options.mixIn2, prices.milkType1Grams, options.milkType1, prices.milkType2Grams, options.milkType2, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
 
-        calculationUtilities.calculateTotalCalories("Protein (g)", "Protein (g)", options.size, options.thickener, options.thickenerAmount, options.thickener2, options.thickener2Amount, options.thickener3, options.thickener3Amount, options.liquidMix1, options.liquidMix1Amount, options.liquidMix2, options.liquidMix2Amount, options.sweetener1, options.sweetener1Amount, options.sweetener2, options.sweetener2Amount, prices.solidSimulated, options.mixIn1, options.mixIn2, prices.milkType1Grams, options.milkType1, prices.milkType2Grams, options.milkType2, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
+        calculationUtilities.calculateTotalCalories("Sodium (mg)", "Sodium", options.size, prices.thickenerData, options.thickener, prices.thickener2Data, options.thickener2, prices.thickener3Data, options.thickener3, prices.liquidMix1Data, options.liquidMix1,  prices.liquidMix2Data, options.liquidMix2, prices.sweetener1Data, options.sweetener1, prices.sweetener2Data,options.sweetener2, prices.solidSimulated, options.mixIn1, options.mixIn2, prices.milkType1Grams, options.milkType1, prices.milkType2Grams, options.milkType2, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);;
 
-        calculationUtilities.calculateTotalCalories("Total Sugar (g)", "Sugar (g)", options.size, options.thickener, options.thickenerAmount, options.thickener2, options.thickener2Amount, options.thickener3, options.thickener3Amount, options.liquidMix1, options.liquidMix1Amount, options.liquidMix2, options.liquidMix2Amount, options.sweetener1, options.sweetener1Amount, options.sweetener2, options.sweetener2Amount, prices.solidSimulated, options.mixIn1, options.mixIn2, prices.milkType1Grams, options.milkType1, prices.milkType2Grams, options.milkType2, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
+        calculationUtilities.calculateTotalCalories("Total Carbs. (g)", "Total Carbs", options.size, prices.thickenerData, options.thickener, prices.thickener2Data, options.thickener2, prices.thickener3Data, options.thickener3, prices.liquidMix1Data, options.liquidMix1,  prices.liquidMix2Data, options.liquidMix2, prices.sweetener1Data, options.sweetener1, prices.sweetener2Data,options.sweetener2, prices.solidSimulated, options.mixIn1, options.mixIn2, prices.milkType1Grams, options.milkType1, prices.milkType2Grams, options.milkType2, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);;
+
+        calculationUtilities.calculateTotalCalories("Fiber (g)", "Fiber", options.size, prices.thickenerData, options.thickener, prices.thickener2Data, options.thickener2, prices.thickener3Data, options.thickener3, prices.liquidMix1Data, options.liquidMix1,  prices.liquidMix2Data, options.liquidMix2, prices.sweetener1Data, options.sweetener1, prices.sweetener2Data,options.sweetener2, prices.solidSimulated, options.mixIn1, options.mixIn2, prices.milkType1Grams, options.milkType1, prices.milkType2Grams, options.milkType2, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);;
+
+        calculationUtilities.calculateTotalCalories("Total Sugar (g)", "Sugar (g)", options.size, prices.thickenerData, options.thickener, prices.thickener2Data, options.thickener2, prices.thickener3Data, options.thickener3, prices.liquidMix1Data, options.liquidMix1,  prices.liquidMix2Data, options.liquidMix2, prices.sweetener1Data, options.sweetener1, prices.sweetener2Data,options.sweetener2, prices.solidSimulated, options.mixIn1, options.mixIn2, prices.milkType1Grams, options.milkType1, prices.milkType2Grams, options.milkType2, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
+
+        if(DEBUG){
+            calculationUtilities.calculateTotalCalories("Sugar In Liquid (g)", "Sugar (g)", options.size, prices.thickenerData, options.thickener, prices.thickener2Data, options.thickener2, prices.thickener3Data, options.thickener3, prices.liquidMix1Data, options.liquidMix1,  prices.liquidMix2Data, options.liquidMix2, prices.sweetener1Data, options.sweetener1, prices.sweetener2Data,options.sweetener2, prices.solidSimulated, "", "", prices.milkType1Grams, options.milkType1, prices.milkType2Grams, options.milkType2, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
+        }
+        
+        calculationUtilities.calculateTotalCalories("Protein (g)", "Protein (g)", options.size, prices.thickenerData, options.thickener, prices.thickener2Data, options.thickener2, prices.thickener3Data, options.thickener3, prices.liquidMix1Data, options.liquidMix1,  prices.liquidMix2Data, options.liquidMix2, prices.sweetener1Data, options.sweetener1, prices.sweetener2Data,options.sweetener2, prices.solidSimulated, options.mixIn1, options.mixIn2, prices.milkType1Grams, options.milkType1, prices.milkType2Grams, options.milkType2, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
+
+        
 
         // Step 5: Handle lactose-free logic
         if (prices.lactaseDrops === 0) {
-            calculationUtilities.calculateTotalCalories("Lactose (g)", "Lactose (g)", options.size, options.thickener, options.thickenerAmount, options.thickener2, options.thickener2Amount, options.thickener3, options.thickener3Amount, options.liquidMix1, options.liquidMix1Amount, options.liquidMix2, options.liquidMix2Amount, options.sweetener1, options.sweetener1Amount, options.sweetener2, options.sweetener2Amount, prices.solidSimulated, options.mixIn1, options.mixIn2, prices.milkType1Grams, options.milkType1, prices.milkType2Grams, options.milkType2, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
+            calculationUtilities.calculateTotalCalories("Lactose (g)", "Lactose (g)", options.size, prices.thickenerData, options.thickener, prices.thickener2Data, options.thickener2, prices.thickener3Data, options.thickener3, prices.liquidMix1Data, options.liquidMix1,  prices.liquidMix2Data, options.liquidMix2, prices.sweetener1Data, options.sweetener1, prices.sweetener2Data,options.sweetener2, prices.solidSimulated, options.mixIn1, options.mixIn2, prices.milkType1Grams, options.milkType1, prices.milkType2Grams, options.milkType2, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet);
         } else {
             customizeModal.addOrUpdateNutritionItem("Lactose (g)", 0, 0);
         }
 
         // Step 6: Update pricing
         calculationUtilities.updateUI(prices, options);
+    }
+
+    updateCalories(totalCalories, options, sizeSpecsDict) {
+        const servingSpan = document.querySelector('#calories .value-serving');
+        const containerSpan = document.querySelector('#calories .value-container');
+
+        const perServing = (totalCalories * (130 / sizeSpecsDict[options.size].Amount)).toFixed(0);
+        const perContainer = totalCalories.toFixed(0);
+
+        if (servingSpan) servingSpan.textContent = perServing;
+        if (containerSpan) containerSpan.textContent = perContainer;
     }
 
     calculateTotalCalories(customFieldName,fieldName, size, thickener, thickenerValue,thickener2,thickener2Value,thickener3,thickener3Value,liquidMix1, liquidMix1Value, liquidMix2, liquidMix2Value, sweetener1, sweetener1Value, sweetener2, sweetener2Value, solidSimulated, solid1Value, solid2Value, milkType1Grams, milk1Value, milkType2Grams, milk2Value, flavorWorksheet, sweetenerWorksheet, solidMixInWorksheet, milkWorksheet) {
@@ -2087,9 +2194,19 @@ class CalculationUtilities {
             var milk2Calories = (milkType2Grams / 240) * milkWorksheet[milk2Value][fieldName];
             totalCalories += milk2Calories;
         }
+   
+        let scaledValue = totalCalories * (130 / sizeSpecsDict[size].Amount);
 
-        
-        customizeModal.addOrUpdateNutritionItem(customFieldName,((totalCalories * (130/sizeSpecsDict[size].Amount)).toFixed(0)),totalCalories.toFixed(0));
+        // Check if the field name includes "Sodium" and convert to mg if so
+        if (fieldName.includes("Sodium")) {
+            scaledValue = scaledValue * 1000;
+        }
+
+        customizeModal.addOrUpdateNutritionItem(
+        customFieldName,
+        scaledValue.toFixed(0),
+        totalCalories.toFixed(0)
+        );
     }
 
     populateCartItem(cartItem, options, prices, name, size, quantity, pricePerQuantity) {
@@ -2127,6 +2244,7 @@ class CalculationUtilities {
         cartItem.querySelector('.sweetener2-grams').textContent = prices.sweetener2Data.amount;
         cartItem.querySelector('.lactase-drops-checked').textContent = options.lactoseFree;
         cartItem.querySelector('.lactase-drops-grams').textContent = prices.lactaseDrops;
+        cartItem.querySelector('.specialInstructions').textContent = options.specialInstructions;
 
         const quantityInput = cartItem.querySelector('.quantity');
         if (quantityInput) {
@@ -2139,6 +2257,8 @@ class CalculationUtilities {
     }
 }
 
+
+
 class RecipesModal{
 
     constructor() {
@@ -2146,64 +2266,64 @@ class RecipesModal{
     }
 
     openRecipeModal() {
-    const modal = new bootstrap.Modal(document.getElementById('recipeModal'));
-    modal.show();
+        const modal = new bootstrap.Modal(document.getElementById('recipeModal'));
+        modal.show();
 
-    const selector = document.getElementById('savedRecipeSelector');
-    selector.innerHTML = '<option value="">-- Select a Recipe --</option>';
-    window.savedRecipes = [];
+        const selector = document.getElementById('savedRecipeSelector');
+        selector.innerHTML = '<option value="">-- Select a Recipe --</option>';
+        window.savedRecipes = [];
 
-    Promise.all([
-        fetch('/docs/recipe.json').then(res => res.json()).catch(() => []),
-        Promise.resolve(JSON.parse(localStorage.getItem('recipes') || '[]'))
-    ])
-    .then(([fileRecipes, browserRecipes]) => {
-        // Build set of recipe names from file source
-        const fileNames = new Set(
-        fileRecipes.map(r => r.name?.trim().toLowerCase()).filter(Boolean)
-        );
+        Promise.all([
+            fetch('/docs/recipe.json').then(res => res.json()).catch(() => []),
+            Promise.resolve(JSON.parse(localStorage.getItem('recipes') || '[]'))
+        ])
+        .then(([fileRecipes, browserRecipes]) => {
+            // Build set of recipe names from file source
+            const fileNames = new Set(
+            fileRecipes.map(r => r.name?.trim().toLowerCase()).filter(Boolean)
+            );
 
-        // Filter out local recipes that duplicate file recipe names
-        const filteredLocalRecipes = browserRecipes.filter(
-        r => !fileNames.has(r.name?.trim().toLowerCase())
-        );
+            // Filter out local recipes that duplicate file recipe names
+            const filteredLocalRecipes = browserRecipes.filter(
+            r => !fileNames.has(r.name?.trim().toLowerCase())
+            );
 
-        const combined = [
-        ...fileRecipes.map((r, i) => ({ ...r, sourceType: 'file', index: i })),
-        ...filteredLocalRecipes.map((r, i) => ({
-            ...r,
-            sourceType: 'local',
-            index: i + fileRecipes.length
-        }))
-        ];
+            const combined = [
+            ...fileRecipes.map((r, i) => ({ ...r, sourceType: 'file', index: i })),
+            ...filteredLocalRecipes.map((r, i) => ({
+                ...r,
+                sourceType: 'local',
+                index: i + fileRecipes.length
+            }))
+            ];
 
-        // Organize by listCategory
-        const categorized = {};
-        combined.forEach(recipe => {
-        const category = recipe.listCategory || 'Uncategorized';
-        if (!categorized[category]) categorized[category] = [];
-        categorized[category].push(recipe);
+            // Organize by listCategory
+            const categorized = {};
+            combined.forEach(recipe => {
+            const category = recipe.listCategory || 'Uncategorized';
+            if (!categorized[category]) categorized[category] = [];
+            categorized[category].push(recipe);
+            });
+
+            // Add optgroups
+            for (const [category, recipes] of Object.entries(categorized)) {
+            const group = document.createElement('optgroup');
+            group.label = category;
+            recipes.forEach(recipe => {
+                const option = document.createElement('option');
+                option.value = recipe.index;
+                option.textContent = `${recipe.name} (${recipe.sourceType})`;
+                group.appendChild(option);
+            });
+            selector.appendChild(group);
+            }
+
+            window.savedRecipes = combined;
+        })
+        .catch(err => {
+            console.error("Error loading combined recipes:", err);
+            alert("Failed to load recipes from file and local storage.");
         });
-
-        // Add optgroups
-        for (const [category, recipes] of Object.entries(categorized)) {
-        const group = document.createElement('optgroup');
-        group.label = category;
-        recipes.forEach(recipe => {
-            const option = document.createElement('option');
-            option.value = recipe.index;
-            option.textContent = `${recipe.name} (${recipe.sourceType})`;
-            group.appendChild(option);
-        });
-        selector.appendChild(group);
-        }
-
-        window.savedRecipes = combined;
-    })
-    .catch(err => {
-        console.error("Error loading combined recipes:", err);
-        alert("Failed to load recipes from file and local storage.");
-    });
     }
 
     updateRecipeDropdown() {
@@ -2310,29 +2430,49 @@ class RecipesModal{
     }
 
     handleSourceTypeClick(typeSelect, targetDropdownId) {
-    const selectedType = typeSelect.value;
-    switch (selectedType) {
-        case 'milk':
-        populateOptionsFromList(milkWorksheet, [`${targetDropdownId}`]);
-        break;
-        case 'thickener':
-        populateOptionsFromList(thickenerWorksheet, [`${targetDropdownId}`]);
-        break;
-        case 'flavor':
-        populateOptionsFromList(flavorWorksheet, [`${targetDropdownId}`]);
-        break;
-        case 'mixIn':
-        populateOptionsFromList(solidMixInWorksheet, [`${targetDropdownId}`]);
-        break;
-        case 'sweetener':
-        populateOptionsFromList(sweetenerWorksheet, [`${targetDropdownId}`]);
-        break;
+        const selectedType = typeSelect.value;
+        switch (selectedType) {
+            case 'milk':
+            populateOptionsFromList(milkWorksheet, [`${targetDropdownId}`]);
+            break;
+            case 'thickener':
+            populateOptionsFromList(thickenerWorksheet, [`${targetDropdownId}`]);
+            break;
+            case 'flavor':
+            populateOptionsFromList(flavorWorksheet, [`${targetDropdownId}`]);
+            break;
+            case 'mixIn':
+            populateOptionsFromList(solidMixInWorksheet, [`${targetDropdownId}`]);
+            break;
+            case 'sweetener':
+            populateOptionsFromList(sweetenerWorksheet, [`${targetDropdownId}`]);
+            break;
+        }
     }
+
+    copyIngredientsToClipboard() {
+        const rows = document.querySelectorAll('.ingredientRow');
+        let output = "Ingredient Name\tOriginal Amount (g)\tAdjusted Amount (g)\n";
+
+        rows.forEach(row => {
+            const name = row.querySelector('.ingredientName')?.value || '';
+            const original = row.querySelector('.ingredientAmount')?.value || '';
+            const adjusted = row.querySelector('.scaledAmount')?.value || '';
+            output += `${name}\t${original}\t${adjusted}\n`;
+        });
+
+        // Copy to clipboard
+        navigator.clipboard.writeText(output).then(() => {
+            alert("Ingredients copied to clipboard!");
+        }).catch(err => {
+            console.error("Copy failed:", err);
+            alert("Failed to copy ingredients.");
+        });
     }
 
     addIngredient() {
         const wrapper = document.getElementById('ingredientsWrapper');
-        wrapper.appendChild(createIngredientRow());
+        wrapper.appendChild(recipesModal.createIngredientRow());
         updateTotalGrams();
         updateIngredientDropdown();
     }
@@ -2785,7 +2925,7 @@ class RecipesModal{
             const match = line.match(/^(.+?)\t+([\d.]+)\t+([\d.]+)$/);
             if (match) {
                 const [_, name, original, adjusted] = match;
-                const row = createIngredientRow(name, original);
+                const row = recipesModal.createIngredientRow(name, original);
                 ingredientWrapper.appendChild(row);
                 row.querySelector('.scaledAmount').value = parseFloat(adjusted).toFixed(1);
             }
@@ -2793,7 +2933,7 @@ class RecipesModal{
             const match = line.match(/^(.+?)\t+([\d.]+)$/);
             if (match) {
                 const [_, name, grams] = match;
-                const row = createIngredientRow(name, grams);
+                const row = recipesModal.createIngredientRow(name, grams);
                 ingredientWrapper.appendChild(row);
             }
             }
@@ -2849,12 +2989,14 @@ function toggleCart() {
 function clearField(fieldId) {
     document.getElementById(fieldId).value = '';
     calculateCustomizePrice();
+    $('#customizeModal .selectpicker').selectpicker('refresh');
 }
 
 $(document).ready(function() {
     $('#customizeModal').on('hidden.bs.modal', function () {
         customizeModal.resetCustomizeModal();
     });
+    $('.iceCreamBase').selectpicker();
 });
 
 function adjustColor(hex, factor) {
@@ -2878,6 +3020,7 @@ function toggleCart() {
 function clearField(fieldId) {
     document.getElementById(fieldId).value = '';
     calculationUtilities.calculateCustomizePrice();
+    $('#customizeModal .selectpicker').selectpicker('refresh');
 }
 
 
