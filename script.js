@@ -1,10 +1,12 @@
-const DEBUG = false;
+const DEBUG = true;
 
 let workbook;
 let additionalCosts;
 let upcharge;
 let lactaseDropsPerGram;
 let lactaseDropsPerGramCost;
+
+let fileRecipes;
 
 let ingredientRowCounter = 0;
 
@@ -153,8 +155,8 @@ document.addEventListener('DOMContentLoaded', () => {
             window.history.replaceState(null, '', baseUrl);
         }
     });      
-    // Call this after modal is opened
-    document.getElementById('recipeModal').addEventListener('shown.bs.modal', recipesModal.populateRecipeSelector);
+
+    document.getElementById('recipeModal').addEventListener('shown.bs.modal', recipesModal.savingAndLoading.populateRecipeSelector());
 });
 
 
@@ -1612,60 +1614,6 @@ class CheckoutModal {
         
     }
 
-    submitCheckout(event) {
-        event.preventDefault(); // Prevent the default form submission
-
-        // Check if the delivery cost contains "Pending"
-        const deliveryCost = $('#deliveryCost').text().trim();
-        if (deliveryCost.includes("Pending")) {
-            alert('Please wait until the delivery cost is confirmed before submitting your order.');
-            return; // Stop the form submission
-        }
-
-        const totalCost = $('#finalCost').text().trim();
-
-
-        const form = document.getElementById('checkoutForm');
-        const formData = new FormData(form);
-
-        // Manually add the order summary to the FormData object
-        let orderSummary = '';
-        $('#hiddenOrderSummary ul li').each(function() {
-            orderSummary += $(this).text() + '\n';
-        });
-
-        formData.append('orderSummary', orderSummary);
-        formData.append('deliveryCost',deliveryCost);
-        formData.append('finalCost',totalCost);
-
-        
-
-        
-        fetch('https://formspree.io/f/xlddapjp', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'Accept': 'application/json'
-            }
-        })
-        .then(response => {
-            if (response.ok) {
-                form.reset(); // Reset the form after successful submission
-                $('#checkoutModal').modal('hide');
-                // Hide main content and show the Thank You message
-                document.getElementById("main-content").style.display = "none";
-                document.getElementById("thank-you-container").style.display = "block";
-            } else {
-                alert('Oops! There was a problem with your submission.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Oops! There was a problem with your submission.');
-        });
-        
-    }
-
     geocodeAddress(address, callback) {
         var apiKey = '5b3ce3597851110001cf62483004d26df1dd45f3bbb304bd8308b847';
         var url = `https://api.openrouteservice.org/geocode/search?api_key=${apiKey}&text=${encodeURIComponent(address)}`;
@@ -1770,8 +1718,63 @@ class CheckoutModal {
             }
         });
 
+        // submit form
+        document.getElementById('checkoutForm').addEventListener('submit', function(event) {
+
+            event.preventDefault(); // Prevent the default form submission
+
+            // Check if the delivery cost contains "Pending"
+            const deliveryCost = $('#deliveryCost').text().trim();
+            if (deliveryCost.includes("Pending")) {
+                alert('Please wait until the delivery cost is confirmed before submitting your order.');
+                return; // Stop the form submission
+            }
+
+            const totalCost = $('#finalCost').text().trim();
+
+
+            const form = document.getElementById('checkoutForm');
+            const formData = new FormData(form);
+
+            // Manually add the order summary to the FormData object
+            let orderSummary = '';
+            $('#hiddenOrderSummary ul li').each(function() {
+                orderSummary += $(this).text() + '\n';
+            });
+
+            formData.append('orderSummary', orderSummary);
+            formData.append('deliveryCost',deliveryCost);
+            formData.append('finalCost',totalCost);
+            
+            fetch('https://formspree.io/f/xlddapjp', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    form.reset(); // Reset the form after successful submission
+                    $('#checkoutModal').modal('hide');
+                    // Hide main content and show the Thank You message
+                    document.getElementById("main-content").style.display = "none";
+                    document.getElementById("thank-you-container").style.display = "block";
+                } else {
+                    alert('Oops! There was a problem with your submission.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Oops! There was a problem with your submission.');
+            });
+            
+        });
+
         // Attach the submit event listener to the form
-        document.getElementById('checkoutForm').addEventListener('submit', CheckoutModal.submitCheckout);
+        //document.getElementById('checkoutForm').addEventListener('submit', CheckoutModal.submitCheckout);
+
+        //document.getElementById('checkoutForm').addEventListener('submit', CheckoutModal.submitCheckout.bind(CheckoutModal));
 
         document.getElementById('deliveryOption').addEventListener('change', function() {
             var addressFields = document.getElementById('addressFields');
@@ -1799,6 +1802,7 @@ class CheckoutModal {
     }
 
 }
+
 
 class CalculationUtilities {
 
@@ -2257,8 +2261,6 @@ class CalculationUtilities {
     }
 }
 
-
-
 class RecipesModal{
 
     constructor() {
@@ -2270,7 +2272,7 @@ class RecipesModal{
         modal.show();
 
         const selector = document.getElementById('savedRecipeSelector');
-        selector.innerHTML = '<option value="">-- Select a Recipe --</option>';
+        //selector.innerHTML = '<option value="">-- Select a Recipe --</option>';
         window.savedRecipes = [];
 
         Promise.all([
@@ -2327,37 +2329,39 @@ class RecipesModal{
     }
 
     updateRecipeDropdown() {
-    const selector = document.getElementById('savedRecipeSelector');
-    selector.innerHTML = '<option value="">-- Select a Recipe --</option>';
-    const browserRecipes = JSON.parse(localStorage.getItem('recipes') || '[]');
-    const fileRecipes = window.savedRecipes?.filter(r => r.sourceType === 'file') || [];
+        const selector = document.getElementById('savedRecipeSelector');
+        //selector.innerHTML = '<option value="">-- Select a Recipe --</option>';
+        const browserRecipes = JSON.parse(localStorage.getItem('recipes') || '[]');
+        fileRecipes = fileRecipes.map((r, i) => ({ ...r, sourceType: 'file', index: i }));
 
-    const combined = [
-        ...fileRecipes,
-        ...browserRecipes.map((r, i) => ({ ...r, sourceType: 'local', index: i + fileRecipes.length }))
-    ];
+        const combined = [
+            ...fileRecipes,
+            ...browserRecipes.map((r, i) => ({ ...r, sourceType: 'local', index: i + fileRecipes.length }))
+        ];
 
-    const categorized = {};
-    combined.forEach(recipe => {
-        const category = recipe.listCategory || 'Uncategorized';
-        if (!categorized[category]) categorized[category] = [];
-        categorized[category].push(recipe);
-    });
-
-    selector.innerHTML = '<option value="">-- Select a Recipe --</option>';
-    for (const [category, recipes] of Object.entries(categorized)) {
-        const group = document.createElement('optgroup');
-        group.label = category;
-        recipes.forEach(recipe => {
-        const option = document.createElement('option');
-        option.value = recipe.index;
-        option.textContent = `${recipe.name} (${recipe.sourceType})`;
-        group.appendChild(option);
+        const categorized = {};
+        combined.forEach(recipe => {
+            const category = recipe.listCategory || 'Uncategorized';
+            if (!categorized[category]) categorized[category] = [];
+            categorized[category].push(recipe);
         });
-        selector.appendChild(group);
-    }
 
-    window.savedRecipes = combined;
+        selector.innerHTML = '<option value="">-- Select a Recipe --</option>';
+        for (const [category, recipes] of Object.entries(categorized)) {
+            const group = document.createElement('optgroup');
+            group.label = category;
+            recipes.forEach(recipe => {
+            const option = document.createElement('option');
+            option.value = recipe.index;
+            option.textContent = `${recipe.name} (${recipe.sourceType})`;
+            group.appendChild(option);
+            });
+            selector.appendChild(group);
+        }
+
+        window.savedRecipes = combined;
+        $('#savedRecipeSelector').selectpicker('refresh');
+
     }
 
     updateIngredientDropdown() {
@@ -2685,7 +2689,7 @@ class RecipesModal{
                 name: document.getElementById('recipeName').value,
                 listCategory: document.getElementById('listCategory').value || 'Uncategorized',
                 typeCategory: document.getElementById('typeCategory').value,
-                ingredients: collectIngredients(),
+                ingredients: recipesModal.collectIngredients(),
                 steps: document.getElementById('recipeSteps').value,
                 source: document.getElementById('recipeSource').value,
                 servings: parseInt(document.getElementById('servingAmount').value) || null,
@@ -2696,7 +2700,7 @@ class RecipesModal{
             localStorage.setItem('recipes', JSON.stringify(recipes));
 
             alert("Recipe saved to browser storage!");
-            updateRecipeDropdown(); // Refresh selector immediately
+            recipesModal.updateRecipeDropdown(); // Refresh selector immediately
         }
 
         saveRecipeToFile() {
@@ -2743,19 +2747,14 @@ class RecipesModal{
             fetch('/docs/recipe.json')
                 .then(res => res.json())
                 .then(data => {
-                savedRecipes = data;
-                const selector = document.getElementById('savedRecipeSelector');
-                selector.innerHTML = '<option value="">-- Select a Recipe --</option>';
-                data.forEach((recipe, index) => {
-                    const option = document.createElement('option');
-                    option.value = index;
-                    option.textContent = recipe.name;
-                    selector.appendChild(option);
-                });
+                    fileRecipes = data;
+                    recipesModal.updateRecipeDropdown();
+                    // Refresh Bootstrap Select UI for live search
+                    $('#savedRecipeSelector').selectpicker('refresh');
                 })
                 .catch(err => {
-                console.error("Error loading recipes:", err);
-                alert("Could not load recipe list.");
+                    console.error("Error loading recipes:", err);
+                    alert("Could not load recipe list.");
                 });
         }
 
@@ -2886,7 +2885,7 @@ class RecipesModal{
         // Clear and reload recipe selector
         const selector = document.getElementById('savedRecipeSelector');
         if (selector) {
-            selector.innerHTML = '<option value="">-- Select a Recipe --</option>';
+            //selector.innerHTML = '<option value="">-- Select a Recipe --</option>';
             window.savedRecipes = [];
             openRecipeModal(); // Rebuild combined list
         }
@@ -2979,6 +2978,28 @@ class RecipesModal{
         });
     }
 }
+
+function handleRecipeChange(selectElement) {
+    const selectedValue = selectElement.value;
+    console.log("Selected Recipe:", selectedValue);
+
+    // Perform any additional logic (e.g., save to localStorage)
+    localStorage.setItem('selectedRecipe', selectedValue);
+
+    // Refresh the bootstrap-select UI
+    $('#savedRecipeSelector').selectpicker();
+}
+
+$('#savedRecipeSelector').on('changed.bs.select', function () {
+    const selectedValue = $(this).val();
+    console.log("Selected Recipe:", selectedValue);
+
+    // Save the selected value
+    localStorage.setItem('selectedRecipe', selectedValue);
+
+    // Refresh the bootstrap-select UI
+    $('#savedRecipeSelector').selectpicker('refresh');
+});
 
 // UI
 function toggleCart() {

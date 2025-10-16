@@ -617,9 +617,7 @@
                 <div class="mb-3">
                 <label class="form-label">Load Saved Recipe</label>
                 <div class="input-group">
-                    <select class="form-select" id="savedRecipeSelector">
-                        <option value="">-- Select a Recipe --</option>
-                    </select>
+                    <select class="form-control selectpicker" data-live-search="true" id="savedRecipeSelector" onchange="handleRecipeChange(this)"></select>
                     <button class="btn btn-outline-info" onclick="recipesModal.savingAndLoading.loadSelectedRecipe()">Load</button>
                     <button type="button" class="btn btn-warning" onclick="recipesModal.savingAndLoading.startNewRecipe()">New Recipe</button>
                     
@@ -787,8 +785,8 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-outline-primary" onclick="recipesModal.saveRecipeLocally()">Save</button>
-                <button type="button" class="btn btn-success" onclick="recipesModal.saveRecipeToFile()">Save on Computer</button>
+                <button type="button" class="btn btn-outline-primary" onclick="recipesModal.savingAndLoading.saveRecipeLocally()">Save</button>
+                <button type="button" class="btn btn-success" onclick="recipesModal.savingAndLoading.saveRecipeToFile()">Save on Computer</button>
             </div>
             </div>
         </div>
