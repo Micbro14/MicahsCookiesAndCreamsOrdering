@@ -1389,6 +1389,47 @@
         "Solid Mix 3": ""
       },
       "hidden": false
+    },
+	{
+      "id": "dev-pumpkin-spice-caramel-1790027344822",
+      "category": "Fall Flavors",
+      "standard": true,
+      "row": {
+        "Name": "Pumpkin Spice Caramel",
+        "Description": "A fall classic! Delightful spices in a creamy ice cream!",
+        "Product Type": "ice-cream",
+        "Milk Type 1 (2/3)": "Heavy Cream",
+        "Milk Type 2 (1/3)": "2% Milk",
+        "Thickener": "Xantham Gum",
+        "Thickener Amount (x tbsp)": "Normal",
+        "Thickener 2": "Sunflower Lecithin",
+        "Thickener 2 Amount (x tbsp)": "Normal",
+        "Thickener 3": "",
+        "Thickener 3 Amount (x tbsp)": "Normal",
+        "Thickener 4": "",
+        "Thickener 4 Amount (x tbsp)": "Normal",
+        "Thickener 5": "",
+        "Thickener 5 Amount (x tbsp)": "Normal",
+        "Liquid Mix 1": "Caramel",
+        "Liquid Mix 1 Amount (x tbsp)": "Heavy (For jams)",
+        "Liquid Mix 2": "Pumpkin Pie Spice",
+        "Liquid Mix 2 Amount (x tbsp)": "Ultra Light (For strong extracts)",
+        "Sweetner Type 1": "Invert Sugar",
+        "Sweetner Type 1 Amount (x 100g)": "1/4 Sweet",
+        "Sweetner Type 2": "",
+        "Sweetner Type 2 Amount (x 100g)": "1",
+        "Sweetner Type 3": "",
+        "Sweetner Type 3 Amount (x 100g)": "1",
+        "Sweetner Type 4": "",
+        "Sweetner Type 4 Amount (x 100g)": "1",
+        "Sweetner Type 5": "",
+        "Sweetner Type 5 Amount (x 100g)": "1",
+        "Solid Mix 1": "",
+        "Solid Mix 2": "",
+        "Solid Mix 3": "",
+        "Solid Mix Amount (% of all ice cream)": "None"
+      },
+      "hidden": false
     }
   ]
 }
